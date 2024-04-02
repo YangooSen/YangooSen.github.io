@@ -5,21 +5,8 @@
   
   <entry>
     <title>test</title>
-    <link href="/2024/04/02/test-1/"/>
-    <url>/2024/04/02/test-1/</url>
-    
-    <content type="html"><![CDATA[<p>知识图谱和多任务学习预测DTI和CPI，代码：<a href="https://github.com/xzenglab/KG-MTL">KG-MTL</a> （源代码的基础上下载一下项目中提到的 DRKG 数据集，加几个文件夹，微调一下细节可用跑起来），原文：<a href="https://ieeexplore.ieee.org/document/9815157">KG-MTL: Knowledge Graph Enhanced Multi-Task Learning for Molecular Interaction</a>，框架如下：<br><img src="/img/KG-MTL.png" alt="framework"></p>]]></content>
-    
-    
-    
-  </entry>
-  
-  
-  
-  <entry>
-    <title>test</title>
-    <link href="/2024/04/01/test/"/>
-    <url>/2024/04/01/test/</url>
+    <link href="/2024/04/02/test/"/>
+    <url>/2024/04/02/test/</url>
     
     <content type="html"><![CDATA[]]></content>
     
