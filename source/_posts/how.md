@@ -38,11 +38,21 @@ hexo d
 git add source
 git commit
 git push writing writing:writing #将写了一半的文章云存储在writing分支
-# ... 删除本地文章腾出空间
+
+
+rm -rf source # 删除本地文章腾出空间
+git add source
+git commit
 git pull -f writing writing:writing #force拉取云存档内容,之后进入source继续写作
 ```
+> 删除本地文章腾出空间之后，实际只是预支存储空间，之后要修改还是需要拉回本地编辑。后续有更好的方法思路会在这里记录，目前想到的空间紧缺解决方法是新开一个文件夹并关联另一个仓库
 
-
+# 数学公式
+- 在文章中展现数学公式依靠[hexo-math](https://github.com/hexojs/hexo-math)，在文章中配置`katex:true`，已经在post.md模板中写好，下面是测试公式
+$$
+\varphi_i^{(l+1)} = \sigma(\sum_{r\in\mathcal{R}}
+\sum_{j\in\mathcal{N}^r(i)}e_{j,i}W_r^{(l)}\varphi_j^{(l)}+W_0^{(l)}\varphi_i^{(l)})
+$$
 
 
 
