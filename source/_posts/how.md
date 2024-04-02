@@ -3,6 +3,7 @@ title: how
 katex: true
 excerpt: 利用hexo的写作流程，情况有变保持更新
 date: 2024-04-02 15:30:47
+tag: note
 ---
 
 
@@ -14,12 +15,17 @@ date: 2024-04-02 15:30:47
 ```sh
 hexo new xxx
 ```
-> 创建新的名为xxx.md的文章，位于source/_posts目录下，由于配置了_config.yml，会同时创建一个同名的文件夹来放置引用资源，比如图片等，引用格式是 `![图片标题](图片名称)`，注意不需要加图片路径.即**不需要**`.\xxx\图片名称`，像下面例子这样
-![帅气](broken.jpg)
+> 创建新的名为xxx.md的文章，位于source/_posts目录下，由于配置了_config.yml，会同时创建一个同名的文件夹来放置引用资源，比如图片等
+
 ```sh
 cbp
 ```
 > bashrc中创建的别名，代表的命令是`cd source/_posts`，即文章创建的地方，之后vim修改文章，编辑摘要excerpt
+```sh
+cdf2
+```
+> bashrc中创建的别名，代表的命令是`cd .. && cd ..`，即退回2层父目录。当位于`source/_posts0`下时，调用`cdf2`即可返回初始文件夹进行git操作
+
 ```sh
 hexocgs
 ```
@@ -29,6 +35,7 @@ hexocgs
 hexo d
 ```
 > 将生成的页面部署到 github，缓存一段时间后即可看到部署结果
+
 
 # 云存档
 
@@ -47,12 +54,20 @@ git pull -f writing writing:writing #force拉取云存档内容,之后进入sour
 ```
 > 删除本地文章腾出空间之后，实际只是预支存储空间，之后要修改还是需要拉回本地编辑。后续有更好的方法思路会在这里记录，目前想到的空间紧缺解决方法是新开一个文件夹并关联另一个仓库
 
-# 数学公式
+# 关于写作
+## 数学公式
 - 在文章中展现数学公式依靠[hexo-math](https://github.com/hexojs/hexo-math)，在文章中配置`katex:true`，已经在post.md模板中写好，下面是测试公式
 $$
 \varphi_i^{(l+1)} = \sigma(\sum_{r\in\mathcal{R}}
 \sum_{j\in\mathcal{N}^r(i)}e_{j,i}W_r^{(l)}\varphi_j^{(l)}+W_0^{(l)}\varphi_i^{(l)})
 $$
+
+## 引用图片
+- 引用格式是 `![图片标题](图片名称)`，注意图片名称不需要加图片路径，即**不需要**`.\xxx\图片名称`，像下面例子这样
+![钢铁侠](broken.jpg)
+
+## 引用站内文章
+- 引用站内文章和引用站外文章不同，关于引用站内文章的注意点可用看[这篇文章]((https://fuguigui.github.io/hexo2/))，对于本博客而言，引用路径一般是`https://YangooSen.github.io/yyyy/mm/dd/title/`，其中代表指的是时间，title指的是文章标题，因为本博客渲染部署后，文章即位于这个路径
 
 
 
