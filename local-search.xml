@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>tensor</title>
+    <link href="/2024/04/03/tensor/"/>
+    <url>/2024/04/03/tensor/</url>
+    
+    <content type="html"><![CDATA[<p><a href="https://www.bilibili.com/video/BV1ov411M7xL/?spm_id_from=333.999.0.0&amp;vd_source=6c26f427606a59575440e9bc6cec44af">来自B站视频</a>，<a href="https://pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html">官网教程</a>，<a href="https://pytorch.org/docs/stable/torch.html">API查阅</a></p><h1>创建 tensor</h1><ul><li><strong>torch.tensor</strong></li><li>torch.ones_like</li><li>torch.zeros_like</li><li>torch.rand_like</li><li><strong><a href="https://pytorch.org/docs/stable/generated/torch.allclose.html#torch-allclose">torch.allclose</a></strong> 对比两个 tensor 是否足够接近</li><li>torch.rand</li></ul><blockquote><p>Returns a tensor filled with random numbers from a <strong>uniform distribution</strong> on the interval [0, 1)[0,1)</p></blockquote><ul><li><a href="https://blog.csdn.net/qimo601/article/details/109691368">torch.Tensor和torch.tensor有什么区别？</a>，前者是转化成torch.FloatTensor，后者是根据传入的数据转化成不同类型的dtype</li><li>torch.randn</li></ul><blockquote><p>Returns a tensor filled with random numbers from a <strong>normal distribution</strong> with mean 0 and variance 1 (also called the standard normal distribution).</p></blockquote><ul><li><strong>torch.normal(mean,std,size)</strong></li><li><strong>torch.zeros</strong></li><li><strong>torch.arange</strong></li></ul><blockquote><p>torch.range() is deprecated and will be removed in a future release because its behavior is inconsistent with Python’s range builtin. <strong>Instead, use torch.arange(), which produces values in [start, end)</strong>.</p></blockquote><ul><li>torch.eye</li><li><strong>torch.full([n,n],x)</strong></li><li>移动 tensor</li></ul><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> torch.cuda.is_available():<br>tensor=tensor.to(<span class="hljs-string">&#x27;cuda&#x27;</span>)<br></code></pre></td></tr></table></figure><h1>tensor 运算</h1><ul><li><a href="https://blog.csdn.net/beauthy/article/details/121103704">pytorch中的矩阵乘法：函数mul,mm,mv以及 @运算 和 *运算</a></li><li>torch.is_tensor</li><li><strong>torch.numel</strong>，返回元素数目</li><li><a href="https://pytorch.org/docs/stable/generated/torch.bmm.html#torch.bmm">torch.bmm</a>，批量张量相乘</li></ul><h1>tensor 操作</h1><ul><li>torch.cat</li></ul><blockquote><p>除了<strong>dim</strong>指定的那个维度，其他维度的shape都应该一样</p></blockquote><ul><li>torch.reshape(a,shape)</li></ul><blockquote><p>shape可以用 [] 或 () 指定</p></blockquote><ul><li>torch.split(a,size)</li></ul><blockquote><p>按size大小均分或者可以传入list</p></blockquote><ul><li><strong>torch.squeeze</strong></li><li><a href="https://pytorch.org/docs/stable/generated/torch.tile.html#torch.tile">troch.tile(a,dims)</a></li></ul><blockquote><p>扩增a的行列</p></blockquote><ul><li>torch.transpose(a,dim0,dim1)</li><li>torch.unbind</li><li><strong>torch.unsqueeze(a,dim)</strong></li><li><a href="https://pytorch.org/docs/stable/generated/torch.nn.functional.pad.html?highlight=pad#torch.nn.functional.pad">torch.nn.functional.pad</a></li></ul><blockquote><p><a href="https://zhuanlan.zhihu.com/p/358599463">torch.nn.functional.pad使用</a><br>对 (batch_size,in_channel,h,w)，pad的顺序是(h1,h2,w1,w2,in_channel1,in_channel2,batch_size1,batch_size2)，因为每一个维度都有两个方向</p></blockquote><h1>tensor 属性</h1><p><a href="https://pytorch.org/docs/stable/tensor_attributes.html">TENSOR ATTRIBUTES</a></p>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>pytorch</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>softmax</title>
     <link href="/2024/04/02/softmax/"/>
     <url>/2024/04/02/softmax/</url>
