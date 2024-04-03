@@ -16,22 +16,24 @@
   <meta name="author" content="YangooSen">
   <meta name="keywords" content="">
   
-    <meta name="description" content="pytorch中的tensor基础操作和概念">
+    <meta name="description" content="构建模型的流程，nn.Module，state_dict，parameters，modules">
 <meta property="og:type" content="article">
-<meta property="og:title" content="tensor">
-<meta property="og:url" content="http://example.com/2024/04/03/tensor/index.html">
+<meta property="og:title" content="workflow">
+<meta property="og:url" content="http://example.com/2024/04/03/workflow/index.html">
 <meta property="og:site_name" content="YangooSen">
-<meta property="og:description" content="pytorch中的tensor基础操作和概念">
+<meta property="og:description" content="构建模型的流程，nn.Module，state_dict，parameters，modules">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-04-03T06:54:50.000Z">
-<meta property="article:modified_time" content="2024-04-03T09:18:54.628Z">
+<meta property="og:image" content="http://example.com/2024/04/03/workflow/environment.png">
+<meta property="article:published_time" content="2024-04-03T09:23:17.000Z">
+<meta property="article:modified_time" content="2024-04-03T09:32:00.186Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="pytorch">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/04/03/workflow/environment.png">
   
   
   
-  <title>tensor - YangooSen</title>
+  <title>workflow - YangooSen</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -165,7 +167,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="tensor"></span>
+            <span id="subtitle" data-typed-text="workflow"></span>
           
         </div>
 
@@ -176,7 +178,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-04-03 14:54" pubdate>
+        <time datetime="2024-04-03 17:23" pubdate>
           2024年4月3日 下午
         </time>
       </span>
@@ -188,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          257 字
+          403 字
         
       </span>
     
@@ -199,7 +201,7 @@
         
         
         
-          3 分钟
+          4 分钟
         
       </span>
     
@@ -236,90 +238,43 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">tensor</h1>
+            <h1 id="seo-header">workflow</h1>
             
             
               <div class="markdown-body">
                 
-                <p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ov411M7xL/?spm_id_from=333.999.0.0&amp;vd_source=6c26f427606a59575440e9bc6cec44af">来自B站视频</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html">官网教程</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/torch.html">API查阅</a></p>
-<h1>创建 tensor</h1>
+                <p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ov411M7xL/?spm_id_from=333.999.0.0&amp;vd_source=6c26f427606a59575440e9bc6cec44af">来自B站视频</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/basics/buildmodel_tutorial.html">官网教程</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/torch.html">API查阅</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/recipes/recipes_index.html">详细信息</a></p>
 <ul>
-<li><strong>torch.tensor</strong></li>
-<li>torch.ones_like</li>
-<li>torch.zeros_like</li>
-<li>torch.rand_like</li>
-<li><strong><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.allclose.html#torch-allclose">torch.allclose</a></strong> 对比两个 tensor 是否足够接近</li>
-<li>torch.rand</li>
+<li>Dataset 的__init__中定义 transform 一般通过 __getitem__来调用</li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/basics/buildmodel_tutorial.html">BUILD THE NEURAL NETWORK</a> 中是 pytorch 构建模型的简单流程，<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/recipes/recipes_index.html">PYTORCH RECIPES</a> 是更相关详细内容，训练是要保存 checkpoint，包括 model_state_dict 和 optimizer_state_dict 等</li>
+<li>类似 tf 中 summary 模型（查看参数数目和分布）的方法在官方 pytorch 中没有，可以通过<a target="_blank" rel="noopener" href="https://github.com/nmhkahn/torchsummaryX">torchsummaryX</a> 来实现</li>
+<li>简单看模型的参数数目可以</li>
 </ul>
-<blockquote>
-<p>Returns a tensor filled with random numbers from a <strong>uniform distribution</strong> on the interval [0, 1)[0,1)</p>
-</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-built_in">sum</span>(p.numel() <span class="hljs-keyword">for</span> p <span class="hljs-keyword">in</span> model.parameters())<br></code></pre></td></tr></table></figure>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qimo601/article/details/109691368">torch.Tensor和torch.tensor有什么区别？</a>，前者是转化成torch.FloatTensor，后者是根据传入的数据转化成不同类型的dtype</li>
-<li>torch.randn</li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.Module.html#torch.nn.Module">module</a> 和 API 介绍</li>
+<li>pytorch 的 buffers 和 tf 中的（槽变量？）类似</li>
+<li>关于 buffer</li>
 </ul>
-<blockquote>
-<p>Returns a tensor filled with random numbers from a <strong>normal distribution</strong> with mean 0 and variance 1 (also called the standard normal distribution).</p>
-</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python">[docs]    <span class="hljs-keyword">def</span> <span class="hljs-title function_">register_buffer</span>(<span class="hljs-params">self, name: <span class="hljs-built_in">str</span>, tensor: <span class="hljs-type">Optional</span>[Tensor], persistent: <span class="hljs-built_in">bool</span> = <span class="hljs-literal">True</span></span>) -&gt; <span class="hljs-literal">None</span>:<br>        <span class="hljs-string">r&quot;&quot;&quot;Adds a buffer to the module.</span><br><span class="hljs-string"></span><br><span class="hljs-string">        This is typically used to register a buffer that should not to be</span><br><span class="hljs-string">        considered a model parameter. For example, BatchNorm&#x27;s ``running_mean``</span><br><span class="hljs-string">        is not a parameter, but is part of the module&#x27;s state. Buffers, by</span><br><span class="hljs-string">        default, are persistent and will be saved alongside parameters. This</span><br><span class="hljs-string">        behavior can be changed by setting :attr:`persistent` to ``False``. The</span><br><span class="hljs-string">        only difference between a persistent buffer and a non-persistent buffer</span><br><span class="hljs-string">        is that the latter will not be a part of this module&#x27;s</span><br><span class="hljs-string">        :attr:`state_dict`.</span><br><span class="hljs-string"></span><br><span class="hljs-string">        Buffers can be accessed as attributes using given names.</span><br></code></pre></td></tr></table></figure>
 <ul>
-<li><strong>torch.normal(mean,std,size)</strong></li>
-<li><strong>torch.zeros</strong></li>
-<li><strong>torch.arange</strong></li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/_modules/torch/nn/modules/module.html#Module">module源码</a> 介绍</li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.parameter.Parameter.html?highlight=parameters">parameter</a>是tensor的一个子类，作为模型参数必须设为 parameter 类型，通过register_parameter 注册</li>
+<li>改变数据类型 <a target="_blank" rel="noopener" href="http://model.to">model.to</a>(torch.float32)</li>
+<li>类的基本属性有 model._module，model._parameters，model._buffers，<strong>返回当前 module 的内容，不会返回子module的内容</strong>，不是为了公有访问设计的</li>
+<li>类的基本方法有 model.parameters() 或 model.named_parameters()，返回的是迭代器，既包含当前 module 的内容，也包括子 module 的内容</li>
+<li>model.train()和 model.eval() 改变 self.training，在 dropout 和 batchnorm 中会不同</li>
+<li>保存model</li>
 </ul>
-<blockquote>
-<p>torch.range() is deprecated and will be removed in a future release because its behavior is inconsistent with Python’s range builtin. <strong>Instead, use torch.arange(), which produces values in [start, end)</strong>.</p>
-</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Specify a path</span><br>PATH = <span class="hljs-string">&quot;state_dict_model.pt&quot;</span><br><br><span class="hljs-comment"># Save</span><br>torch.save(net.state_dict(), PATH)<br><br><span class="hljs-comment"># Load</span><br>model = Net()<br>model.load_state_dict(torch.load(PATH))<br>model.<span class="hljs-built_in">eval</span>()<br></code></pre></td></tr></table></figure>
 <ul>
-<li>torch.eye</li>
-<li><strong>torch.full([n,n],x)</strong></li>
-<li>移动 tensor</li>
+<li>checkpoint 是训练中断后继续训练使用的，state_dict 是模型的参数，但是不包括架构，如果要保存架构，可以使用下面的示例。一般推荐按照</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> torch.cuda.is_available():<br>	tensor=tensor.to(<span class="hljs-string">&#x27;cuda&#x27;</span>)<br></code></pre></td></tr></table></figure>
-<h1>tensor 运算</h1>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-comment"># Specify a path</span><br>PATH = <span class="hljs-string">&quot;entire_model.pt&quot;</span><br><br><span class="hljs-comment"># Save</span><br>torch.save(net, PATH)<br><br><span class="hljs-comment"># Load</span><br>model = torch.load(PATH)<br>model.<span class="hljs-built_in">eval</span>()<br></code></pre></td></tr></table></figure>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/beauthy/article/details/121103704">pytorch中的矩阵乘法：函数mul,mm,mv以及 @运算 和 *运算</a></li>
-<li>torch.is_tensor</li>
-<li><strong>torch.numel</strong>，返回元素数目</li>
-<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.bmm.html#torch.bmm">torch.bmm</a>，批量张量相乘</li>
+<li>尽量使用 docker 创建训练环境，环境如下图所示<br>
+<img src="environment.png" srcset="/img/loading.gif" lazyload alt="环境"></li>
 </ul>
-<h1>tensor 操作</h1>
-<ul>
-<li>torch.cat</li>
-</ul>
-<blockquote>
-<p>除了<strong>dim</strong>指定的那个维度，其他维度的shape都应该一样</p>
-</blockquote>
-<ul>
-<li>torch.reshape(a,shape)</li>
-</ul>
-<blockquote>
-<p>shape可以用 [] 或 () 指定</p>
-</blockquote>
-<ul>
-<li>torch.split(a,size)</li>
-</ul>
-<blockquote>
-<p>按size大小均分或者可以传入list</p>
-</blockquote>
-<ul>
-<li><strong>torch.squeeze</strong></li>
-<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.tile.html#torch.tile">troch.tile(a,dims)</a></li>
-</ul>
-<blockquote>
-<p>扩增a的行列</p>
-</blockquote>
-<ul>
-<li>torch.transpose(a,dim0,dim1)</li>
-<li>torch.unbind</li>
-<li><strong>torch.unsqueeze(a,dim)</strong></li>
-<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.functional.pad.html?highlight=pad#torch.nn.functional.pad">torch.nn.functional.pad</a></li>
-</ul>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/358599463">torch.nn.functional.pad使用</a><br>
-对 (batch_size,in_channel,h,w)，pad的顺序是(h1,h2,w1,w2,in_channel1,in_channel2,batch_size1,batch_size2)，因为每一个维度都有两个方向</p>
-</blockquote>
-<h1>tensor 属性</h1>
-<p><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/tensor_attributes.html">TENSOR ATTRIBUTES</a></p>
 
                 
               </div>
@@ -346,18 +301,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/04/03/Dataset-DataLoader/" title="Dataset_DataLoader">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Dataset_DataLoader</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/04/02/softmax/" title="softmax">
-                        <span class="hidden-mobile">softmax</span>
+                      <a href="/2024/04/03/Dataset-DataLoader/" title="Dataset_DataLoader">
+                        <span class="hidden-mobile">Dataset_DataLoader</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

@@ -16,22 +16,22 @@
   <meta name="author" content="YangooSen">
   <meta name="keywords" content="">
   
-    <meta name="description" content="pytorch中的tensor基础操作和概念">
+    <meta name="description" content="自定义Dataset和DataLoader的参数和源码">
 <meta property="og:type" content="article">
-<meta property="og:title" content="tensor">
-<meta property="og:url" content="http://example.com/2024/04/03/tensor/index.html">
+<meta property="og:title" content="Dataset_DataLoader">
+<meta property="og:url" content="http://example.com/2024/04/03/Dataset-DataLoader/index.html">
 <meta property="og:site_name" content="YangooSen">
-<meta property="og:description" content="pytorch中的tensor基础操作和概念">
+<meta property="og:description" content="自定义Dataset和DataLoader的参数和源码">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-04-03T06:54:50.000Z">
-<meta property="article:modified_time" content="2024-04-03T09:18:54.628Z">
+<meta property="article:published_time" content="2024-04-03T09:20:32.000Z">
+<meta property="article:modified_time" content="2024-04-03T09:22:36.650Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="pytorch">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>tensor - YangooSen</title>
+  <title>Dataset_DataLoader - YangooSen</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -165,7 +165,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="tensor"></span>
+            <span id="subtitle" data-typed-text="Dataset_DataLoader"></span>
           
         </div>
 
@@ -176,7 +176,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-04-03 14:54" pubdate>
+        <time datetime="2024-04-03 17:20" pubdate>
           2024年4月3日 下午
         </time>
       </span>
@@ -188,7 +188,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          257 字
+          335 字
         
       </span>
     
@@ -236,90 +236,57 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">tensor</h1>
+            <h1 id="seo-header">Dataset_DataLoader</h1>
             
             
               <div class="markdown-body">
                 
-                <p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ov411M7xL/?spm_id_from=333.999.0.0&amp;vd_source=6c26f427606a59575440e9bc6cec44af">来自B站视频</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/basics/tensorqs_tutorial.html">官网教程</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/torch.html">API查阅</a></p>
-<h1>创建 tensor</h1>
+                <p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ov411M7xL/?spm_id_from=333.999.0.0&amp;vd_source=6c26f427606a59575440e9bc6cec44af">来自B站视频</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/basics/data_tutorial.html">官网教程</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/torch.html">API查阅</a></p>
 <ul>
-<li><strong>torch.tensor</strong></li>
-<li>torch.ones_like</li>
-<li>torch.zeros_like</li>
-<li>torch.rand_like</li>
-<li><strong><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.allclose.html#torch-allclose">torch.allclose</a></strong> 对比两个 tensor 是否足够接近</li>
-<li>torch.rand</li>
+<li>A custom Dataset class must implement three functions: __init__, __len__, and __getitem__.</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> os<br><span class="hljs-keyword">import</span> pandas <span class="hljs-keyword">as</span> pd<br><span class="hljs-keyword">from</span> torchvision.io <span class="hljs-keyword">import</span> read_image<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">CustomImageDataset</span>(<span class="hljs-title class_ inherited__">Dataset</span>):<br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__init__</span>(<span class="hljs-params">self, annotations_file, img_dir, transform=<span class="hljs-literal">None</span>, target_transform=<span class="hljs-literal">None</span></span>):<br>        self.img_labels = pd.read_csv(annotations_file)<br>        self.img_dir = img_dir<br>        self.transform = transform<br>        self.target_transform = target_transform<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__len__</span>(<span class="hljs-params">self</span>):<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">len</span>(self.img_labels)<br><br>    <span class="hljs-keyword">def</span> <span class="hljs-title function_">__getitem__</span>(<span class="hljs-params">self, idx</span>):<br>        img_path = os.path.join(self.img_dir, self.img_labels.iloc[idx, <span class="hljs-number">0</span>])<br>        image = read_image(img_path)<br>        label = self.img_labels.iloc[idx, <span class="hljs-number">1</span>]<br>        <span class="hljs-keyword">if</span> self.transform:<br>            image = self.transform(image)<br>        <span class="hljs-keyword">if</span> self.target_transform:<br>            label = self.target_transform(label)<br>        <span class="hljs-keyword">return</span> image, label<br></code></pre></td></tr></table></figure>
+<ul>
+<li>The Dataset retrieves our dataset’s features and labels <strong>one sample at a time</strong>. While training a model, we typically want to <strong>pass samples in “minibatches”</strong>, reshuffle the data at every epoch to reduce model overfitting, and use Python’s multiprocessing to speed up data retrieval.</li>
+</ul>
+<p><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/data.html#torch.utils.data.DataLoader">DataLoader</a> 介绍，<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/_modules/torch/utils/data/dataloader.html#DataLoader">源码</a>:</p>
+<ul>
+<li>collate_fn 是针对 minibatches 的操作，Dataset 的 transform 是针对单个样本的处理</li>
+<li>collate_fn 的参数是 batch，即 batch_size 个  __getitem__ 返回的 item</li>
+<li>一般的 Dataset 类型都是<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/data.html#map-style-datasets">map-style datasets</a>，如果是 iterable-style 的话，迭代完之后就会变成空的</li>
 </ul>
 <blockquote>
-<p>Returns a tensor filled with random numbers from a <strong>uniform distribution</strong> on the interval [0, 1)[0,1)</p>
+<p><strong>sampler</strong> (Sampler or Iterable, optional): defines the strategy to draw<br>
+samples from the dataset. Can be any <code>Iterable</code> with <code>__len__</code><br>
+implemented. <strong>If specified, :attr:<code>shuffle</code> must not be specified.</strong></p>
 </blockquote>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/qimo601/article/details/109691368">torch.Tensor和torch.tensor有什么区别？</a>，前者是转化成torch.FloatTensor，后者是根据传入的数据转化成不同类型的dtype</li>
-<li>torch.randn</li>
-</ul>
 <blockquote>
-<p>Returns a tensor filled with random numbers from a <strong>normal distribution</strong> with mean 0 and variance 1 (also called the standard normal distribution).</p>
+<p><strong>batch_sampler</strong> (Sampler or Iterable, optional): like :attr:<code>sampler</code>, but<br>
+returns a batch of indices at a time. <strong>Mutually exclusive with<br>
+:attr:<code>batch_size</code>, :attr:<code>shuffle</code>, :attr:<code>sampler</code>,<br>
+and :attr:<code>drop_last</code>.</strong></p>
 </blockquote>
 <ul>
-<li><strong>torch.normal(mean,std,size)</strong></li>
-<li><strong>torch.zeros</strong></li>
-<li><strong>torch.arange</strong></li>
+<li>不设置 sampler 参数，会有默认的 sampler 处理</li>
 </ul>
-<blockquote>
-<p>torch.range() is deprecated and will be removed in a future release because its behavior is inconsistent with Python’s range builtin. <strong>Instead, use torch.arange(), which produces values in [start, end)</strong>.</p>
-</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> sampler <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:  <span class="hljs-comment"># give default samplers</span><br>    <span class="hljs-keyword">if</span> self._dataset_kind == _DatasetKind.Iterable:<br>        <span class="hljs-comment"># See NOTE [ Custom Samplers and IterableDataset ]</span><br>        sampler = _InfiniteConstantSampler()<br>    <span class="hljs-keyword">else</span>:  <span class="hljs-comment"># map-style</span><br>        <span class="hljs-keyword">if</span> shuffle:<br>            sampler = RandomSampler(dataset, generator=generator)  <span class="hljs-comment"># type: ignore[arg-<span class="hljs-built_in">type</span>]</span><br>        <span class="hljs-keyword">else</span>:<br>            sampler = SequentialSampler(dataset)  <span class="hljs-comment"># type: ignore[arg-<span class="hljs-built_in">type</span>]</span><br></code></pre></td></tr></table></figure>
 <ul>
-<li>torch.eye</li>
-<li><strong>torch.full([n,n],x)</strong></li>
-<li>移动 tensor</li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/_modules/torch/utils/data/sampler.html#RandomSampler">RandomSampler</a> 中 <a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.randperm.html?highlight=randperm#torch.randperm">randperm</a> 返回随机排序，<a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_36338224/article/details/109234922?ops_request_misc=%257B%2522request%255Fid%2522%253A%2522168604315416782425149280%2522%252C%2522scm%2522%253A%252220140713.130102334..%2522%257D&amp;request_id=168604315416782425149280&amp;biz_id=0&amp;utm_medium=distribute.pc_search_result.none-task-blog-2~all~top_positive~default-1-109234922-null-null.142%5Ev88%5Ekoosearch_v1,239%5Ev2%5Einsert_chatgpt&amp;utm_term=python%20yield%20from&amp;spm=1018.2226.3001.4187">yield from</a> 介绍</li>
 </ul>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> torch.cuda.is_available():<br>	tensor=tensor.to(<span class="hljs-string">&#x27;cuda&#x27;</span>)<br></code></pre></td></tr></table></figure>
-<h1>tensor 运算</h1>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">yield</span> <span class="hljs-keyword">from</span> torch.randperm(n, generator=generator).tolist()[:self.num_samples % n]<br></code></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/_modules/torch/utils/data/sampler.html#RandomSampler">SequentialSampler</a> 原序返回</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">return</span> <span class="hljs-built_in">iter</span>(<span class="hljs-built_in">range</span>(<span class="hljs-built_in">len</span>(self.data_source)))<br></code></pre></td></tr></table></figure>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/beauthy/article/details/121103704">pytorch中的矩阵乘法：函数mul,mm,mv以及 @运算 和 *运算</a></li>
-<li>torch.is_tensor</li>
-<li><strong>torch.numel</strong>，返回元素数目</li>
-<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.bmm.html#torch.bmm">torch.bmm</a>，批量张量相乘</li>
+<li>不设置 batch_sampler 参数，会有默认的 <a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/_modules/torch/utils/data/sampler.html#BatchSampler">batch_sampler</a> 处理，它根据 sampler 采样组成一个 batch 后返回</li>
 </ul>
-<h1>tensor 操作</h1>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">if</span> batch_size <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span> <span class="hljs-keyword">and</span> batch_sampler <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>    <span class="hljs-comment"># auto_collation without custom batch_sampler</span><br>    batch_sampler = BatchSampler(sampler, batch_size, drop_last)<br></code></pre></td></tr></table></figure>
 <ul>
-<li>torch.cat</li>
+<li>不设置 collate_fn 参数，一般也没有 batch_sampler 的情况下，调用默认的 <a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/data.html?highlight=default_collate#torch.utils.data.default_collate">default_collate</a>，以 batch 为参数，基本没有做任何事</li>
 </ul>
-<blockquote>
-<p>除了<strong>dim</strong>指定的那个维度，其他维度的shape都应该一样</p>
-</blockquote>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-meta">@property</span><br><span class="hljs-keyword">def</span> <span class="hljs-title function_">_auto_collation</span>(<span class="hljs-params">self</span>):<br>    <span class="hljs-keyword">return</span> self.batch_sampler <span class="hljs-keyword">is</span> <span class="hljs-keyword">not</span> <span class="hljs-literal">None</span><br><br><span class="hljs-keyword">if</span> collate_fn <span class="hljs-keyword">is</span> <span class="hljs-literal">None</span>:<br>    <span class="hljs-keyword">if</span> self._auto_collation:<br>        collate_fn = _utils.collate.default_collate<br>    <span class="hljs-keyword">else</span>:<br>        collate_fn = _utils.collate.default_convert<br></code></pre></td></tr></table></figure>
 <ul>
-<li>torch.reshape(a,shape)</li>
+<li>视频里讲了_index_sampler 和 _get_iterator 的相关内容</li>
 </ul>
-<blockquote>
-<p>shape可以用 [] 或 () 指定</p>
-</blockquote>
-<ul>
-<li>torch.split(a,size)</li>
-</ul>
-<blockquote>
-<p>按size大小均分或者可以传入list</p>
-</blockquote>
-<ul>
-<li><strong>torch.squeeze</strong></li>
-<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.tile.html#torch.tile">troch.tile(a,dims)</a></li>
-</ul>
-<blockquote>
-<p>扩增a的行列</p>
-</blockquote>
-<ul>
-<li>torch.transpose(a,dim0,dim1)</li>
-<li>torch.unbind</li>
-<li><strong>torch.unsqueeze(a,dim)</strong></li>
-<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.nn.functional.pad.html?highlight=pad#torch.nn.functional.pad">torch.nn.functional.pad</a></li>
-</ul>
-<blockquote>
-<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/358599463">torch.nn.functional.pad使用</a><br>
-对 (batch_size,in_channel,h,w)，pad的顺序是(h1,h2,w1,w2,in_channel1,in_channel2,batch_size1,batch_size2)，因为每一个维度都有两个方向</p>
-</blockquote>
-<h1>tensor 属性</h1>
-<p><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/tensor_attributes.html">TENSOR ATTRIBUTES</a></p>
 
                 
               </div>
@@ -346,9 +313,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/04/03/Dataset-DataLoader/" title="Dataset_DataLoader">
+                      <a href="/2024/04/03/workflow/" title="workflow">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">Dataset_DataLoader</span>
+                        <span class="hidden-mobile">workflow</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -356,8 +323,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/04/02/softmax/" title="softmax">
-                        <span class="hidden-mobile">softmax</span>
+                      <a href="/2024/04/03/tensor/" title="tensor">
+                        <span class="hidden-mobile">tensor</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
