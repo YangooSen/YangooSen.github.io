@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/04/02/how/broken.jpg">
 <meta property="article:published_time" content="2024-04-02T07:30:47.000Z">
-<meta property="article:modified_time" content="2024-04-02T13:29:46.695Z">
+<meta property="article:modified_time" content="2024-04-07T01:07:35.208Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="note">
 <meta name="twitter:card" content="summary_large_image">
@@ -190,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          770 字
+          752 字
         
       </span>
     
@@ -274,7 +274,7 @@
 <p>由于github存储的是hexo生成的页面结果，而不是原markdown文档，因此难以在原先分支上直接存储写了一部分的文章，因此在<a target="_blank" rel="noopener" href="https://github.com/YangooSen/YangooSen.github.io/tree/writing">仓库</a>中新开了分支 writing，在本地文件夹创建分支writing，跟踪 source 文件夹下的原markdown文章和引用资源，用下面的命令进行拉取和推送</p>
 <figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs sh"><span class="hljs-comment"># ... 修改source文件夹下的内容</span><br>git add <span class="hljs-built_in">source</span><br>git commit<br>git push writing writing:writing <span class="hljs-comment">#将写了一半的文章云存储在writing分支</span><br><br><br><span class="hljs-built_in">rm</span> -rf <span class="hljs-built_in">source</span> <span class="hljs-comment"># 删除本地文章腾出空间</span><br>git add <span class="hljs-built_in">source</span><br>git commit<br>git pull -f writing writing:writing <span class="hljs-comment">#force拉取云存档内容,之后进入source继续写作</span><br></code></pre></td></tr></table></figure>
 <blockquote>
-<p>删除本地文章腾出空间之后，实际只是预支存储空间，之后要修改还是需要拉回本地编辑。后续有更好的方法思路会在这里记录，目前想到的空间紧缺解决方法是新开一个文件夹并关联另一个仓库</p>
+<p>当写了足够多的文章后，确定已经写好的某些文章不会再修改，即可在仓库中新开分支备份，将这些不会再修改的文章存好，writing分支只放还在继续更新的文章</p>
 </blockquote>
 <h1>关于写作</h1>
 <h2 id="数学公式">数学公式</h2>

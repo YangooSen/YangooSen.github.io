@@ -24,7 +24,7 @@
 <meta property="og:description" content="pytorch中的tensor基础操作和概念">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-04-03T06:54:50.000Z">
-<meta property="article:modified_time" content="2024-04-03T09:18:54.628Z">
+<meta property="article:modified_time" content="2024-04-07T01:55:02.249Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="pytorch">
 <meta name="twitter:card" content="summary_large_image">
@@ -188,7 +188,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          257 字
+          320 字
         
       </span>
     
@@ -247,6 +247,12 @@
 <li><strong>torch.tensor</strong></li>
 <li>torch.ones_like</li>
 <li>torch.zeros_like</li>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/tensor_view.html#tensor-views">tensor.view</a></li>
+</ul>
+<blockquote>
+<p>Pytorch 通过 view 机制可以实现 tensor 之间的<strong>内存共享</strong>，避免显式的数据拷贝，因此能实现快速且内存高效的比如切片和 element-wise 等操作，使用view op之后可能产生<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/463664495">不连续内存的tensor</a></p>
+</blockquote>
+<ul>
 <li>torch.rand_like</li>
 <li><strong><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.allclose.html#torch-allclose">torch.allclose</a></strong> 对比两个 tensor 是否足够接近</li>
 <li>torch.rand</li>
