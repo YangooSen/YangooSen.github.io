@@ -23,7 +23,7 @@ python main.py
 
 # main
 - drugs 和 drugid 都是 drugid的列表,为什么要设置两个? 
--
+- process_kg做采样子图和转化成torch.tensor，转移到cuda
 
 
 # load_data
@@ -36,7 +36,8 @@ python main.py
 # model
 - MultiTaskLoss只是套了一层计算损失函数的forward,实际调用的模型是MKDTI
 - rgcn_layers中的[RelGraphConv](https://blog.csdn.net/weixin_52812620/article/details/137139828?csdn_share_tail=%7B%22type%22%3A%22blog%22%2C%22rType%22%3A%22article%22%2C%22rId%22%3A%22137139828%22%2C%22source%22%3A%22weixin_52812620%22%7D)
-- [Cross_stitch](https://zhuanlan.zhihu.com/p/37449901)自动决定共享层,其中共享参数都是单个数值?而不是矩阵? 
+- [Cross_stitch](https://zhuanlan.zhihu.com/p/37449901)自动决定共享层,其中共享参数都是单个数值?而不是矩阵?
+![实例](cross_stitch.webp) 
 - self.cpi_hidden_dim 设置的是[78,drug_hidden_dim,drug_hidden_dim]
 
 

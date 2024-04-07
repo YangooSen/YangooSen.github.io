@@ -12,6 +12,8 @@ tag: pytorch
 - **torch.tensor**
 - torch.ones_like
 - torch.zeros_like
+- [tensor.view](https://pytorch.org/docs/stable/tensor_view.html#tensor-views)
+> Pytorch 通过 view 机制可以实现 tensor 之间的**内存共享**，避免显式的数据拷贝，因此能实现快速且内存高效的比如切片和 element-wise 等操作，使用view op之后可能产生[不连续内存的tensor](https://zhuanlan.zhihu.com/p/463664495)
 - torch.rand_like
 - **[torch.allclose](https://pytorch.org/docs/stable/generated/torch.allclose.html#torch-allclose)** 对比两个 tensor 是否足够接近
 - torch.rand
