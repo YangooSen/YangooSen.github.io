@@ -16,22 +16,22 @@
   <meta name="author" content="YangooSen">
   <meta name="keywords" content="">
   
-    <meta name="description" content="多次面对无法解决的leetcode题目">
+    <meta name="description" content="py2neo的api使用和注意点">
 <meta property="og:type" content="article">
-<meta property="og:title" content="unsolved">
-<meta property="og:url" content="http://example.com/2024/04/07/unsolved/index.html">
+<meta property="og:title" content="py2neo">
+<meta property="og:url" content="http://example.com/2024/04/08/py2neo/index.html">
 <meta property="og:site_name" content="YangooSen">
-<meta property="og:description" content="多次面对无法解决的leetcode题目">
+<meta property="og:description" content="py2neo的api使用和注意点">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-04-07T11:54:31.000Z">
-<meta property="article:modified_time" content="2024-04-07T13:21:27.808Z">
+<meta property="article:published_time" content="2024-04-08T07:32:42.000Z">
+<meta property="article:modified_time" content="2024-04-08T09:30:17.343Z">
 <meta property="article:author" content="YangooSen">
-<meta property="article:tag" content="ds">
+<meta property="article:tag" content="GNN">
 <meta name="twitter:card" content="summary_large_image">
   
   
   
-  <title>unsolved - YangooSen</title>
+  <title>py2neo - YangooSen</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -165,7 +165,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="unsolved"></span>
+            <span id="subtitle" data-typed-text="py2neo"></span>
           
         </div>
 
@@ -176,8 +176,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-04-07 19:54" pubdate>
-          2024年4月7日 晚上
+        <time datetime="2024-04-08 15:32" pubdate>
+          2024年4月8日 下午
         </time>
       </span>
     
@@ -188,7 +188,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          247 字
+          720 字
         
       </span>
     
@@ -199,7 +199,7 @@
         
         
         
-          3 分钟
+          7 分钟
         
       </span>
     
@@ -236,22 +236,66 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">unsolved</h1>
+            <h1 id="seo-header">py2neo</h1>
             
             
               <div class="markdown-body">
                 
-                <h1>去重</h1>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0015.%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">第15题. 三数之和</a>，想不到排序后双指针。问题的关键是三元组内的元素可用重复，但是三元组这个整体不能再次重复。用set&lt;set&lt;&gt;&gt;哈希法记录组合会有几个超时例。关注解法中对a的去重，结果集是i和i右边的某两个元素，组内可以重复，nums[i]!=nums[i-1]是为了避免上一次范围覆盖这一次，nums[i]是每次迭代保证三元组不会重复的关键，因为可用范围是一直在缩小的。</li>
-</ul>
-<blockquote>
-<p>相关问题 <a target="_blank" rel="noopener" href="https://programmercarl.com/0018.%E5%9B%9B%E6%95%B0%E4%B9%8B%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">第18题. 四数之和</a></p>
+                <blockquote>
+<p>操作neo4j的数据有两种形式：可以传入cypher语句，然后用graph.run执行，返回游标；另一种方式是用py2neo内置的类和方法来操作，下面主要介绍第二种方法</p>
 </blockquote>
-<h1>原地工作</h1>
-<ul>
-<li><a target="_blank" rel="noopener" href="https://programmercarl.com/kama54.%E6%9B%BF%E6%8D%A2%E6%95%B0%E5%AD%97.html#%E6%80%9D%E8%B7%AF">替换数字</a>，原地操作经常用到双指针，数组填充类的问题，其做法都是先预先给数组扩容带填充后的大小，然后在从后向前进行操作,这样避免了重复向后移动已有元素的<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>算法</li>
-</ul>
+<h1>Graph</h1>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#graph-objects">Graph</a>是具体的某个数据库，是本地类与服务器数据库交互的接口</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">graph = Graph(<span class="hljs-string">&#x27;http://localhost:7474&#x27;</span>,auth=(<span class="hljs-string">&#x27;neo4j&#x27;</span>,password), name = <span class="hljs-string">&#x27;neo4j&#x27;</span>)<br></code></pre></td></tr></table></figure>
+<p>如果name指定的数据库不存在会报错，初始只有neo4j和system，可以在<code>neo4j start</code>之后在<a target="_blank" rel="noopener" href="http://localhost:7474/browser/">本地</a>查看</p>
+<h2 id="schema">schema</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.schema">schema</a>返回<a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.schema">数据库模式对象</a>，可以得到数据库中已有的节点标签种类和边种类</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">schema=graph.schema<br>node_labels=schema.node_labels<br>rel_types=schema.relation_types<br></code></pre></td></tr></table></figure>
+<h2 id="create">create</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.create">create</a>用于添加节点和关系，创建Node类和Relationship类之后可以传入</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">graph.create(subgraph)<br></code></pre></td></tr></table></figure>
+<h2 id="push">push</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.push">push</a>用于修改节点和边的标签和属性，修改Node或Relationship的实例之后可以push来修改已有的节点和边</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">graph.push(subgraph)<br></code></pre></td></tr></table></figure>
+<h2 id="delete">delete</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Transaction.delete">delete</a>用于删除节点和关系，<strong>删除节点时会把与节点有关的边也删除，删除关系会把边和头尾节点都删除</strong></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">graph.delete(subgraph)<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>这里要注意删除边的时候会把端节点也删除，如果需要只删除边可以用<a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Transaction.separate">separate</a>，会留下孤立节点</p>
+</blockquote>
+<h1>Node</h1>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#node-objects">Node</a>是本地的节点类，只有被<code>graph.create</code>或<code>graph.merge</code>之后才会存入数据库</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">node = Node(label,k1=v1,k2=v2,k3=v3)<br></code></pre></td></tr></table></figure>
+<h2 id="identity">identity</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Node.identity">identity</a>返回数据库中已有Node的id，如果不在数据库中会返回None</p>
+<blockquote>
+<p>重载的==只会根据id来判断相等，如果还没有存入数据库的节点用==，它只会与自己相等，其他逗号返回false</p>
+</blockquote>
+<h2 id="labels">labels</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Node.labels">labels</a>返回节点的所有label，可以用<code>add_label</code>和<code>remove_label</code>操作label</p>
+<h2 id="dict">dict</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Node.items">dict(node)</a>返回节点的属性字典，节点属性的相关方法和dict的方法基本一致，删除节点的属性用<code>del node[key]</code></p>
+<h1>Relationship</h1>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Node.items">Relationship</a> 创建边，如果没有指定边的类型会默认为<code>T0</code>，可以继承类修改此默认设置，详见官方文档</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">rel=Relationship(head,r_type,tail,k1=v1,k2=v2,k3=v3)<br></code></pre></td></tr></table></figure>
+<h2 id="identity-2">identity</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Relationship.identity">identity</a>和节点的<code>identity</code>类似，返回已存在数据库中边的id，边相等判断是头尾节点id相等和边类型r_type相等</p>
+<h2 id="dict-2">dict</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Relationship.items">dict(rel)</a>和节点的方法类似</p>
+<h1>NodeMatcher</h1>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/matching.html">NodeMatcher</a>在指定数据库中匹配符合条件的节点</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">matcher=NodeMatcher(graph)<br>node_match=matcher.<span class="hljs-keyword">match</span>(label,k1=v1,k2=v2)<br></code></pre></td></tr></table></figure>
+<p>返回<a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/matching.html#nodematch-objects">NodeMatch</a>对象，可以用循环迭代，也可以用<code>len(NodeMatch)</code>计数，用<code>NodeMatch.all()</code>获得Node的列表</p>
+<blockquote>
+<p>如果匹配规则较复杂，可以先拿到所有节点，再用for循环筛选</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">nodes=NodeMatcher(graph).<span class="hljs-keyword">match</span>()<br><span class="hljs-keyword">for</span> node <span class="hljs-keyword">in</span> nodes:<br>    <span class="hljs-comment">#filter</span><br></code></pre></td></tr></table></figure>
+</blockquote>
+<h1>RelationshipMatcher</h1>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/matching.html#relationshipmatcher-objects">RelationshipMatcher</a>和NodeMatcher类似，可以用边类型和属性匹配，也可以指定待查找边的端节点,<a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/matching.html#relationshipmatcher-objects">传入node的set表示node可以指代头节点或尾节点</a></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">matcher=RelationshipMatcher(graph)<br>rel_match=relation_matcher.<span class="hljs-keyword">match</span>((node,),r_type,k1=v1,k2=v2)<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>匹配规则较复杂也可以先拿到所有边再用for循环筛选</p>
+</blockquote>
 
                 
               </div>
@@ -264,7 +308,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/ds/" class="print-no-link">#ds</a>
+        <a href="/tags/GNN/" class="print-no-link">#GNN</a>
       
     </div>
   
@@ -278,18 +322,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/04/08/py2neo/" title="py2neo">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">py2neo</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/04/03/workflow/" title="workflow">
-                        <span class="hidden-mobile">workflow</span>
+                      <a href="/2024/04/07/unsolved/" title="unsolved">
+                        <span class="hidden-mobile">unsolved</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
