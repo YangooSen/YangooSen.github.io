@@ -24,7 +24,7 @@
 <meta property="og:description" content="py2neo的api使用和注意点">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-04-08T07:32:42.000Z">
-<meta property="article:modified_time" content="2024-04-08T09:30:17.343Z">
+<meta property="article:modified_time" content="2024-04-08T12:29:04.938Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="GNN">
 <meta name="twitter:card" content="summary_large_image">
@@ -188,7 +188,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          720 字
+          1k 字
         
       </span>
     
@@ -199,7 +199,7 @@
         
         
         
-          7 分钟
+          9 分钟
         
       </span>
     
@@ -242,18 +242,21 @@
               <div class="markdown-body">
                 
                 <blockquote>
-<p>操作neo4j的数据有两种形式：可以传入cypher语句，然后用graph.run执行，返回游标；另一种方式是用py2neo内置的类和方法来操作，下面主要介绍第二种方法</p>
+<p>操作neo4j的数据有两种形式：可以传入cypher语句，然后用graph.run执行，返回游标；另一种方式是用py2neo内置的类和方法来操作，下面主要介绍第二种方法<br>
+另外需要注意的是，图数据库是能够帮我们尽量快速地找出不同节点的关系，因此向一个节点或者关系中插入很多无关的数据是完全没有必要的，会浪费很多硬盘资源，检索也会消耗更多时间。合理的做法是只把与图有关的数据存入图数据库，其他无关的属性信息可以存在其他地方，减少检索和存储开支</p>
 </blockquote>
 <h1>Graph</h1>
 <p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#graph-objects">Graph</a>是具体的某个数据库，是本地类与服务器数据库交互的接口</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">graph = Graph(<span class="hljs-string">&#x27;http://localhost:7474&#x27;</span>,auth=(<span class="hljs-string">&#x27;neo4j&#x27;</span>,password), name = <span class="hljs-string">&#x27;neo4j&#x27;</span>)<br></code></pre></td></tr></table></figure>
 <p>如果name指定的数据库不存在会报错，初始只有neo4j和system，可以在<code>neo4j start</code>之后在<a target="_blank" rel="noopener" href="http://localhost:7474/browser/">本地</a>查看</p>
 <h2 id="schema">schema</h2>
-<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.schema">schema</a>返回<a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.schema">数据库模式对象</a>，可以得到数据库中已有的节点标签种类和边种类</p>
-<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">schema=graph.schema<br>node_labels=schema.node_labels<br>rel_types=schema.relation_types<br></code></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.schema">schema</a>返回<a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.schema">数据库模式对象</a>，具体作用看下面介绍</p>
 <h2 id="create">create</h2>
 <p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.create">create</a>用于添加节点和关系，创建Node类和Relationship类之后可以传入</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">graph.create(subgraph)<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>添加关系的时候先查找一下是否已经存在这个节点，如果已经存在的话，建立关系的时候需要用已经存在于数据库中的节点，而不要新建，否则会出现新节点</p>
+</blockquote>
 <h2 id="push">push</h2>
 <p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Graph.push">push</a>用于修改节点和边的标签和属性，修改Node或Relationship的实例之后可以push来修改已有的节点和边</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">graph.push(subgraph)<br></code></pre></td></tr></table></figure>
@@ -278,6 +281,9 @@
 <h1>Relationship</h1>
 <p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Node.items">Relationship</a> 创建边，如果没有指定边的类型会默认为<code>T0</code>，可以继承类修改此默认设置，详见官方文档</p>
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">rel=Relationship(head,r_type,tail,k1=v1,k2=v2,k3=v3)<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>如果建立关系的时候，起始节点或者结束节点不存在，则在建立关系的同时建立这个节点</p>
+</blockquote>
 <h2 id="identity-2">identity</h2>
 <p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Relationship.identity">identity</a>和节点的<code>identity</code>类似，返回已存在数据库中边的id，边相等判断是头尾节点id相等和边类型r_type相等</p>
 <h2 id="dict-2">dict</h2>
@@ -295,6 +301,15 @@
 <figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs python">matcher=RelationshipMatcher(graph)<br>rel_match=relation_matcher.<span class="hljs-keyword">match</span>((node,),r_type,k1=v1,k2=v2)<br></code></pre></td></tr></table></figure>
 <blockquote>
 <p>匹配规则较复杂也可以先拿到所有边再用for循环筛选</p>
+</blockquote>
+<h1>Schema</h1>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#schema-objects">Schema</a>是图数据库的模式，可以得到数据库中已有的节点标签种类和边种类</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs python">schema=graph.schema<br>node_labels=schema.node_labels<br>rel_types=schema.relation_types<br></code></pre></td></tr></table></figure>
+<h2 id="create-index">create_index</h2>
+<p><a target="_blank" rel="noopener" href="https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Schema.create_index">create_index</a>为数据库创建索引，<code>drop_index</code>删除索引</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">schema.create_index(label,k1=v1,k2=v2)<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>最好在插入数据之前就建立好索引，否则索引的建立会很耗时间。索引可以大幅度降低大规模数据的查询速度</p>
 </blockquote>
 
                 
