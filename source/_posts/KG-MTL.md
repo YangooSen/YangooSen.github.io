@@ -34,10 +34,13 @@ python main.py
 - dti数据集中得到的sample_nodes最后也添加了cpi数据集的drugid
 
 # model
-- MultiTaskLoss只是套了一层计算损失函数的forward,实际调用的模型是MKDTI
+- MultiTaskLoss只是套了一层计算损失函数的forward,实际调用的模型是MKDTI，而MKDTI的forward中最终调用的是MT_Net
 - rgcn_layers中的[RelGraphConv](https://blog.csdn.net/weixin_52812620/article/details/137139828?csdn_share_tail=%7B%22type%22%3A%22blog%22%2C%22rType%22%3A%22article%22%2C%22rId%22%3A%22137139828%22%2C%22source%22%3A%22weixin_52812620%22%7D)
 - [Cross_stitch](https://zhuanlan.zhihu.com/p/37449901)自动决定共享层,其中共享参数都是单个数值?而不是矩阵?
 ![实例](cross_stitch.webp) 
 - self.cpi_hidden_dim 设置的是[78,drug_hidden_dim,drug_hidden_dim]
+- eval_参数的含义是模型是否在评估阶段，而不是训练阶段
+- DTI Module中的RGCN是rgcn_layers，第一层是(num_nodes,h_dim)的Embedding层，MultiTaskLoss输入的h是node_id
 
-
+# utils
+- generate_sampled_graph_and_labels中的relabel操作有点不太懂，用[np.unique](https://numpy.org/doc/stable/reference/generated/numpy.unique.html#numpy-unique)之后得到uniq_v，为什么还得到了edges，应该是索引?
