@@ -44,6 +44,8 @@ graph.delete(subgraph)
 ```python
 node = Node(label,k1=v1,k2=v2,k3=v3)
 ```
+> 注意label的字符串最好不要带空格，只用一个完整的单词，不然有些地方可能会出问题，比如修改展示的style.grass可能会识别不了
+> 另外修改节点和边在网站展示的style，可以看[这里](https://zhuanlan.zhihu.com/p/439199149)
 ## identity
 [identity](https://neo4j-contrib.github.io/py2neo/data/index.html#py2neo.data.Node.identity)返回数据库中已有Node的id，如果不在数据库中会返回None
 > 重载的==只会根据id来判断相等，如果还没有存入数据库的节点用==，它只会与自己相等，其他逗号返回false
@@ -96,9 +98,13 @@ node_labels=schema.node_labels
 rel_types=schema.relation_types
 ```
 ## create_index
-[create_index](https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Schema.create_index)为数据库创建索引，`drop_index`删除索引
+[create_index](https://neo4j-contrib.github.io/py2neo/workflow.html#py2neo.Schema.create_index)为标签是label的节点在属性k1和k2上创建索引，`drop_index`删除索引
 ```python
-schema.create_index(label,k1=v1,k2=v2)
+schema.create_index(label,k1,k2)
 ```
 > 最好在插入数据之前就建立好索引，否则索引的建立会很耗时间。索引可以大幅度降低大规模数据的查询速度
+> 用sechma的相关方法创建或查看index的时候总会报错，最终选择直接运行cypher语句来创建节点索引，关于图数据的索引看[这里](https://neo4j.com/docs/cypher-manual/current/indexes/)
+> ```python
+> graph.run(CREATE INDEX index_name FOR (n:label) ON (n.k1,n.k2))
+> ```
 
