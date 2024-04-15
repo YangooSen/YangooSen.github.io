@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/example.gif">
 <meta property="article:published_time" content="2024-04-07T11:54:31.000Z">
-<meta property="article:modified_time" content="2024-04-15T12:57:49.626Z">
+<meta property="article:modified_time" content="2024-04-15T13:27:09.793Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="ds">
 <meta name="twitter:card" content="summary_large_image">
@@ -190,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          798 字
+          1k 字
         
       </span>
     
@@ -201,7 +201,7 @@
         
         
         
-          7 分钟
+          9 分钟
         
       </span>
     
@@ -247,11 +247,12 @@
 <ul>
 <li><a target="_blank" rel="noopener" href="https://programmercarl.com/0015.%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">第15题. 三数之和</a>，想不到排序后双指针。问题的关键是三元组内的元素可用重复，但是三元组这个整体不能再次重复。用set&lt;set&lt;&gt;&gt;哈希法记录组合会有几个超时例。关注解法中对a的去重，结果集是i和i右边的某两个元素，组内可以重复，nums[i]!=nums[i-1]是为了避免上一次范围覆盖这一次，nums[i]是每次迭代保证三元组不会重复的关键，因为可用范围是一直在缩小的。</li>
 </ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">/*</span><br><span class="hljs-comment"> * @lc app=leetcode.cn id=15 lang=cpp</span><br><span class="hljs-comment"> *</span><br><span class="hljs-comment"> * [15] 三数之和</span><br><span class="hljs-comment"> */</span><br><br><span class="hljs-comment">// @lc code=start</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    vector&lt;vector&lt;<span class="hljs-type">int</span>&gt;&gt; <span class="hljs-built_in">threeSum</span>(vector&lt;<span class="hljs-type">int</span>&gt;&amp; nums) &#123;<br>        <span class="hljs-built_in">sort</span>(nums.<span class="hljs-built_in">begin</span>(),nums.<span class="hljs-built_in">end</span>());<br>        vector&lt;vector&lt;<span class="hljs-type">int</span>&gt;&gt; res;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;nums.<span class="hljs-built_in">size</span>();i++)&#123;<br>            <span class="hljs-keyword">if</span> (i&gt;<span class="hljs-number">0</span> &amp;&amp; nums[i]==nums[i<span class="hljs-number">-1</span>]) <span class="hljs-keyword">continue</span>;<br>            <span class="hljs-type">int</span> left=i+<span class="hljs-number">1</span>,right=nums.<span class="hljs-built_in">size</span>()<span class="hljs-number">-1</span>;<br>            <span class="hljs-keyword">while</span> (left&lt;right)&#123;<br>                <span class="hljs-keyword">if</span> (nums[left]+nums[right]+nums[i]&gt;<span class="hljs-number">0</span>) right--;<br>                <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (nums[left]+nums[right]+nums[i]&lt;<span class="hljs-number">0</span>) left++;<br>                <span class="hljs-keyword">else</span>&#123;<br>                    res.<span class="hljs-built_in">push_back</span>(vector&lt;<span class="hljs-type">int</span>&gt;&#123;nums[i],nums[left],nums[right]&#125;);<br>                    left++;right--;<br>                    <span class="hljs-keyword">while</span> (left&lt;nums.<span class="hljs-built_in">size</span>() &amp;&amp; nums[left]==nums[left<span class="hljs-number">-1</span>]) left++;<br>                    <span class="hljs-keyword">while</span> (right&gt;<span class="hljs-number">0</span> &amp;&amp; nums[right]==nums[right+<span class="hljs-number">1</span>]) right--;<br>                &#125;<br>            &#125;<br><br>        &#125;<br>        <span class="hljs-keyword">return</span> res;<br>    &#125;<br>&#125;;<br><span class="hljs-comment">// @lc code=end</span><br><br><br><br></code></pre></td></tr></table></figure>
 <blockquote>
-<p>相关问题 <a target="_blank" rel="noopener" href="https://programmercarl.com/0018.%E5%9B%9B%E6%95%B0%E4%B9%8B%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">第18题. 四数之和</a></p>
+<p>相关问题 <a target="_blank" rel="noopener" href="https://programmercarl.com/0018.%E5%9B%9B%E6%95%B0%E4%B9%8B%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">第18题. 四数之和</a>，注意给的数不超过<code>int</code>,相加之后可能会超过<code>int</code>,但是<code>target</code>是<code>int</code>,所有只要比较的时候加<code>long</code>强转就可以了,后续不需要加。哪里溢出就先只在那个地方上调，而不要从源头就自上而下都上调</p>
 </blockquote>
 <blockquote>
-<p>注意双指针的问题一般都是用while(left&lt;right)解决，而不要用for,for循环不好掌控</p>
+<p>注意双指针的问题一般都是用<code>while(left&lt;right)</code>解决，而不要用<code>for</code>,<code>for</code>循环不好掌控</p>
 </blockquote>
 <h1>原地操作</h1>
 <ul>
