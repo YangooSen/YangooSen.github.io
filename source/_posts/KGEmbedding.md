@@ -5,7 +5,7 @@ date: 2024-04-12 08:58:32
 excerpt: 知识图谱嵌入方法
 tag: GNN
 ---
-知识图谱嵌入有较多方法，下面主要介绍转移距离模型TransX，语义匹配模型RESCAL等，考虑附加信息的模型。开源实现可以看[OpenKE](https://github.com/thunlp/OpenKE)
+知识图谱嵌入有较多方法，下面主要介绍转移距离模型TransX，语义匹配模型RESCAL等，考虑附加信息的模型。开源实现可以看[OpenKE](https://github.com/thunlp/OpenKE)和[Pykg2vec](https://pykg2vec.readthedocs.io/en/latest/intro.html)
 # TransX
 TransX是转移距离模型，这些方法的重点是设计得分函数$f(h,r,t)$（正确三元组接近0得分高，错误三元组是大负数得分低），再利用下面的损失函数迭代嵌入向量
 $$
@@ -117,4 +117,168 @@ $$
 $$
 f=-||h_p+r-t_p||_2^2
 $$
+
+# 语义匹配模型
+相比TransX模型，语义匹配模型更注重挖掘向量化后实体和关系的潜在语义，采用基于相似性(向量内积，而不是TransX中的向量加减)的打分函数，通过匹配实体和关系在嵌入向量空间中的潜在语义衡量三元组事实成立的可能性。该方向的模型主要是RESCAL以及它的延伸模型。解读可以看这个系列的[文章](https://www.cnblogs.com/fengwenying/tag/%E5%8F%8C%E7%BA%BF%E6%80%A7%E6%A8%A1%E5%9E%8B/)
+> 基于相似性的得分函数慢慢发展为基于神经网络的模型
+## RESCAL
+[RESCAL](https://icml.cc/2011/papers/438_icmlpaper.pdf)是基于张量分解的模型，定义的$\chi\in R^{n\times n\times m}$张量如下
+![tensor modl](tensor_model.png)
+每种关系对应一个图的邻接矩阵
+对$\chi$进行张量分解
+$$
+\chi_k \approx AR_kA^T,for k=1,...m
+$$
+得到的$A\in R^{n\times r}$是因子矩阵，每行代表一个实体嵌入向量$h\in R^r$（注意这里对所有的$R_k$用的是同一个$A$），$R_k^{r\times r}$是核心张量$R^{r\times r\times m}$中的一个切片，是关系$k$的嵌入表示矩阵，它是不对称矩阵，可以表示非对称关系。根据核心张量和因子矩阵还原的结果被看做对应三元组成立的概率，如果概率大于某个阈值则对应的三元组正确，对应的打分函数可以表示为
+$$
+f_k(h,t)=h^TR_kt
+$$
+> 训练模型类似TransX中的方法，只是打分函数替换为上面的$f_k$，而没有用下面的损失函数，只从代码看也体现不出原文表示的张量分解的意思在..
+
+损失函数包括了正则化项
+$$
+\mathcal L=f(A,R_k)+g(A,R_k)\\
+=\frac{1}{2}(\sum_k||\chi_k-AR_kA_T||_F^2)+\frac{1}{2}\lambda(||A||^2_F+\sum_k||R_k||_F^2)\\
+=\frac{1}{2}(\sum_k||\chi_k-AR_kA_T||_F^2+\lambda_1||A||_F^2+\lambda_2\sum_k||R_k||_F^2)
+$$
+
+对每一种关系$R_k$分别进行分解都得到相同的实体表示向量$A$，这样的分解机制可用利用有相同关系的实体的信息建模，文章中称为`collective learning`，类似推荐系统中的协同过滤
+![collective learning](collective.png)
+对关系是$party$的关系表示矩阵$R_{party}$，建模`Bill`就能用到`John`和`Lyndon`的向量来表示
+$$
+\chi_{party} \approx AR_{party}A^T=h_{Bill}R_{party}h_{Party X}+h_{John}R_{party}h_{Party X}+h_{Lyndon}R_{party}h_{Party X}+...
+$$
+
+## DistMult
+[DistMult](https://arxiv.org/pdf/1412.6575.pdf)通过限制RESCAL中的关系矩阵为对角阵$diag(k)$简化模型
+> 解读文章中提到的个人感受很受用:（看 related work 有感：第一点是，一直不知道 related work 该写什么、怎么写。我写论文一个很大的问题是一开始的引入总是从很大很宏观的角度，本想由浅入深引到自己的工作上，但是由于一开始没有聚焦，并且一写开就刹不住车，所以会有一种顾左右而言他、文不对题的感觉，小论文、开题报告里都有这个问题。这篇的 related work 就是由浅入深，先列出 multi-relational learning 的一些方法，然后详细介绍了 NTN，然后引到自己的规则抽取工作（虽然中间少了点衔接）。以后我在写 related work 也要再聚焦一些，多说与自己工作有密切关联的相关工作；第二点是 DistMult 这篇文章，模型本身的改进几乎没有，很鸡肋，但是它把展示的重点放在了规则挖掘上，这就是扬长避短的作用了，就像衣服的穿搭，身材不好也没有关系，关键是如何凸显优势、弱化劣势。）
+
+实体嵌入向量表示为实体表示矩阵和`one-hot`向量的乘积（查表）之后的转换向量，转换函数$f$可以是线性或非线性函数。关系嵌入矩阵是对角矩阵$M_r$，得分函数$g_r$与RESCAL一致，采用双线性函数
+$$
+y_e=f(Wx_e)\\
+g_r(y_{e1},M_r,y_{e2})=y_{e1}^TM_ry_{e2}
+$$
+> 训练模型类似TransX中的方法，只是打分函数替换为上面的$f_k$。因为$M_r$是对角阵，实际代码实现的时候是直接把关系嵌入表示为向量而不是矩阵
+## LFM
+[LFM](https://papers.nips.cc/paper_files/paper/2012/file/0a1bf96b7165e962e90cb14648c9462d-Paper.pdf)想要解决的问题是
+- 大量关系类型只是所有关系中的一小部分（长尾现象）
+- 数据集质量差且数据少
+
+LFM根据三元组成立的概率来进行打分，获得打分函数。如果三元组$(h,R,t)$成立，即是
+$$
+P(h,R,t)=1
+$$
+其中$h,t$是实体嵌入向量，$R$是关系嵌入矩阵
+文章建模概率为下面的函数
+$$
+P(h,R,t)=\sigma(f(h,R,t))\\
+\sigma(x)=\frac{1}{1+e^{-x}}
+$$
+文章主要重新定义了打分函数$f$，引入参数$y,y',z,z'\in R^p$
+$$
+f(h,R,t)=y^TRy'+h^TRz+z'^TRt+h^TRt
+$$
+为了解决长尾问题引起的过拟合（关系数量多的时候，某些关系下的样本数量少），文章提出将关系矩阵分解为$d$个[秩一矩阵](https://blog.csdn.net/weixin_52812620/article/details/122587293)，这样可以使得不同关系共享参数，对于$n$种关系，任一关系$j$的嵌入矩阵
+$$
+R_j=\sum_{i=1}^{d}\alpha^j_r\Theta_r,\Theta_r=u_rv_r^T,u_r,v_r\in R^p
+$$
+这样关系$j$只有参数$\alpha^j\in R^d$控制秩一矩阵的组成来构造嵌入表示，只要$d\ll n$就能保证关系矩阵不会过拟合，同时由于关系矩阵都是同一套秩一矩阵构造，可以做到参数共享，也能降低过拟合风险
+
+模型训练是最大化似然概率，由于LFM建模概率是
+$$
+P(h,R,t)=\sigma(f(x))
+$$
+和[Logistic](https://yangoosen.github.io/2024/04/02/LogisticRegression/)模型类似，最后得到的目标函数也大同小异
+
+## NTN
+[Neural Tensor Networks](https://proceedings.neurips.cc/paper/2013/file/b337e84de8752b27eda3a12363109e80-Paper.pdf)提出了用于知识库补全的神经网络框架，打分函数中同时包含双线性函数和线性函数，用词向量的平均作为实体表示，打分函数是
+$$
+g(h,R,t)=u_R^Ttanh(h^TW_R^{[1:k]}t+V_R\begin{bmatrix}h\\t\end{bmatrix}+b_R)
+$$
+> $W_R$是张量，切片对应某个关系，$u_R,W_R,V_R,b_R$都是针对关系$R$的参数，$u_R$在[实现](https://pykg2vec.readthedocs.io/en/latest/intro.html)中是关系的嵌入向量
+
+> 将打分函数中的双线性部分$h^TW_R^{[1:k]}t$去掉是SLM(Single Layer Model)模型，LFM是纯双线性函数，这里的SML是纯线性模型，因此NTN即是SLM和LFM的联合
+
+## SME
+[Semantic Matching Energy Function](https://arxiv.org/pdf/1301.3485.pdf)的得分函数形式是
+$$
+\varepsilon(h,r,t)=g_{left}(h,r)^Tg_{right}(r,t)
+$$
+> $h,r,t\in R^d$
+根据$g$函数的区别有两个版本的SME
+- 线性形式
+$$
+g(e_1,e_2)=W_1e_1^T+W_2e_2^T+b^T
+$$
+> $W_1,W_2\in R^{p\times d},b\in R^p$
+- 双线性形式
+$$
+g(e_1,e_2)=(W_{\times 3}e_1^T)e_2^T+b^T
+$$
+> $W_1,W_2\in R^{p\times d\times d},b\in R^p$,$(W_{\times 3}e_1^T)$是沿着第三个维度的相乘,可以理解为以$e_1$的权重给$d$个$W\in R^{p\times d}$加权相加。[代码实现](https://www.cnblogs.com/fengwenying/p/15049736.html#%E4%BB%A3%E7%A0%81-2)中实现的不是上面的形式(可能是为了减少参数量?)而是
+$$
+g(e_1,e_2)=(W_1e_1^T)\cdot(W_2e_2^T)+b^T
+$$
+
+## TATEC
+[Two And Three-way Embeddings Combination](https://link.springer.com/chapter/10.1007/978-3-662-44848-9_28)混合二元交互和三元交互，分别进行预训练并进行联合微调，并且没有参数共享。头尾实体和关系都对应两个嵌入向量，打分函数是
+$$
+s(h,r,t)=s_1(h_1,r,t_1)+s_2(h_2,r,t_2)\\
+s_1(h_1,r,t_1)=r_1^Th_1+r_2^Tt_1+h_1^TDt_1\\
+s_2(h_2,r,t_2)=h_2^TRt_2
+$$
+> $D$是与三元组无关的对角阵，$R$是与关系对应的矩阵
+
+使用负采样训练模型，先分别训练二元和三元交互，用训练得到的权重初始化整个模型，之后用`SGD`微调模型
+
+## HolE
+[Holographic Embeddings](https://ojs.aaai.org/index.php/AAAI/article/view/10314)提出双线性模型的统一形式是
+$$
+Pr(h,r,t)=\sigma(r^T(h\circ t))
+$$
+其中各种方法的组合操作$\circ$不同，产生了不同的模型。本文提出的操作是循环关联`circular correlation`
+$$
+h\circ t= h\star t\\\
+[h\star t]_k=\sum_{i=0}^{d-1}h_it_{(k+i)}
+$$
+循环关联操作可以被视为张量积（`hardamard`积）的压缩，可以保证有较少计算量的同时有更多的交互
+![circular correlation](star.png)
+
+## ComplEx
+
+[Complex Embedding](https://arxiv.org/pdf/1606.06357.pdf)主要思想是引入复值向量，取点积的实部部分作为得分。三元组成立的概率是
+$$
+Pr(h,r,t)=\sigma(\phi(h,r,t))
+$$
+> $h,r,t\in C^k$，都是$k$维复向量
+对于某个关系$l$而言，可以用邻接矩阵表示，在复空间中做特征分解
+$$
+X_l=EW_lE^H
+$$
+由于$X_l$是只有实部的对称阵，因此$X^H=X$，因此$X^HX=XX^H$，是正规矩阵。$E$是特征向量矩阵，只取特征值的前$k$个值，可以利用特征值分解压缩原矩阵，规定的得分函数是
+$$
+\phi(h,R_l,t)=Re(h^TW_l\bar{t})
+$$
+> 关于正规矩阵的内容看《矩阵分析与应用》2.3。嵌入向量是$E\in C^{n\times k}$的某一行，关系$l$的嵌入矩阵是$W\in C^{k\times k}$
+推广到多类型关系，每个关系都有嵌入向量$r\in C^k$，得分函数是
+$$
+\phi(h,r,t)=Re(\sum_{k=1}^kh_kr_k \bar{t_k})
+$$
+复向量的内积$a^Hb\not= b^Ha$不具有交换性，因此可以建模非对称关系
+
+## NAM
+[Neural Association Models](https://arxiv.org/pdf/1603.07704.pdf)是神经网络模型，将事件$E_1$输入，用$sigmoid$或$softmax$计算得到$E_2$的概率，损失函数是最大化似然函数。对知识图谱嵌入表示而言，$E_1=(h,r),E_2=t$，有两种计算结构：
+![DNN](dnn.png) ![RMNN](rmnn.png)
+
+## ANALOGY
+[Analogical Inference](https://arxiv.org/pdf/1705.02426.pdf)将关系矩阵约束为正规矩阵$A^TA=AA^TT$，基于双线性类模型的体系，头实体经过关系映射后近似于尾实体，打分函数也是双线性函数
+$$
+h^TW\approx t^T\\
+\phi(h,r,t)=h^TWt
+$$
+
+
+
+
+
 
