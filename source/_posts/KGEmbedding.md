@@ -2,7 +2,7 @@
 title: KGEmbedding
 katex: true
 date: 2024-04-12 08:58:32
-excerpt: 知识图谱嵌入方法
+excerpt: 知识图谱嵌入方法汇总和实现代码OpenKE的一些解释
 tag: GNN
 ---
 知识图谱嵌入有较多方法，下面主要介绍转移距离模型TransX，语义匹配模型RESCAL等，考虑附加信息的模型。开源实现可以看[OpenKE](https://github.com/thunlp/OpenKE)和[Pykg2vec](https://pykg2vec.readthedocs.io/en/latest/intro.html)
@@ -84,6 +84,7 @@ $$
 f=(|h+r-t|)^TW_r(|h+r-t|)
 $$
 > 得分函数中包含取绝对值操作，原文对此进行了解释
+
 ![TransA](TransA.png)
 
 ## TransG
@@ -105,6 +106,7 @@ h_p=M_r(\theta_r)h\\\
 t_p=M_r(\theta_r)t
 $$
 > 每种关系对应一个稀疏矩阵，$N_r$是关系链接的实体对数量，$N_{r^*}$表示链接最多实体对的关系链接的实体对数量，$\theta_{min}$是超参数，取值在$[0,1]$
+
 - 针对不平衡性提出TranSparse(separate)：
 $$
 \theta_r^l=1-\frac{(1-\theta_{min})N_r^l}{N_{r^*}^{l^*}}(l=h,t)\\
@@ -159,6 +161,7 @@ y_e=f(Wx_e)\\
 g_r(y_{e1},M_r,y_{e2})=y_{e1}^TM_ry_{e2}
 $$
 > 训练模型类似TransX中的方法，只是打分函数替换为上面的$f_k$。因为$M_r$是对角阵，实际代码实现的时候是直接把关系嵌入表示为向量而不是矩阵
+
 ## LFM
 [LFM](https://papers.nips.cc/paper_files/paper/2012/file/0a1bf96b7165e962e90cb14648c9462d-Paper.pdf)想要解决的问题是
 - 大量关系类型只是所有关系中的一小部分（长尾现象）
@@ -251,15 +254,17 @@ $$
 Pr(h,r,t)=\sigma(\phi(h,r,t))
 $$
 > $h,r,t\in C^k$，都是$k$维复向量
+
 对于某个关系$l$而言，可以用邻接矩阵表示，在复空间中做特征分解
 $$
 X_l=EW_lE^H
 $$
-由于$X_l$是只有实部的对称阵，因此$X^H=X$，因此$X^HX=XX^H$，是正规矩阵。$E$是特征向量矩阵，只取特征值的前$k$个值，可以利用特征值分解压缩原矩阵，规定的得分函数是
+由于$X_l$是只有实部的对称阵，因此$X^H=X$，因此$X^HX=XX^H$，是正规矩阵。$E$是特征向量矩阵，只取特征值的前$k$个值，此时$W_l=diag(r),r\in C^k$,可以利用特征值分解压缩原矩阵，规定的得分函数是
 $$
 \phi(h,R_l,t)=Re(h^TW_l\bar{t})
 $$
 > 关于正规矩阵的内容看《矩阵分析与应用》2.3。嵌入向量是$E\in C^{n\times k}$的某一行，关系$l$的嵌入矩阵是$W\in C^{k\times k}$
+
 推广到多类型关系，每个关系都有嵌入向量$r\in C^k$，得分函数是
 $$
 \phi(h,r,t)=Re(\sum_{k=1}^kh_kr_k \bar{t_k})
@@ -276,9 +281,69 @@ $$
 h^TW\approx t^T\\
 \phi(h,r,t)=h^TWt
 $$
+为了使得关系满足类比推理的情况，如下图
+![analogical inference](ana.png)
+> 理解类比推理 man is to king as woman is to queen.
+
+建模得到的嵌入向量和关系矩阵应该满足应该满足$a\rightarrow d$的两条转换路径等价
+$$
+r\circ r'=r'\circ r
+$$
+因此ANALOGY建模时添加约束$W_rW_{r'}=W_{r'}W_r$
+利用打分函数的得分计算三元组成立概率，模型训练为有约束条件的损失函数最小化
+$$
+l(\phi(h,r,t),y)=-log\sigma(y\phi(h,r,t))
+$$
+原文还提到了ANALOGY在某些情况下可以转化为其他模型的得分函数，因此覆盖范围更广，表达力更好。[ANALOGY实现](https://github.com/thunlp/OpenKE/blob/OpenKE-PyTorch/openke/module/model/Analogy.py)中似乎之和[ComplEx实现](https://github.com/thunlp/OpenKE/blob/OpenKE-PyTorch/openke/module/model/ComplEx.py)差最后一项
+
+## CP
+[Canonical Tensor Decomposition](https://arxiv.org/pdf/1806.07297.pdf)主要是对老方法的探究，新房法是核 p-范数 正则化
+$$
+l_{i,j,k}(X)=-X_{i,j,k}+log(\sum_{k'}exp(X_{i,j,k'}))\\
+-X_{k,j+P,i}+log(\sum_{i'}exp(X_{k,j+P,i'}))
+$$
+> 没看懂(也没细看)这篇文章，$X$应该是像RESCAL中的图张量一样，这里是直接用$X_{i,j,k}$指代了分解得到的$h\otimes r\otimes t$吗?，第三项中的$P$和$k',i'$具体是什么没有弄懂，如果要细读文章优先解决这些问题
 
 
+## SimplE 
+[Simple Embedding](https://arxiv.org/pdf/1802.04868.pdf)对1927年的CP(Canonical Polyadic)做简化，CP为每个实体分配两个嵌入向量，即作为头尾实体的时候是不同的向量表示，两个向量分别学习。SimplE仍然保持为每个实体$e$分配两个向量$h_e,t_e\in R^d$，为每个关系$r$也分配两个向量$v_r,v_{r^{-1}}\in R^d$。对每个三元组$(e_i,r,e_j)$定义相似度函数（得分函数）
+$$
+\phi(e_i,r,e_j)=\frac{1}{2}(<h_{e_i},v_r,t_{e_j}>+<h_{e_j},v_{v^{r-1}},t_{e_i}>)
+$$
+> $<a,b,c>$根据[实现](https://github.com/thunlp/OpenKE/blob/OpenKE-PyTorch/openke/module/model/SimplE.py)来看似乎就是向量对应位置相乘之后相加
+
+训练的时候用上面的得分函数，预测的时候值用前半部分（文章中叫SimplE-ignr），相当于三元组$(e_i,r,e_j)$定得到的嵌入向量还是$h_{e_i},v_r,t_{e_j}$，训练时采用softplux，没有选择margin-based 的 loss 是因为它比 log-likelihood 更容易导致过拟合（文章原话，有参考文献）
+$$
+loss=softplux(-l\phi(e_i,r,e_j))+\lambda ||\theta||^2_2
+softplux(x)=log(1+exp(x))
+$$
+[实现](https://github.com/thunlp/OpenKE/blob/OpenKE-PyTorch/openke/module/model/SimplE.py)中没有明显有正则项的存在，$l\in \{1,-1\}$是label，实际就是softplux(-正得分)+softplux(负得分)
 
 
+## CrossE
+[Interaction Embeddings](https://arxiv.org/pdf/1903.04750.pdf)引入矩阵计算实体和关系的`crossover interaction`（即关系影响实体，实体影响关系），计算头实体和关系的组合表示与尾实体的相似性
+![overview](overview.png)
+打分函数是
+$$
+f(h,r,t)=\sigma(tanh(c_r\circ h+ c_r \circ h \circ r +b)t^T)
+$$
+> $\circ$是`hadamard`积，$c_r$是从`Interaction matrix` C中用r的`one-hot`得到的嵌入向量，实际实现就是有三个embedding层，实体，关系和交互矩阵的embedding
 
 
+> 博主这里的感悟：在这篇文章中学到/想到的一点是，如果方法/idea不是那么高端的话，可以通过多做实验另辟蹊径来弥补，如本文如果只做了 crossover interaction 的工作的话，就会显得单薄和鸡肋，但是因为加上了 explanation 这样一个工作重点，就会显得比较详实。
+## RotatE
+[Rotation Embedding](https://arxiv.org/pdf/1902.10197.pdf)希望建模三种类型的关系：关系是对称的，某两个关系是相反的，某三个关系是可传递的
+> 关系的性质可以看离散数学
+
+RotatE是复空间中的双线性模型，希望三元组满足$t=h\circ r$，距离函数是
+$$
+d(h,r,t)=||h\circ r-t||
+$$
+> 原文附录提到了为什么建模的RotatE可以表示三种类型的关系
+
+训练类似TransX的方式，但对负样本进行了赋权$p(h',r,t')$（原文叫`self-adversarial`），[实现](https://github.com/thunlp/OpenKE/blob/OpenKE-PyTorch/openke/module/loss/SigmoidLoss.py)中是由adv_temperature代表的
+$$
+loss=-log\sigma(\gamma-d(h,r,t))-\sum_{i=1}^n p(h',r,t')log\sigma(d(h',r,t')-\gamma)
+$$
+## TuckER
+[Tensor Factorization for entities relations](https://arxiv.org/pdf/1901.09590.pdf)可以看[这里](https://blog.csdn.net/qq_42397330/article/details/116290128)

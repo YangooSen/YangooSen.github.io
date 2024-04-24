@@ -56,6 +56,8 @@ public:
 - [459.重复的子字符串](https://programmercarl.com/0459.%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)真的想不到next数组还能在这用，直接看[简单推理](https://programmercarl.com/0459.%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2.html#%E6%80%9D%E8%B7%AF)配合想象画面好理解一点，但还是想不到。[暴力枚举](https://leetcode.cn/problems/repeated-substring-pattern/solutions/386481/zhong-fu-de-zi-zi-fu-chuan-by-leetcode-solution/)也需要思考
 - [19.删除链表的倒数第N个节点](https://programmercarl.com/0019.%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B9.html)只能想到用vector存储节点再删除，想不到双指针保持距离n删除
 # 算法
+
+- [101. 对称二叉树](https://programmercarl.com/0101.%E5%AF%B9%E7%A7%B0%E4%BA%8C%E5%8F%89%E6%A0%91.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)自己写的层序遍历判断，想的时候考虑过递归但没想到具体思路。一个node参数的函数解决不了就自己写一个两个参数的递归函数
 - [225. 用队列实现栈](https://programmercarl.com/0225.%E7%94%A8%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E6%A0%88.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)第三次做的时候想了一段时间想到了，还是不熟练，队列模拟栈用一个`queue`和`queue_copy`解决
 ```cpp
 /*
@@ -136,7 +138,7 @@ void getNext(vector<int>& next, const string& s) {
     int j = 0;
     next[0] = 0;
     for(int i = 1; i < s.size(); i++) {
-        while (j > 0 && s[i] != s[j]) j = next[j - 1];
+        while (j > 0 && s[i] != s[j]) j = next[j - 1]; //s[0,j]的前缀字符已经不匹配了,看看s[0,j-1]的前缀字符还是否能匹配
         if (s[i] == s[j]) j++;
         next[i] = j;
     }
@@ -167,6 +169,13 @@ int KMP(string main, string pattern) {
 
 ![例子](example.gif)
 
+
+- [239. 滑动窗口最大值](https://programmercarl.com/0239.%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E6%9C%80%E5%A4%A7%E5%80%BC.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)单调队列解决，没见过的结构，[实现](https://zhuanlan.zhihu.com/p/346354943)的关键是只维护(push,pop)那些有可能成为最值的数。还是从前面出，从后面进，只和队口元素比较，出的时候和出口的最值比较，判断是否要pop，入的时候和入口的最值比较，判断是否push，**始终保持单调性**
 # 数学
 - [142.环形链表II](https://programmercarl.com/0142.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8II.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)，想不到双指针的思路，也想不到最后的`x=z`
 > 相关问题 [160.链表相交](https://programmercarl.com/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4.html#%E6%80%9D%E8%B7%AF) 每次都是用map解决的，双指针对齐之后也可以解决
+
+
+# 模拟
+[中缀表达式求值](https://blog.csdn.net/weixin_43941332/article/details/105084051?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-105084051-blog-104799083.235^v43^pc_blog_bottom_relevance_base2&spm=1001.2101.3001.4242.1&utm_relevant_index=3),后缀表达式一个栈存数字，直接遇到符号处理即可，**前缀表达式可以倒着遍历就是后缀了**。前缀表达式需要两个栈，有[动画视频](https://www.bilibili.com/video/BV1H4411N7oD?p=21)![操作](op.png)
+> 注意左括号在栈外面是优先级最高的，需要压入栈，而栈内的左括号是优先级最低的，比所有符号都低，就算外面是+-，也不能直接运算
