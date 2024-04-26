@@ -24,7 +24,7 @@
 <meta property="og:description" content="记录科学上网的方式">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-04-26T02:49:27.000Z">
-<meta property="article:modified_time" content="2024-04-26T08:13:27.082Z">
+<meta property="article:modified_time" content="2024-04-26T08:22:24.482Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="note">
 <meta name="twitter:card" content="summary_large_image">
@@ -188,7 +188,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          629 字
+          661 字
         
       </span>
     
@@ -252,7 +252,7 @@
 <ul>
 <li>下载节点服务的配置文件(参考选用的节点)</li>
 </ul>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">wget -O config.yaml <span class="hljs-string">&quot;https://zgy45.no-mad-world.club/link/IoxK4lTJ3gDDQvyV?clash=3</span><br></code></pre></td></tr></table></figure>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">wget -O config.yaml <span class="hljs-string">&quot;https://v2ois.no-mad-world.club/link/IoxK4lTJ3gDDQvyV?clash=3&quot;</span><br></code></pre></td></tr></table></figure>
 <p>这个配置文件可以自己修改，参考<a target="_blank" rel="noopener" href="https://clash.wiki/configuration/configuration-reference.html">注释</a>，端口占用的时候修改<code>port</code>和<code>socks-port</code>,<code>external-controller</code>是外部监听，在另一台机器上监听FQ机器的状况，选择节点，查看流量等。这个我自己配了很久没搞好，实际用处不大感觉，可以看<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/692274448">在 Linux 中使用 Clash</a>，下面是服务器端的配置例子</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs yaml"><span class="hljs-attr">port:</span> <span class="hljs-number">15732</span><br><span class="hljs-comment">#port: 7890</span><br><span class="hljs-attr">socks-port:</span> <span class="hljs-number">15731</span><br><span class="hljs-comment">#socks-port: 7891</span><br><span class="hljs-attr">allow-lan:</span> <span class="hljs-literal">false</span><br><span class="hljs-attr">mode:</span> <span class="hljs-string">Rule</span> <br><span class="hljs-attr">log-level:</span> <span class="hljs-string">info</span> <br><span class="hljs-attr">external-controller:</span> <span class="hljs-number">0.0</span><span class="hljs-number">.0</span><span class="hljs-number">.0</span><span class="hljs-string">:9990</span><br><span class="hljs-comment">#external-controller: 127.0.0.1:9090</span><br><span class="hljs-attr">external-ui:</span> <span class="hljs-string">./dashboard</span><br><span class="hljs-comment">#secret: &quot;123456&quot;</span><br><span class="hljs-string">...</span><br><br></code></pre></td></tr></table></figure>
 <ul>
@@ -273,7 +273,7 @@
 <p>服务器端用clash，注意要先等它转到好节点之后才能用，实测wget总是使用挂掉的节点，而不会转到好节点，可以先用</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">curl google.com -v<br>curl www.youtube.com -v<br></code></pre></td></tr></table></figure>
 <p>返回301或者302证明节点已经选好了，服务器端由于没有什么方便的手动选择节点方式<br>
-可以curl几次，如果还没有选好节点，就wget一下配置yaml配置文件</p>
+可以curl几次，如果还没有选好节点，就重新wget一下配置yaml配置文件，注意wget的地址可能会随着时间改变，可能是官方在处理挂掉的节点</p>
 <h1>PigCha</h1>
 <p>官方有<a target="_blank" rel="noopener" href="http://120.241.39.52:8888/misc/linux_tutorial">教程</a>，这个本地和服务器端比较方便，一步到位但月费也比ikuuu贵</p>
 
