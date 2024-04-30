@@ -41,6 +41,7 @@ public:
         if (root != NULL) que.push(root);
         vector<vector<int>> result;
         while (!que.empty()) {
+            //也可以pop一个出来做操作,但是不像"层层推进"，因此还是记忆一层for来操作
             int size = que.size();
             vector<int> vec;
             // 这里一定要使用固定大小size，不要使用que.size()，因为que.size是不断变化的
