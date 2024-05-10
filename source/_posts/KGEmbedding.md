@@ -269,7 +269,7 @@ $$
 $$
 \phi(h,r,t)=Re(\sum_{k=1}^kh_kr_k \bar{t_k})
 $$
-复向量的内积$a^Hb\not= b^Ha$不具有交换性，因此可以建模非对称关系
+复向量的内积$a^Hb\not= b^Ha$不具有交换性，因为实部相等而虚部不相等，实部对称建模对称关系，虚部不相等建模非对称关系（不是很理解?）
 
 ## NAM
 [Neural Association Models](https://arxiv.org/pdf/1603.07704.pdf)是神经网络模型，将事件$E_1$输入，用$sigmoid$或$softmax$计算得到$E_2$的概率，损失函数是最大化似然函数。对知识图谱嵌入表示而言，$E_1=(h,r),E_2=t$，有两种计算结构：
@@ -335,7 +335,11 @@ $$
 [Rotation Embedding](https://arxiv.org/pdf/1902.10197.pdf)希望建模三种类型的关系：关系是对称的，某两个关系是相反的，某三个关系是可传递的
 > 关系的性质可以看离散数学
 
-RotatE是复空间中的双线性模型，希望三元组满足$t=h\circ r$，距离函数是
+RotatE是复空间中的双线性模型，希望三元组满足$t=h\circ r$
+> $t_i=h_ir_i,h_i,r_i,t_i\in C, |r_i|=1$
+
+
+距离函数是
 $$
 d(h,r,t)=||h\circ r-t||
 $$

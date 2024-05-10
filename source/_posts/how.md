@@ -71,9 +71,35 @@ $$
 
 
 
+# vim & tmux
+
+## 复制
+
+- 在tmux中的不同plane复制
+```bash
+:set nonu #设置vim无行号,防止复制的时候复制到行号
+
+prefix + [ #开启tmux复制模式
+space #开始复制,hjkl调整位置
+enter #结束复制
+
+#移动到另一个plane
+:set paste  #开启vim复制模式,防止粘贴时候vim的自动对齐缩进导致复制的行越来越往右偏移
+i #进入复制模式
+prefix + ] #粘贴
 
 
+```
 
+
+## 批量操作
+```bash
+v #开启可视模式，选中要便宜的块
+shift + < #整体向左偏移
+shift + > #整体向右偏移
+
+
+```
 
 
 

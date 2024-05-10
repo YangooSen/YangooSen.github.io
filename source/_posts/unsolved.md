@@ -5,6 +5,41 @@ date: 2024-04-07 19:54:31
 excerpt: 多次面对无法解决的leetcode题目
 tag: ds
 ---
+# 很绕
+- [404.左叶子之和](https://programmercarl.com/0404.%E5%B7%A6%E5%8F%B6%E5%AD%90%E4%B9%8B%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE),注意左叶子的判定：是叶子节点，并且是某个节点的左节点
+```cpp
+
+class Solution {
+public:
+    int sum=0;
+    bool isLeaves(TreeNode* root){
+        if (!root->left && !root->right) return true;
+        else return false;
+    }
+    void sumLeaves(TreeNode* root){
+        if (root->left){
+            if (isLeaves(root->left)) sum+=root->left->val;
+            sumLeaves(root->left);
+        }
+        if (root->right) sumLeaves(root->right);
+
+    }
+
+    int sumOfLeftLeaves(TreeNode* root) {
+        //怎么定义左叶子？是叶子结点，而且是某个节点的左节点
+        sumLeaves(root);
+        return sum;
+    }
+};
+
+
+
+```
+
+
+
+
+
 # 去重
 - [第15题. 三数之和](https://programmercarl.com/0015.%E4%B8%89%E6%95%B0%E4%B9%8B%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)，想不到排序后双指针。问题的关键是三元组内的元素可用重复，但是三元组这个整体不能再次重复。用set<set<>>哈希法记录组合会有几个超时例。关注解法中对a的去重，结果集是i和i右边的某两个元素，组内可以重复，nums[i]!=nums[i-1]是为了避免上一次范围覆盖这一次，nums[i]是每次迭代保证三元组不会重复的关键，因为可用范围是一直在缩小的。
 ```cpp

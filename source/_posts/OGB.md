@@ -61,9 +61,11 @@ result_dict=evaluator.eval(input_dict)
 
 # Link
 
-这里分析一下[ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg)中的PairRE(https://github.com/ant-research/KnowledgeGraphEmbeddingsViaPairedRelationVectors_PairRE)
 
-## run
+## PairRE
+这里分析一下[ogbl-biokg](https://ogb.stanford.edu/docs/linkprop/#ogbl-biokg)中的[PairRE](https://github.com/ant-research/KnowledgeGraphEmbeddingsViaPairedRelationVectors_PairRE)和[ogbl-wikikg2](https://ogb.stanford.edu/docs/linkprop/#ogbl-wikikg2)中的[tripleRE](https://github.com/yulong-CSAI/TripleRE)
+
+### run
 
 ```bash
 #examples.sh 
@@ -136,10 +138,10 @@ for i in tqdm(iterable: range(len(train_triples['head']))):
     train_true_tail[(head, relation)].append(tail)
 
 ```
-train_count初始值是4,这里不清楚为什么用`train_count[(tail, -relation-1, tail_type)] += 1`来计数，
+train_count初始值是4,为什么?,这里不清楚为什么用`train_count[(tail, -relation-1, tail_type)] += 1`来计数，
 
 
-## DataSet
+### DataSet
 
 ```python
 
@@ -180,7 +182,7 @@ def __next__(self) -> Unknown:
 
 ```
 
-## train
+### train
 ```python
 kge_model: KGEModel = KGEModel(
     model_name=args.model,
@@ -241,6 +243,218 @@ def PairRE(self, head, relation, tail, mode) -> Unknown:
 
 
 ```
+
+## TripleRE
+
+### run
+
+```bash
+python run.py --do_train --do_valid --cuda --do_test --evaluate_train \
+          --model TripleRE -n 128 -b 512 -d 200 -g 6 -a 1.0 -adv -tr \
+          -lr 0.0005 --max_steps 700000 --cpu_num 2 --test_batch_size 32
+
+
+```
+和PairRE的参数和代码基本一致,下面直接看model.py
+
+
+### TransE
+```python
+
+def TransE(self, head, relation, tail, mode) -> Unknown:
+	if mode == 'head-batch':
+		score: Unknown = head + (relation - tail)
+	else:
+		score: Unknown = (head + relation) - tail
+
+	score: Unknown = self.gamma.item() - torch.norm(score, p=1, dim=2)
+	return score
+
+```
+> 这里的embedding.shape=[batch_size,1,dim]
+
+实际上两种batch的计算结果是一样的，满足结合律，这里的方法与[原方法](https://yangoosen.github.io/2024/04/12/KGEmbedding/#TransH)的不同是这里norm用的是绝对值，而不是p=2，另外score和loss的计算方法也有不同，这里的score直接算了$\gamma$,后面的loss直接取平均
+
+### DistMult
+```python
+def DistMult(self, head, relation, tail, mode) -> Unknown:
+    if mode == 'head-batch':
+        score: Unknown = head * (relation * tail)
+    else:
+        score: Unknown = (head * relation) * tail
+
+    score: Unknown = score.sum(dim = 2)
+    return score
+
+
+```
+基本实现了[原方法](https://yangoosen.github.io/2024/04/12/KGEmbedding/#DistMult)
+
+
+### ComplEx
+```python
+
+def ComplEx(self, head, relation, tail, mode) -> Tensor:
+    re_head, im_head = torch.chunk(input: head, chunks: 2, dim=2)
+    re_relation, im_relation = torch.chunk(input: relation, chunks: 2, dim=2)
+    re_tail, im_tail = torch.chunk(input: tail, chunks: 2, dim=2)
+
+    if mode == 'head-batch':
+        re_score: Tensor = re_relation * re_tail + im_relation * im_tail
+        im_score: Tensor = re_relation * im_tail - im_relation * re_tail
+        score: Tensor = re_head * re_score + im_head * im_score
+    else:
+        re_score: Tensor = re_head * re_relation - im_head * im_relation
+        im_score: Tensor = re_head * im_relation + im_head * re_relation
+        score: Tensor = re_score * re_tail + im_score * im_tail
+
+    score: Tensor = score.sum(dim = 2)
+    return score
+
+
+```
+
+head-batch是head是负样本，这里实现的情况是
+$$
+score=re_head * re_score + im_head * im_score\\
+=re_head*(re_relation * re_tail + im_relation * im_tail)+im_head*(re_relation * im_tail - im_relation * re_tail)\\
+=Re(rel)*Re(head)*Re(tail)\\+Im(Re)*Re(head)*Im(tail)\\+Re(rel)*Im(head)*Im(tail)\\-Im(rel)*Im(head)*Re(tail)
+
+$$
+基本实现了[原方法](https://yangoosen.github.io/2024/04/12/KGEmbedding/#ComplEx)
+
+
+### RotateE
+```python
+
+def RotatE(self, head, relation, tail, mode) -> Unknown:
+    pi: float = 3.14159265358979323846
+
+    re_head, im_head = torch.chunk(head, 2, dim=2)
+    re_tail, im_tail = torch.chunk(tail, 2, dim=2)
+
+    #Make phases of relations uniformly distributed in [-pi, pi]
+
+    phase_relation: Unknown = relation/(self.embedding_range.item()/pi)
+
+    re_relation: Unknown = torch.cos(phase_relation)
+    im_relation: Unknown = torch.sin(phase_relation)
+
+    if mode == 'head-batch':
+        re_score: Unknown = re_relation * re_tail + im_relation * im_tail
+        im_score: Unknown = re_relation * im_tail - im_relation * re_tail
+        re_score: Unknown = re_score - re_head
+        im_score: Unknown = im_score - im_head
+    else:
+        re_score: Unknown = re_head * re_relation - im_head * im_relation
+        im_score: Unknown = re_head * im_relation + im_head * re_relation
+        re_score: Unknown = re_score - re_tail
+        im_score: Unknown = im_score - im_tail
+
+    score: Unknown = torch.stack([re_score, im_score], dim = 0)
+    score: Unknown = score.norm(dim = 0)
+
+    score: Unknown = self.gamma.item() - score.sum(dim = 2)
+    return score
+
+
+```
+
+目前还没细看原文，后续在[文章](https://yangoosen.github.io/2024/04/12/KGEmbedding/#RotatE)补充对代码的理解
+
+### RotateEv2
+```python
+def RotatEv2(self, head, relation, tail, mode, r_norm=None) -> Unknown:
+    pi: float = 3.14159265358979323846
+
+    re_head, im_head = torch.chunk(head, 2, dim=2)
+    re_tail, im_tail = torch.chunk(tail, 2, dim=2)
+
+    #Make phases of relations uniformly distributed in [-pi, pi]
+    phase_relation: Unknown = relation/(self.embedding_range.item()/pi)
+
+    re_relation: Unknown = torch.cos(phase_relation)
+    im_relation: Unknown = torch.sin(phase_relation)
+
+    re_relation_head, re_relation_tail = torch.chunk(re_relation, 2, dim=2)
+    im_relation_head, im_relation_tail = torch.chunk(im_relation, 2, dim=2)
+
+    re_score_head: Unknown = re_head * re_relation_head - im_head * im_relation_head
+    im_score_head: Unknown = re_head * im_relation_head + im_head * re_relation_head
+
+    re_score_tail: Unknown = re_tail * re_relation_tail - im_tail * im_relation_tail
+    im_score_tail: Unknown = re_tail * im_relation_tail + im_tail * re_relation_tail
+
+    re_score: Unknown = re_score_head - re_score_tail
+    im_score: Unknown = im_score_head - im_score_tail
+
+    score: Unknown = torch.stack([re_score, im_score], dim = 0)
+    score: Unknown = score.norm(dim = 0)
+
+    score: Unknown = self.gamma.item() - score.sum(dim = 2)
+    return score
+
+```
+同上RotateE
+
+TripleRE只是在PairRE的基础上多了+re_mid
+
+### TransH
+```python
+
+
+if model_name in ['TransH']:
+    self.norm_vector: Unknown = nn.Parameter(torch.zeros(nrelation, self.relation_dim))
+    nn.init.uniform_(
+        tensor=self.norm_vector,
+        a=-self.embedding_range.item(),
+        b=self.embedding_range.item()
+    )
+
+
+def TransH(self, head, relation, tail, mode) -> Unknown:
+    def _transfer(e, norm) -> Unknown:
+        norm = F.normalize(norm, p = 2, dim = -1)
+        if e.shape[0] != norm.shape[0]:
+            e = e.view(-1, norm.shape[0], e.shape[-1])
+            norm = norm.view(-1, norm.shape[0], norm.shape[-1])
+            e = e - torch.sum(e * norm, -1, True) * norm
+            return e.view(-1, e.shape[-1])
+        else:
+            return e - torch.sum(e * norm, -1, True) * norm
+
+    r_norm: Unknown = self.norm_vector(relation)
+    h: Unknown = _transfer(e: h, norm: r_norm)
+    t: Unknown = _transfer(e: t, norm: r_norm)
+
+    """
+    if self.norm_flag:
+        h = F.normalize(h, 2, -1)
+        r = F.normalize(r, 2, -1)
+        t = F.normalize(t, 2, -1)
+    """
+
+    if mode != 'normal':
+        h: Unknown = h.view(-1, r.shape[0], h.shape[-1])
+        t: Unknown = t.view(-1, r.shape[0], t.shape[-1])
+        r: Unknown = r.view(-1, r.shape[0], r.shape[-1])
+    if mode == 'head_batch':
+        score: Unknown = h + (r - t)
+    else:
+        score: Unknown = (h + r) - t
+    score: Unknown = self.gamma.item() - torch.norm(score, p=1, dim=2)
+    return score
+
+```
+这里TripleRE的model.py中实现的TransH似乎有误，norm_vector是Parameter，怎么能调用norm_vector(embedding)??，可以看[OpenKE](https://github.com/thunlp/OpenKE/blob/OpenKE-PyTorch/openke/module/model/TransH.py)的实现,r_norm是r对应超平面的法向量，r是关系的嵌入，基本实现了[原方法](https://yangoosen.github.io/2024/04/12/KGEmbedding/#TransH)
+
+
+
+
+
+
+
+
 
 
 
