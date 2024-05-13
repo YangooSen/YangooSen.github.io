@@ -16,22 +16,24 @@
   <meta name="author" content="YangooSen">
   <meta name="keywords" content="">
   
-    <meta name="description" content="NLP with Transformer 笔记">
+    <meta name="description" content="容器和梯度计算">
 <meta property="og:type" content="article">
-<meta property="og:title" content="transformer">
-<meta property="og:url" content="http://example.com/2024/05/13/transformer/index.html">
+<meta property="og:title" content="container_autograd">
+<meta property="og:url" content="http://example.com/2024/05/13/container-autograd/index.html">
 <meta property="og:site_name" content="YangooSen">
-<meta property="og:description" content="NLP with Transformer 笔记">
+<meta property="og:description" content="容器和梯度计算">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-05-13T01:08:42.000Z">
-<meta property="article:modified_time" content="2024-05-13T01:12:25.090Z">
+<meta property="og:image" content="http://example.com/2024/05/13/container-autograd/ex.png">
+<meta property="article:published_time" content="2024-05-13T03:28:33.000Z">
+<meta property="article:modified_time" content="2024-05-13T03:32:11.355Z">
 <meta property="article:author" content="YangooSen">
-<meta property="article:tag" content="note">
+<meta property="article:tag" content="pytorch">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/05/13/container-autograd/ex.png">
   
   
   
-  <title>transformer - YangooSen</title>
+  <title>container_autograd - YangooSen</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -165,7 +167,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="transformer"></span>
+            <span id="subtitle" data-typed-text="container_autograd"></span>
           
         </div>
 
@@ -176,7 +178,7 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-05-13 09:08" pubdate>
+        <time datetime="2024-05-13 11:28" pubdate>
           2024年5月13日 上午
         </time>
       </span>
@@ -188,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          20 字
+          348 字
         
       </span>
     
@@ -199,7 +201,7 @@
         
         
         
-          1 分钟
+          3 分钟
         
       </span>
     
@@ -236,12 +238,41 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">transformer</h1>
+            <h1 id="seo-header">container_autograd</h1>
             
             
               <div class="markdown-body">
                 
-                <p><a target="_blank" rel="noopener" href="https://github.com/nlp-with-transformers/notebooks">《NLP with Transformers》</a>的读书笔记，主要是学hugging face的一些东西和练英语</p>
+                <p><a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1ov411M7xL/?spm_id_from=333.999.0.0&amp;vd_source=6c26f427606a59575440e9bc6cec44af">来自B站视频</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/tutorials/beginner/basics/autogradqs_tutorial.html">官网教程</a>，<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/torch.html">API查阅</a></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/_modules/torch/nn/modules/container.html#Sequential">container 源码</a> 主要包括 Sequential，ModuleList，ModuleDict，ParameterList，ParameterDict，都继承自 Module</li>
+<li>Sequential 有 forword 函数，有运算功能和存放功能，ModuleList 只有存放功能，如果放在python的列表中就不能被nn.Module的方法访问了</li>
+</ul>
+<blockquote>
+<p>We can only obtain the grad properties for the leaf nodes of the computational graph, which have requires_grad property set to True. For all other nodes in our graph, gradients will not be available.</p>
+</blockquote>
+<blockquote>
+<p>We can only perform gradient calculations using backward once on a given graph, for performance reasons. If we need to do several backward calls on the same graph, we need to pass <strong>retain_graph</strong>=True to the backward call.</p>
+</blockquote>
+<blockquote>
+<p>In many cases, we have a scalar loss function, and we need to compute the gradient with respect to some parameters. However, there are cases when the <strong>output function is an arbitrary tensor</strong>. In this case, PyTorch allows you to compute so-called <strong>Jacobian product</strong>, and not the actual gradient.</p>
+</blockquote>
+<ul>
+<li>向量（或矩阵）<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>y</mi></mrow><annotation encoding="application/x-tex">y</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.625em;vertical-align:-0.1944em;"></span><span class="mord mathnormal" style="margin-right:0.03588em;">y</span></span></span></span>对<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>x</mi></mrow><annotation encoding="application/x-tex">x</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.4306em;"></span><span class="mord mathnormal">x</span></span></span></span>求导，pytorch实际上计算的是<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>δ</mi><mi>l</mi></mrow><mrow><mi>δ</mi><mi>y</mi></mrow></mfrac><mfrac><mrow><mi>δ</mi><mi>y</mi></mrow><mrow><mi>δ</mi><mi>x</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{\delta l}{\delta y}\frac{\delta y}{\delta x}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.4133em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">δy</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal mtight">x</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4461em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">δy</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>，<a target="_blank" rel="noopener" href="https://pytorch.org/docs/stable/generated/torch.Tensor.backward.html#torch.Tensor.backward">tensor.backword</a>传入的第一个参数就是<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>δ</mi><mi>l</mi></mrow><mrow><mi>δ</mi><mi>y</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{\delta l}{\delta y}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.3612em;vertical-align:-0.4811em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.8801em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">δy</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.394em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal mtight" style="margin-right:0.01968em;">l</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.4811em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>，是一个向量；<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mfrac><mrow><mi>δ</mi><mi>y</mi></mrow><mrow><mi>δ</mi><mi>x</mi></mrow></mfrac></mrow><annotation encoding="application/x-tex">\frac{\delta y}{\delta x}</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.2772em;vertical-align:-0.345em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.9322em;"><span style="top:-2.655em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03785em;">δ</span><span class="mord mathnormal mtight">x</span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.4461em;"><span class="pstrut" style="height:3em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.03588em;">δy</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.345em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span>是雅可比矩阵，最后得到的是向量（或矩阵）</li>
+<li><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1502.05767.pdf">Automatic Differentiation in Machine Learning: a Survey</a> 的图2中提到了符号微分，数值微分，自动微分（前向）。表二提到了前向计算和对<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>x</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">x_1</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.5806em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal">x</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span>的前向自动微分，表3提到了前向自动微分和反向自动微分</li>
+</ul>
+<blockquote>
+<p>前向运算和前向自动微分可以同时进行，但只能算出一个输入的导数</p>
+</blockquote>
+<blockquote>
+<p>反向自动微分时可能有多个梯度传到同一个节点，有梯度累积</p>
+</blockquote>
+<ul>
+<li>前向微分算每个节点对某个输入节点的导数，直至终点，即先算u1/x，再算u2/u1，…y/un</li>
+<li>反向微分算结果对每个节点的导数，直至起点，即先算y/un，再算un/un-1</li>
+<li>反向传播不一定计算量一定比前向计算小<br>
+<img src="ex.png" srcset="/img/loading.gif" lazyload alt="计算梯度"></li>
+</ul>
 
                 
               </div>
@@ -254,7 +285,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/note/" class="print-no-link">#note</a>
+        <a href="/tags/pytorch/" class="print-no-link">#pytorch</a>
       
     </div>
   
@@ -268,18 +299,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/05/13/container-autograd/" title="container_autograd">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">container_autograd</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/05/13/llm-note/" title="llm_note">
-                        <span class="hidden-mobile">llm_note</span>
+                      <a href="/2024/05/13/transformer/" title="transformer">
+                        <span class="hidden-mobile">transformer</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
