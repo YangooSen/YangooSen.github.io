@@ -4,11 +4,30 @@
   
   
   <entry>
+    <title>transformer</title>
+    <link href="/2024/05/13/transformer/"/>
+    <url>/2024/05/13/transformer/</url>
+    
+    <content type="html"><![CDATA[<p><a href="https://github.com/nlp-with-transformers/notebooks">《NLP with Transformers》</a>的读书笔记，主要是学hugging face的一些东西和练英语</p>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>note</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>llm_note</title>
     <link href="/2024/05/13/llm-note/"/>
     <url>/2024/05/13/llm-note/</url>
     
-    <content type="html"><![CDATA[<p>读书笔记来自<a href="https://github.com/LLMBook-zh/LLMBook-zh.github.io">《大语言模型》</a></p>]]></content>
+    <content type="html"><![CDATA[<p>读书笔记来自<a href="https://github.com/LLMBook-zh/LLMBook-zh.github.io">《大语言模型》</a></p><h1>前言</h1><p>GPT的发展历程有两点需要注意</p><ul><li>可拓展的训练架构与学习范式：<a href="">Transformer</a>架构的参数规模能够不断扩大且将训练任务统一为预测下一个词这一通用学习范式</li><li></li></ul>]]></content>
     
     
     
