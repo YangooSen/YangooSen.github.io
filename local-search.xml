@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>git_workflow</title>
+    <link href="/2024/05/15/git-workflow/"/>
+    <url>/2024/05/15/git-workflow/</url>
+    
+    <content type="html"><![CDATA[<p>下面介绍两人(甲和乙)同时git一个仓库的情况。需要的是每个本地有两个分支，远程github有三个分支（多人就有多个分支）。本地的两个分支在远程分别有对应，一个对应本人的分支，一个对应整个项目的主分支main</p><h1>创建仓库</h1><p>项目初始创建github仓库，其中某一个人叫甲的先push</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">git init<br>git remote add origin xxx.git<br><br>git add xx<br>git commit<br></code></pre></td></tr></table></figure><h1>命名分支</h1><p>创建本地的分支，提交本地结果和主分支结果</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">git branch -m jia <span class="hljs-comment">#似乎只有commit之后才能命名</span><br>git push origin jia:main<br>git push origin jia:jia<br></code></pre></td></tr></table></figure><p>此时远程github上有两个分支</p><h1>clone仓库</h1><p>另一个人乙也参与进项目开发</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">git <span class="hljs-built_in">clone</span> xxx.git<br><span class="hljs-built_in">cd</span> xxx<br></code></pre></td></tr></table></figure><p>此时乙的本地只有main分支</p><h1>创建分支</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">git branch yi <span class="hljs-comment">#创建分支yi</span><br>git add xx<br>git commit <span class="hljs-comment">#在yi分支提交修改</span><br><br>git push origin yi:yi<br></code></pre></td></tr></table></figure><p>创建本地的分支，保证这个本地有两个分支，push yi:yi 之后远程github有三个分支,yi分支是yi的东西，jia分支是甲的东西，main分支也是甲的东西，乙还没有把自己的提交到main</p><h1>合并分支</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">git checkout main <span class="hljs-comment">#乙切换到main分支</span><br>git merge yi <span class="hljs-comment">#乙将自己的分支与git clone的甲的分支合并到main上</span><br>git push origin main:main<br></code></pre></td></tr></table></figure><p>合并之后main分支是最新的，提交到github的main分支</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash">git checkout yi<br>git pull origin main:yi<br>git push origin yi:yi<br></code></pre></td></tr></table></figure><p>由于github上的main已经是最新，保证自己本地的也是最新可用pull一下</p><h1>同步分支</h1><p>甲如果要继续修改，先pull最新的分支,因为甲本地还只有jia分支</p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash">git pull origin main:main<br>git checkout main<br>git merge jia<br><br>git push origin jia:jia<br></code></pre></td></tr></table></figure><p>这样甲也是最新的分支了</p><h1>之后流程</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs bash">git checkout jia <span class="hljs-comment">#先在自己分支上进行操作</span><br>git add xx<br>git commit<br>git push origin jia:jia <span class="hljs-comment">#推送到远程自己对应的分支</span><br>git checkout main<br>git pull origin main:main <span class="hljs-comment">#将远程最新main拉回本地，保证本地的main是最新的</span><br>git merge jia <span class="hljs-comment">#将此次自己的修改同步到main分支上</span><br>git push origin main:main <span class="hljs-comment">#将自己的修改推送到远程主分支</span><br><br>git checkout jia<br>git pull origin main:jia <span class="hljs-comment">#保证自己本地分支也是最新的</span><br>git push origin jia:jia  <span class="hljs-comment">#保证远程对应分支也是最新，这个可做可不做，因为下一次流程也是先push自己的分支</span><br></code></pre></td></tr></table></figure><p>最重要的是记住</p><ul><li>每次都是<strong>先修改和push自己对应的分支</strong></li><li>把<strong>最新的main同步到本地后再</strong>merge和push</li></ul>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>note</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>server_methods</title>
     <link href="/2024/05/15/server-methods/"/>
     <url>/2024/05/15/server-methods/</url>
