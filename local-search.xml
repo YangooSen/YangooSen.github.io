@@ -4,6 +4,25 @@
   
   
   <entry>
+    <title>server_methods</title>
+    <link href="/2024/05/15/server-methods/"/>
+    <url>/2024/05/15/server-methods/</url>
+    
+    <content type="html"><![CDATA[<h1>sftp</h1><p>不要用scp，似乎有很多bug且麻烦，<a href="https://zhuanlan.zhihu.com/p/51749905">Linux 命令详解：SFTP</a></p><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#连接服务器</span><br>sftp -P remote_port remote_user@remote_host<br><br><span class="hljs-comment">#下载服务器文件</span><br>get /path/remote_file<br><br><span class="hljs-comment">#上传服务器文件</span><br>put local_file<br><br><span class="hljs-comment">#查看服务器目录内容</span><br><span class="hljs-built_in">ls</span><br><br><span class="hljs-comment">#查看本地目录内容</span><br>lls<br><br></code></pre></td></tr></table></figure>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>note</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>container_autograd</title>
     <link href="/2024/05/13/container-autograd/"/>
     <url>/2024/05/13/container-autograd/</url>
@@ -27,7 +46,7 @@
     <link href="/2024/05/13/transformer/"/>
     <url>/2024/05/13/transformer/</url>
     
-    <content type="html"><![CDATA[<p><a href="https://github.com/nlp-with-transformers/notebooks">《NLP with Transformers》</a>的读书笔记，主要是学hugging face的一些东西和练英语</p>]]></content>
+    <content type="html"><![CDATA[<p><a href="https://github.com/nlp-with-transformers/notebooks">《NLP with Transformers》</a>的读书笔记，主要是学hugging face的一些东西和练英语,<a href="https://nlp.seas.harvard.edu/annotated-transformer/">The Annotated Transformer</a>是模型的分步代码</p>]]></content>
     
     
     
@@ -46,7 +65,7 @@
     <link href="/2024/05/13/llm-note/"/>
     <url>/2024/05/13/llm-note/</url>
     
-    <content type="html"><![CDATA[<p>读书笔记来自<a href="https://github.com/LLMBook-zh/LLMBook-zh.github.io">《大语言模型》</a></p><h1>前言</h1><p>GPT的发展历程有两点需要注意</p><ul><li>可拓展的训练架构与学习范式：<a href="https://yangoosen.github.io/2024/05/13/transformer/">Transformer</a>架构的参数规模能够不断扩大且将训练任务统一为预测下一个词这一通用学习范式</li><li>高质量数据，超大规模数据</li></ul><blockquote><p><a href="https://www.zhihu.com/question/615946801/answer/3205148871">大模型的训练用 4090 是不行的，但推理（inference/serving）用 4090 不仅可行，在性价比上还能比 H100 稍高。4090 如果极致优化，性价比甚至可以达到 H100 的 2 倍。</a>，训练总算力（Flops）= 6 * 模型的参数量 * 训练数据的 token 数。模型的参数量和训练数据的 token 数之间也有个比例关系，这也很容易理解，只要把模型想象成数据的压缩版本就行了，压缩比总是有极限的。这里的压缩比应该是<a href="https://zhuanlan.zhihu.com/p/667363516">20倍</a>。事实上，训练需要的内存包括模型参数、反向传播的梯度、优化器所用的内存、正向传播的中间状态（activation）。</p></blockquote><blockquote><p>训练模型需要的内存,一定要读读<a href="https://arxiv.org/pdf/2205.05198">这篇文章</a></p></blockquote><blockquote><p><a href="https://zhuanlan.zhihu.com/p/680413468">英伟达显卡系列解析</a></p></blockquote><blockquote><p><a href="https://zhuanlan.zhihu.com/p/686030232">训练卡和推理卡的区别</a></p></blockquote><blockquote><p><a href="https://zhuanlan.zhihu.com/p/182289287">die、chip、field、cell</a></p></blockquote><blockquote><p><a href="https://www.zhihu.com/question/20387284/answer/2490910906">IaaS、SaaS 和 PaaS </a></p></blockquote>]]></content>
+    <content type="html"><![CDATA[<p>读书笔记来自<a href="https://github.com/LLMBook-zh/LLMBook-zh.github.io">《大语言模型》</a></p><h1>前言</h1><p>GPT的发展历程有两点需要注意</p><ul><li>可拓展的训练架构与学习范式：<a href="https://yangoosen.github.io/2024/05/13/transformer/">Transformer</a>架构的参数规模能够不断扩大且将训练任务统一为预测下一个词这一通用学习范式</li><li>高质量数据，超大规模数据</li></ul><blockquote><p><a href="https://www.zhihu.com/question/615946801/answer/3205148871">大模型的训练用 4090 是不行的，但推理（inference/serving）用 4090 不仅可行，在性价比上还能比 H100 稍高。4090 如果极致优化，性价比甚至可以达到 H100 的 2 倍。</a>，训练总算力（Flops）= 6 * 模型的参数量 * 训练数据的 token 数。模型的参数量和训练数据的 token 数之间也有个比例关系，这也很容易理解，只要把模型想象成数据的压缩版本就行了，压缩比总是有极限的。这里的压缩比应该是<a href="https://zhuanlan.zhihu.com/p/667363516">20倍</a>。事实上，训练需要的内存包括模型参数、反向传播的梯度、优化器所用的内存、正向传播的中间状态（activation）。数据并行分别计算不同的数据计算梯度，每个GPU都有一份模型的拷贝；模型并行可用分为pipeline并行和tensor并行，pipeline并行是把模型的不同层分在不同GPU上，串成一条链；tensor并行是把一层内的attention计算和feed forward network计算等划分到多个GPU上处理，通过划分参数矩阵，将参数矩阵分到不同GPU上训练。并行训练所需要的通信带宽是短板，低带宽会导致GPU无法充分利用算力，即是用很多4090都没办法跑满，只有H100的带宽才能使得通信不会成为训练时间瓶颈，H800就是在带宽上卡了大模型训练，让张量并行难受。推理而言，流水线并行的最大缺点是 GPU 串行处理，延迟较高，导致输出 token 比较慢。而张量并行的最大缺点是传输数据量大，网络带宽低的设备不一定 hold 得住。对于推理，不管用流水线并行还是张量并行，batch size 不算高到太离谱的情况下内存带宽都是瓶颈。</p></blockquote><blockquote><p>训练模型需要的内存,一定要读读<a href="https://arxiv.org/pdf/2205.05198">这篇文章</a></p></blockquote><blockquote><p><a href="https://zhuanlan.zhihu.com/p/680413468">英伟达显卡系列解析</a></p></blockquote><blockquote><p><a href="https://zhuanlan.zhihu.com/p/686030232">训练卡和推理卡的区别</a></p></blockquote><blockquote><p><a href="https://zhuanlan.zhihu.com/p/182289287">die、chip、field、cell</a></p></blockquote><blockquote><p><a href="https://www.zhihu.com/question/20387284/answer/2490910906">IaaS、SaaS 和 PaaS </a></p></blockquote><blockquote><p><a href="https://arxiv.org/pdf/2211.05102">KV Cache</a>把每一层的 K、V 矩阵缓存起来，生成下一个 token 的时候不再需要重新计算</p></blockquote><blockquote><p><a href="https://le.qun.ch/en/blog/2023/05/13/transformer-batching/">Dissecting Batching Effects in GPT Inference</a></p></blockquote><blockquote><p><a href="https://github.com/bigscience-workshop/petals">Run large language models at home, BitTorrent-style.</a></p></blockquote>]]></content>
     
     
     
