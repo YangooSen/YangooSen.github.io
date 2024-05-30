@@ -23,13 +23,15 @@
 <meta property="og:site_name" content="YangooSen">
 <meta property="og:description" content="大语言模型的笔记">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/05/13/llm/1-2.png">
 <meta property="og:image" content="http://example.com/2024/05/13/llm/history.png">
+<meta property="og:image" content="http://example.com/2024/05/13/llm/gpt_history.png">
 <meta property="article:published_time" content="2024-05-13T00:58:34.000Z">
-<meta property="article:modified_time" content="2024-05-29T03:27:20.019Z">
+<meta property="article:modified_time" content="2024-05-30T03:27:42.404Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="LLM">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/05/13/llm/history.png">
+<meta name="twitter:image" content="http://example.com/2024/05/13/llm/1-2.png">
   
   
   
@@ -190,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          4.6k 字
+          5k 字
         
       </span>
     
@@ -201,7 +203,7 @@
         
         
         
-          38 分钟
+          43 分钟
         
       </span>
     
@@ -294,7 +296,7 @@
 <ul>
 <li>大语言模型(PLM)，<code>扩展法则</code>增加参数规模或数据规模会带来性能提升，GPT-3可以通过上下文学习的方法利用少样本数据解决下游任务，而GPT-2等小模型则不具备这一能力，称为<code>涌现能力</code>。为了区别这个能力的差异，学术界将这些模型命名为大语言模型</li>
 </ul>
-<p><img src="history.png" srcset="/img/loading.gif" lazyload alt="发展历程"></p>
+<p><img src="1-2.png" srcset="/img/loading.gif" lazyload alt="发展历程"></p>
 <h2 id="1-2-大语言模型的能力特点">1.2 大语言模型的能力特点</h2>
 <p>与传统模型相比，llm的优势体现在:</p>
 <ul>
@@ -414,9 +416,25 @@ D_{opt}=C^b
 <li>扩展法则用语言建模损失衡量性能，具有可预测性，但指数形式暗示可能存在边际效应递减的情况</li>
 <li>涌现能力用任务层面的表现衡量性能，不具有可预测性，随着规模扩展可能出现模型性能骤然大幅提升的现象</li>
 </ul>
-<p>关于涌现能力也存在广泛争议</p>
+<p>关于涌现能力也存在广泛争议，一种推测是涌现能力可能是由于特殊任务的设置：不联系的评估指标（生成代码使用测试数据通过率评估），有限数量的参数规模，上面的情况容易使得评测效果产生不连续的变化趋势，导致了&quot;涌现能力&quot;，然而实际应用中，用户就是以一种&quot;不连续&quot;的方式感知llm的优劣</p>
+<p>对涌现机制的解释研究工作，较为相关的是<code>顿悟(Grokking)</code>，指的是训练过程中的一种数据学习模式：<a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2201.02177">模型性能从随机水平提升为高度泛化</a></p>
+<h2 id="2-4-GPT系列模型的技术演变">2.4 GPT系列模型的技术演变</h2>
+<p><img src="history.png" srcset="/img/loading.gif" lazyload alt="history"></p>
+<p>GPT系列模型的关键要素是：</p>
 <ul>
-<li>涌现能力可能是由于特殊任务的设置：</li>
+<li>训练能够准确预测下一个词的Transformer（只包含decoder）语言模型</li>
+<li>扩展语言模型的规模和预训练数据的规模</li>
+</ul>
+<p><img src="gpt_history.png" srcset="/img/loading.gif" lazyload alt="gpt_history"></p>
+<h3 id="2-4-1-早期探索">2.4.1 早期探索</h3>
+<p>早期OpenAI使用的是RNN，Transformer出现开始研究GPT系列模型</p>
+<ul>
+<li>GPT1，2017年google推出Transformer，2018年发布第一个GPT模型，模型规模与同时期发布的BERT-Base模型相当，性能不是SOTA</li>
+<li>GPT2，沿用GPT1的架构，参数规模和数据规模扩大，并尝试除去针对特定任务所需要的微调环节。为了建立通用的多任务学习框架<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>P</mi><mo stretchy="false">(</mo><mi>o</mi><mi mathvariant="normal">∣</mi><mi>i</mi><mo separator="true">,</mo><mi>t</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">P(o|i,t)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.13889em;">P</span><span class="mopen">(</span><span class="mord mathnormal">o</span><span class="mord">∣</span><span class="mord mathnormal">i</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord mathnormal">t</span><span class="mclose">)</span></span></span></span>，输入输出和任务信息都通过自然语言描述。如果无监督语言模型经过训练之后具有足够的能力恢复出全部的世界文本，那么本质上它就能解决各种任务</li>
+</ul>
+<h3 id="2-4-2-规模扩展">2.4.2 规模扩展</h3>
+<ul>
+<li>在充分探索扩展法则，数据清洗，并行训练等技术之后，GPT3将GPT2的参数规模提升了100余倍。GPT3中正式提出ICL，消除了llm针对新任务进行微调的需要，并且指出了ICL对于大模型性能增益较大，对小模型则收益较小</li>
 </ul>
 
                 
