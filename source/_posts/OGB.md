@@ -316,15 +316,15 @@ def ComplEx(self, head, relation, tail, mode) -> Tensor:
 
 head-batch是head是负样本，这里实现的情况是
 $$
-score=re_head * re_score + im_head * im_score\\
-=re_head*(re_relation * re_tail + im_relation * im_tail)+im_head*(re_relation * im_tail - im_relation * re_tail)\\
+score=Re(head) * Re(score) + Im(head) * Im(score)\\
+=Re(head)*(Re(relation) * Re(tail) + Im(relation) * Im(tail))+Im(head)*(Re(relation) * Im(tail) - Im(relation) * Re(tail))\\
 =Re(rel)*Re(head)*Re(tail)\\+Im(Re)*Re(head)*Im(tail)\\+Re(rel)*Im(head)*Im(tail)\\-Im(rel)*Im(head)*Re(tail)
 
 $$
 基本实现了[原方法](https://yangoosen.github.io/2024/04/12/KGEmbedding/#ComplEx)
 
 
-### RotateE
+### RotatE
 ```python
 
 def RotatE(self, head, relation, tail, mode) -> Unknown:
@@ -357,10 +357,9 @@ def RotatE(self, head, relation, tail, mode) -> Unknown:
     score: Unknown = self.gamma.item() - score.sum(dim = 2)
     return score
 
-
 ```
 
-目前还没细看原文，后续在[文章](https://yangoosen.github.io/2024/04/12/KGEmbedding/#RotatE)补充对代码的理解
+$\frac{embedding}{range}\pi$使得relation可以用角度表示，基本实现了[原方法](https://yangoosen.github.io/2024/04/12/KGEmbedding/#RotatE)
 
 ### RotateEv2
 ```python
@@ -395,7 +394,6 @@ def RotatEv2(self, head, relation, tail, mode, r_norm=None) -> Unknown:
     return score
 
 ```
-同上RotateE
 
 TripleRE只是在PairRE的基础上多了+re_mid
 

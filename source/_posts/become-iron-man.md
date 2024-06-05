@@ -3,7 +3,7 @@ title: become_iron_man
 katex: true
 date: 2024-05-10 16:11:53
 excerpt: 记录自己朝着钢铁侠努力的进度
-tag: note
+tag: hardware
 ---
 
 # 电子系统设计
@@ -59,3 +59,7 @@ tag: note
 
 ## HoloCubic
 主要可以参考[HoloCubic_AIO (All in one for HoloCubic)](https://github.com/ClimbSnail/HoloCubic_AIO)中的[闭坑指南](https://github.com/ClimbSnail/HoloCubic_AIO/blob/main/HoloCubic%E5%B0%8F%E7%94%B5%E8%A7%86%E2%94%80%E2%94%80%E5%B0%8F%E7%99%BD%E9%81%BF%E5%9D%91%E6%8C%87%E5%8D%97v2.3.md)
+
+## ElectronBot
+主要可以参考[ElectronBot精选文档](https://maker-community.github.io/electronbot-doc/)，下面是原理图
+![diagram](diagram.png)

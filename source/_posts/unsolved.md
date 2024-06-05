@@ -91,7 +91,58 @@ public:
 - [459.重复的子字符串](https://programmercarl.com/0459.%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)真的想不到next数组还能在这用，直接看[简单推理](https://programmercarl.com/0459.%E9%87%8D%E5%A4%8D%E7%9A%84%E5%AD%90%E5%AD%97%E7%AC%A6%E4%B8%B2.html#%E6%80%9D%E8%B7%AF)配合想象画面好理解一点，但还是想不到。[暴力枚举](https://leetcode.cn/problems/repeated-substring-pattern/solutions/386481/zhong-fu-de-zi-zi-fu-chuan-by-leetcode-solution/)也需要思考
 - [19.删除链表的倒数第N个节点](https://programmercarl.com/0019.%E5%88%A0%E9%99%A4%E9%93%BE%E8%A1%A8%E7%9A%84%E5%80%92%E6%95%B0%E7%AC%ACN%E4%B8%AA%E8%8A%82%E7%82%B9.html)只能想到用vector存储节点再删除，想不到双指针保持距离n删除
 # 算法
+- [98.验证二叉搜索树](https://programmercarl.com/0098.%E9%AA%8C%E8%AF%81%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91.html)自己想到的是表达二叉树的区间来做（见下图），没想到直接用中序遍历
+```cpp
+class Solution {
+public:
+    bool isValid(TreeNode* root,long minRange,long maxRange){
+        if (!root) return true;
+        if (root->left){
+            if (root->left->val>=root->val) return false;
+            if (root->left->val<=minRange) return false;
+        }
 
+        if (root->right){
+            if (root->right->val<=root->val) return false;
+            if (root->right->val>=maxRange) return false;
+        }
+        long tmp;
+
+        //右子树的最小值都至少是root->val或者更大
+        tmp=minRange>root->val?minRange:root->val;
+        bool right=isValid(root->right,tmp,maxRange);
+        
+        //左子树的最大值都至多是root->val或者更小
+        tmp=maxRange<root->val?maxRange:root->val;
+        bool left=isValid(root->left,minRange,tmp);
+
+        return left && right;
+    }
+    bool isValidBST(TreeNode* root) {
+        return isValid(root,-2147483649,2147483648);
+    }
+};
+
+```
+![例子](illustration.png)
+- [106.从中序与后序遍历序列构造二叉树](https://programmercarl.com/0106.%E4%BB%8E%E4%B8%AD%E5%BA%8F%E4%B8%8E%E5%90%8E%E5%BA%8F%E9%81%8D%E5%8E%86%E5%BA%8F%E5%88%97%E6%9E%84%E9%80%A0%E4%BA%8C%E5%8F%89%E6%A0%91.html)每次都是有思路但报错，最重要的是注意划分后序遍历不要去找右子树的节点，而是直接用[len判断位置](https://blog.csdn.net/weixin_52812620/article/details/126631784)啊
+```cpp
+tree* create(int postStart,int postEnd,int inStart,int inEnd){
+    if (postStart>postEnd || inStart>inEnd) return nullptr;
+    tree* root=new tree(post[postEnd]);
+    //cout << root->data << endl;
+    int i=inStart;
+    while (in[i]!=root->data){i++;}
+    int len=i-inStart; //这里用len判断是关键，不然总报错
+    //cout << len;
+    //cout << in[i+1] << ' ' << in[inEnd] << endl;
+    //cout << post[postStart+len] << ' ' << post[postEnd-1] << endl;
+    root->left=create(postStart,postStart+len-1,inStart,i-1);
+    root->right=create(postStart+len,postEnd-1,i+1,inEnd);
+    return root;
+}
+
+```
 - [101. 对称二叉树](https://programmercarl.com/0101.%E5%AF%B9%E7%A7%B0%E4%BA%8C%E5%8F%89%E6%A0%91.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)自己写的层序遍历判断，想的时候考虑过递归但没想到具体思路。一个node参数的函数解决不了就自己写一个两个参数的递归函数
 - [225. 用队列实现栈](https://programmercarl.com/0225.%E7%94%A8%E9%98%9F%E5%88%97%E5%AE%9E%E7%8E%B0%E6%A0%88.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)第三次做的时候想了一段时间想到了，还是不熟练，队列模拟栈用一个`queue`和`queue_copy`解决
 ```cpp

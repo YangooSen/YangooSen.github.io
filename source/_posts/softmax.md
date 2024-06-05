@@ -3,7 +3,7 @@ title: softmax
 katex: true
 date: 2024-04-02 20:54:19
 excerpt: softmax中最大化似然函数与最小化交叉熵的等价性，将sigmoid推广到softmax
-tag: note
+tag: MLBasis
 ---
 
 $softmax$回归是一个多分类模型

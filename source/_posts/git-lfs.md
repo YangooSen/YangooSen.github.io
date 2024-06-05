@@ -3,7 +3,7 @@ title: git_lfs
 katex: true
 date: 2024-04-27 21:04:35
 excerpt: git和git lfs的操作
-tag: note
+tag: linux
 ---
 
 > linux 压缩文件

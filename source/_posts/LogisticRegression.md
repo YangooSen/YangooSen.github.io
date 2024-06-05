@@ -3,7 +3,7 @@ title: LogisticRegression
 katex: true
 date: 2024-04-02 20:21:14
 excerpt: 逻辑回归串讲，涉及到softmax和logistic的统一，贝叶斯分类，玻尔兹曼机等
-tag: note
+tag: MLBasis
 ---
 **[博客园](https://www.cnblogs.com/pinard/)相关内容值得一看**。逻辑回归是一种输出标签是$0/1$的分类模型，将
 $$

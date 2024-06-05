@@ -8,6 +8,18 @@ tag: GNN
 
 > 操作neo4j的数据有两种形式：可以传入cypher语句，然后用graph.run执行，返回游标；另一种方式是用py2neo内置的类和方法来操作，下面主要介绍第二种方法
 > 另外需要注意的是，图数据库是能够帮我们尽量快速地找出不同节点的关系，因此向一个节点或者关系中插入很多无关的数据是完全没有必要的，会浪费很多硬盘资源，检索也会消耗更多时间。合理的做法是只把与图有关的数据存入图数据库，其他无关的属性信息可以存在其他地方，减少检索和存储开支
+
+```bash
+neo4j start
+connect:
+bolt://localhost:7687
+user:neo4j
+pwd:Wwxx!
+
+ip:wlp5s0
+```
+
+
 # Graph
 
 [Graph](https://neo4j-contrib.github.io/py2neo/workflow.html#graph-objects)是具体的某个数据库，是本地类与服务器数据库交互的接口

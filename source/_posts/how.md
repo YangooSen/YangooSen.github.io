@@ -11,6 +11,7 @@ tag: note
 - 依靠页面生成和部署项目[hexo](https://github.com/hexojs/hexo)和hexo主题[Fluid](https://github.com/fluid-dev/hexo-theme-fluid)进行写作
 - hexo配置可用看：[使用 Hexo+GitHub 搭建个人免费博客教程（小白向）](https://zhuanlan.zhihu.com/p/60578464)，[一次完整的Hexo写作流程](https://fuguigui.github.io/hexo2/)
 - fluid配置可以看：[配置指南](https://hexo.fluid-dev.com/docs/guide/)
+- 文章名字最好别带_或-，不然vim高亮可能会出问题
 # 快捷键和别名
 ```sh
 hexo new xxx

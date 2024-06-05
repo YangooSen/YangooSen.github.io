@@ -5,7 +5,7 @@ date: 2024-04-12 08:58:32
 excerpt: 知识图谱嵌入方法汇总和实现代码OpenKE的一些解释
 tag: GNN
 ---
-知识图谱嵌入有较多方法，下面主要介绍转移距离模型TransX，语义匹配模型RESCAL等，考虑附加信息的模型。开源实现可以看[OpenKE](https://github.com/thunlp/OpenKE)和[Pykg2vec](https://pykg2vec.readthedocs.io/en/latest/intro.html)
+知识图谱嵌入有较多方法，下面主要介绍转移距离模型TransX，语义匹配模型RESCAL等，考虑附加信息的模型。开源实现可以看[OpenKE](https://github.com/thunlp/OpenKE)和[Pykg2vec](https://pykg2vec.readthedocs.io/en/latest/intro.html)和[OGB](https://ogb.stanford.edu)
 # TransX
 TransX是转移距离模型，这些方法的重点是设计得分函数$f(h,r,t)$（正确三元组接近0得分高，错误三元组是大负数得分低），再利用下面的损失函数迭代嵌入向量
 $$
@@ -335,9 +335,10 @@ $$
 [Rotation Embedding](https://arxiv.org/pdf/1902.10197.pdf)希望建模三种类型的关系：关系是对称的，某两个关系是相反的，某三个关系是可传递的
 > 关系的性质可以看离散数学
 
-RotatE是复空间中的双线性模型，希望三元组满足$t=h\circ r$
+RotatE是复空间中的双线性模型，希望三元组满足$t=h\circ r$，即复数向量间的点对点乘积,由于[单位复数可以视为旋转变换](https://yangoosen.github.io/2024/05/11/euler-identity/)，因此可以理解为头实体经过关系的旋转变换成为尾实体
 > $t_i=h_ir_i,h_i,r_i,t_i\in C, |r_i|=1$
 
+> 一个线性变换（包括旋转变换）是对应一个矩阵，任何一个复数可以看成一个二维向量，一个复数（向量）可以拆解成一个另一个二维向量和二阶矩阵的乘积，拆解的特例就是一个模长不变而角度变化（旋转）的线性变换，所以一个复数能分解成一个旋转变换的结果。两个复数的加减法，对应两个向量的加法；两个复数相乘，对应两个向量的模相乘（缩放）和角度相加（旋转）。
 
 距离函数是
 $$
