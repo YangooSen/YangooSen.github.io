@@ -16,22 +16,24 @@
   <meta name="author" content="YangooSen">
   <meta name="keywords" content="">
   
-    <meta name="description" content="服务器cpp开发">
+    <meta name="description" content="《effective c++》读书笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="linuxCPP">
-<meta property="og:url" content="http://example.com/2024/06/07/linuxCPP/index.html">
+<meta property="og:title" content="effectiveCPP">
+<meta property="og:url" content="http://example.com/2024/06/08/effectiveCPP/index.html">
 <meta property="og:site_name" content="YangooSen">
-<meta property="og:description" content="服务器cpp开发">
+<meta property="og:description" content="《effective c++》读书笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="article:published_time" content="2024-06-07T08:33:47.000Z">
-<meta property="article:modified_time" content="2024-06-07T09:14:19.517Z">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/1-pipeline.png">
+<meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
+<meta property="article:modified_time" content="2024-06-09T08:14:27.353Z">
 <meta property="article:author" content="YangooSen">
-<meta property="article:tag" content="note">
+<meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/06/08/effectiveCPP/1-pipeline.png">
   
   
   
-  <title>linuxCPP - YangooSen</title>
+  <title>effectiveCPP - YangooSen</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -165,7 +167,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="linuxCPP"></span>
+            <span id="subtitle" data-typed-text="effectiveCPP"></span>
           
         </div>
 
@@ -176,8 +178,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-06-07 16:33" pubdate>
-          2024年6月7日 下午
+        <time datetime="2024-06-08 10:02" pubdate>
+          2024年6月8日 上午
         </time>
       </span>
     
@@ -188,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          262 字
+          81 字
         
       </span>
     
@@ -199,7 +201,7 @@
         
         
         
-          3 分钟
+          1 分钟
         
       </span>
     
@@ -236,35 +238,55 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">linuxCPP</h1>
+            <h1 id="seo-header">effectiveCPP</h1>
             
             
               <div class="markdown-body">
                 
-                <p><a target="_blank" rel="noopener" href="https://mp.weixin.qq.com/s?__biz=Mzg4NjUxMzg5MA==&amp;mid=2247484347&amp;idx=1&amp;sn=826d0cf5ac4361d97b4e9eaee136f98c&amp;scene=21#wechat_redirect">万字长文 | 这可能是东半球最保姆级的后台服务器开发学习路线</a></p>
-<h1>cpp</h1>
-<p>主线主要看 《Effective C++》和《STL源码剖析》，不会的根据《C++ Primer》查漏补缺，不会的东西一定要把附近的都看看，实现的时候注意写出大气的代码（侯捷老师的视频）</p>
-<h1>OS</h1>
-<p>主线主要看《Linux内核设计与实现》，不会的根据《现代操作系统》和《操作系统—精髓与设计原理》查漏补缺，不会的东西一定要把附近的都看看</p>
-<h1>计网</h1>
-<p>重看一遍《计算机网络：自顶向下方法》（之后看一本小书《网络是怎样连接的》），看一遍《TCP/IP详解卷1：协议》，针对HTTP和HTTPS再看下《图解HTTP》</p>
-<h1>网络编程</h1>
+                <h1>introduction</h1>
+<h2 id="Terminology">Terminology</h2>
 <ul>
-<li>《Linux高性能服务器编程》</li>
-<li>《Linux多线程服务器端编程》</li>
+<li>A <code>declaration</code> tells compiliers about the name and the type of something, but it omits certain details.</li>
 </ul>
-<h1>小项目</h1>
-<p>看文章开头的链接</p>
-<h1>系统级编程</h1>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> x; <span class="hljs-comment">//declaration</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Widget</span>;<br></code></pre></td></tr></table></figure>
 <ul>
-<li>《深入理解计算机系统》</li>
-<li>《程序员自我修养》</li>
+<li>A <code>definition</code> provides compilers with the details a declaration omits. For an object, the definition is where compilers set aside memory for the object</li>
 </ul>
-<h1>MySQL</h1>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> x  <span class="hljs-comment">//definition</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Widget</span>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Widget</span>();<br>    ~<span class="hljs-built_in">Widget</span>();<br>&#125;;<br></code></pre></td></tr></table></figure>
 <ul>
-<li>《高性能MySQL》</li>
-<li>《MySQL是怎样运行的》</li>
+<li><code>Initialization</code> is the process of giving an object its first value.</li>
 </ul>
+<blockquote>
+<p>Unless you have a good reason for allowing a ctor to be used for implicit type conversions, you declare it <code>explicit</code></p>
+</blockquote>
+<ul>
+<li>The <code>copy ctor</code> is used to <strong>initialize</strong> an object with a different object of the same type (new object), and <code>copy assignment operator (operator=)</code> is used to <strong>copy</strong> the value from one object to another of the same type (no new object).</li>
+</ul>
+<blockquote>
+<p><code>copy ctor</code>is called when an object passed by value</p>
+</blockquote>
+<h1>1.Accutoming Yourself to C++</h1>
+<h2 id="Item1-View-C-as-a-federation-of-languages">Item1: View C++ as a federation of languages</h2>
+<p>View C++ as a federation of 4 sublanguage:</p>
+<ul>
+<li>C</li>
+<li>Object-Oriented C++</li>
+<li>Template C++</li>
+<li>The STL</li>
+</ul>
+<h2 id="Item2-Prefer-constS-enumS-and-inlineS-to-defineS">Item2: Prefer constS, enumS, and inlineS to #defineS</h2>
+<p>It better be called “prefer the compilier to preprocessor”</p>
+<p><img src="1-pipeline.png" srcset="/img/loading.gif" lazyload alt="pipeline"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> ratio 1.6     <span class="hljs-comment">//change</span></span><br><span class="hljs-type">const</span> <span class="hljs-type">double</span> ratio=<span class="hljs-number">1.6</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li>#define can be processed by preprocessor, “ratio” may never be seen by compilier. This can be confused if you get error during compilation.</li>
+<li>#define cost more memory.That’s because the preprocessor blind substitution of the macro name with 1.6, it result in multiple copies of 1.6 in object code.</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">const</span> std::string <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-string">&quot;ys&quot;</span>)</span></span>;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> num=<span class="hljs-number">5</span> <span class="hljs-comment">//declare not definition, no memory allocation</span><br>    <span class="hljs-type">int</span> score[num];         <span class="hljs-comment">//use</span><br>&#125;;<br><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>Usually, C++ requires that you provide a definition for anything you usem but class-specific constants that are static and of integral type are an exception. As long as you donot take their address, you can declare them and use them without providing a definition. If you do take the address of a class constant, You provide a separate definition:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> foo::num; <span class="hljs-comment">//definition. initial value of class constant is provided where the constant is declared (5), no initial value is permitted at the point of definition</span><br></code></pre></td></tr></table></figure>
+</blockquote>
 
                 
               </div>
@@ -277,7 +299,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/note/" class="print-no-link">#note</a>
+        <a href="/tags/cpp/" class="print-no-link">#cpp</a>
       
     </div>
   
@@ -291,18 +313,12 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/06/08/effectiveCPP/" title="effectiveCPP">
-                        <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">effectiveCPP</span>
-                        <span class="visible-mobile">上一篇</span>
-                      </a>
-                    
                   </article>
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/06/07/paperGraph/" title="paperGraph">
-                        <span class="hidden-mobile">paperGraph</span>
+                      <a href="/2024/06/07/linuxCPP/" title="linuxCPP">
+                        <span class="hidden-mobile">linuxCPP</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>
