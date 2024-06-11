@@ -16,24 +16,24 @@
   <meta name="author" content="YangooSen">
   <meta name="keywords" content="">
   
-    <meta name="description" content="《effective c++》读书笔记">
+    <meta name="description" content="《Java 9并发编程实战》的笔记">
 <meta property="og:type" content="article">
-<meta property="og:title" content="effectiveCPP">
-<meta property="og:url" content="http://example.com/2024/06/08/effectiveCPP/index.html">
+<meta property="og:title" content="javaCC">
+<meta property="og:url" content="http://example.com/2024/06/11/javaCC/index.html">
 <meta property="og:site_name" content="YangooSen">
-<meta property="og:description" content="《effective c++》读书笔记">
+<meta property="og:description" content="《Java 9并发编程实战》的笔记">
 <meta property="og:locale" content="zh_CN">
-<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/1-pipeline.png">
-<meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-06-09T08:14:27.353Z">
+<meta property="og:image" content="http://example.com/2024/06/11/javaCC/1.2.png">
+<meta property="article:published_time" content="2024-06-11T07:26:58.000Z">
+<meta property="article:modified_time" content="2024-06-11T09:22:17.881Z">
 <meta property="article:author" content="YangooSen">
-<meta property="article:tag" content="cpp">
+<meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/06/08/effectiveCPP/1-pipeline.png">
+<meta name="twitter:image" content="http://example.com/2024/06/11/javaCC/1.2.png">
   
   
   
-  <title>effectiveCPP - YangooSen</title>
+  <title>javaCC - YangooSen</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -167,7 +167,7 @@
       <div class="banner-text text-center fade-in-up">
         <div class="h2">
           
-            <span id="subtitle" data-typed-text="effectiveCPP"></span>
+            <span id="subtitle" data-typed-text="javaCC"></span>
           
         </div>
 
@@ -178,8 +178,8 @@
     
       <span class="post-meta">
         <i class="iconfont icon-date-fill" aria-hidden="true"></i>
-        <time datetime="2024-06-08 10:02" pubdate>
-          2024年6月8日 上午
+        <time datetime="2024-06-11 15:26" pubdate>
+          2024年6月11日 下午
         </time>
       </span>
     
@@ -190,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          81 字
+          903 字
         
       </span>
     
@@ -201,7 +201,7 @@
         
         
         
-          1 分钟
+          8 分钟
         
       </span>
     
@@ -238,54 +238,93 @@
       <div class="container nopadding-x-md" id="board-ctn">
         <div id="board">
           <article class="post-content mx-auto">
-            <h1 id="seo-header">effectiveCPP</h1>
+            <h1 id="seo-header">javaCC</h1>
             
             
               <div class="markdown-body">
                 
-                <h1>introduction</h1>
-<h2 id="Terminology">Terminology</h2>
-<ul>
-<li>A <code>declaration</code> tells compiliers about the name and the type of something, but it omits certain details.</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> x; <span class="hljs-comment">//declaration</span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Widget</span>;<br></code></pre></td></tr></table></figure>
-<ul>
-<li>A <code>definition</code> provides compilers with the details a declaration omits. For an object, the definition is where compilers set aside memory for the object</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> x  <span class="hljs-comment">//definition</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Widget</span>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Widget</span>();<br>    ~<span class="hljs-built_in">Widget</span>();<br>&#125;;<br></code></pre></td></tr></table></figure>
-<ul>
-<li><code>Initialization</code> is the process of giving an object its first value.</li>
-</ul>
+                <h1>第一章 线程管理</h1>
+<h2 id="1-1-简介">1.1 简介</h2>
+<p>并发包括进程级别的并发和线程级别的并发。</p>
 <blockquote>
-<p>Unless you have a good reason for allowing a ctor to be used for implicit type conversions, you declare it <code>explicit</code></p>
+<ul>
+<li>进程是资源分配的基本单位，线程是调度的基本单位</li>
+<li>每个线程都有一份栈，但共享一个堆，每个进程有一个堆</li>
+</ul>
 </blockquote>
-<ul>
-<li>The <code>copy ctor</code> is used to <strong>initialize</strong> an object with a different object of the same type (new object), and <code>copy assignment operator (operator=)</code> is used to <strong>copy</strong> the value from one object to another of the same type (no new object).</li>
-</ul>
+<p>当多线程应用程序运行在<code>单核</code>处理器上时（或者线程执行顺序不是预先定义的），程序就是<code>并发</code>运行的；当运行在多个处理器或<code>多核</code>处理器上时（线程按照指定顺序执行），程序是·并行运行的</p>
 <blockquote>
-<p><code>copy ctor</code>is called when an object passed by value</p>
+<p>一个 Java 应用程序至少有三个线程，main 线程，GC 线程，异常处理线程</p>
 </blockquote>
-<h1>1.Accutoming Yourself to C++</h1>
-<h2 id="Item1-View-C-as-a-federation-of-languages">Item1: View C++ as a federation of languages</h2>
-<p>View C++ as a federation of 4 sublanguage:</p>
+<h2 id="1-2-线程的创建、运行和设置">1.2 线程的创建、运行和设置</h2>
+<p>Java是纯OO语言，线程也是一个对象，创建线程的方法有</p>
 <ul>
-<li>C</li>
-<li>Object-Oriented C++</li>
-<li>Template C++</li>
-<li>The STL</li>
-</ul>
-<h2 id="Item2-Prefer-constS-enumS-and-inlineS-to-defineS">Item2: Prefer constS, enumS, and inlineS to #defineS</h2>
-<p>It better be called “prefer the compilier to preprocessor”</p>
-<p><img src="1-pipeline.png" srcset="/img/loading.gif" lazyload alt="pipeline"></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> ratio 1.6     <span class="hljs-comment">//change</span></span><br><span class="hljs-type">const</span> <span class="hljs-type">double</span> ratio=<span class="hljs-number">1.6</span><br></code></pre></td></tr></table></figure>
-<ul>
-<li>#define can be processed by preprocessor, “ratio” may never be seen by compilier. This can be confused if you get error during compilation.</li>
-<li>#define cost more memory.That’s because the preprocessor blind substitution of the macro name with 1.6, it result in multiple copies of 1.6 in object code.</li>
-</ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">const</span> std::string <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-string">&quot;ys&quot;</span>)</span></span>;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> num=<span class="hljs-number">5</span> <span class="hljs-comment">//declare not definition, no memory allocation</span><br>    <span class="hljs-type">int</span> score[num];         <span class="hljs-comment">//use</span><br>&#125;;<br><br></code></pre></td></tr></table></figure>
+<li>
+<p>继承Thread，重写 run</p>
+</li>
+<li>
+<p>实现 Runnabe 接口，重写 run，以接口对象为参数创建 Thread 对象</p>
+</li>
+<li>
+<p>实现 Callable 接口，重写 call（可以有返回值，支持泛型），接口对象为参数创建 FutureTask 对象，后者再为参数创建 Thread 对象，FutureTask.get() 接受返回值</p>
+</li>
+<li>
+<p>线程池</p>
 <blockquote>
-<p>Usually, C++ requires that you provide a definition for anything you usem but class-specific constants that are static and of integral type are an exception. As long as you donot take their address, you can declare them and use them without providing a definition. If you do take the address of a class constant, You provide a separate definition:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> foo::num; <span class="hljs-comment">//definition. initial value of class constant is provided where the constant is declared (5), no initial value is permitted at the point of definition</span><br></code></pre></td></tr></table></figure>
+<p>更推荐实现接口创建线程，即 has-a 的方式定义线程，而不是 is-a，把并行运行的<code>任务与运行机制解耦</code></p>
+</blockquote>
+<p>线程属性有</p>
+</li>
+<li>
+<p>id</p>
+</li>
+<li>
+<p>name</p>
+</li>
+<li>
+<p>priority，1是最低优先级，10是最高优先级。仅供底层操作系统作为参考，不能保证任何事情</p>
+</li>
+<li>
+<p>status，Thread.State 枚举中定义</p>
+<ul>
+<li>
+<p>NEW，创建完毕但未开始执行</p>
+</li>
+<li>
+<p>RUNNABLE，正在JVM中执行</p>
+</li>
+<li>
+<p>BLOCKED，阻塞且等待调度</p>
+</li>
+<li>
+<p>WAITING，此线程在等待另外一个线程</p>
+</li>
+<li>
+<p>TIMED_WAITING：此线程等待另外一个线程一段时间</p>
+</li>
+<li>
+<p>TERMINATED，终止，执行完毕</p>
+<blockquote>
+<p>6种状态里没有os中提到的<code>就绪</code>（获得了除处理机外的一切资源），这里的<code>阻塞</code>状态可能既包括了os中的<code>就绪</code>，也包括了os中的<code>阻塞</code>（等待某资源，即使处理机空闲）</p>
+</blockquote>
+<blockquote>
+<p><code>阻塞</code>发生在一个线程试图获取一个内部的对象锁（而不是java.util.concurrent中的Lock），而这个锁被其他线程占有；当线程等待另一个线程通知调度器出现一个条件时，线程进入<code>等待</code>，比如调用wait，或者等待java.util.concurrent中的Lock。超时等待是调用了有超时参数的方法。<strong>实际上阻塞与等待没有太大区别</strong></p>
+</blockquote>
+<blockquote>
+<p><code>中断</code>与<code>终止</code>和<code>阻塞</code>两种状态不同。中断是假终止，<strong>除了已经废弃的<code>stop</code>方法，实际上没有办法可以强制线程进入<code>终止</code></strong>。如果线程被阻塞就无法检查中断，会抛出<code>InterruptedException</code>。中断只是表示该线程需要处理，被中断的线程可以决定如何响应中断，一般的响应措施就是return，进行终止</p>
+</blockquote>
+<p><img src="1.2.png" srcset="/img/loading.gif" lazyload alt="线程状态转换"></p>
+  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java">Thread.currentThread().getName();<br>Thread.NORM_PRIORITY;<br><br>thread= <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>();<br>thread.setPriority(); <span class="hljs-comment">//抛出IllegalArgumentException，以防传入的优先级不是1-10</span><br>thread.setName();<br>thread.getState();<br><br>thread.start();<br></code></pre></td></tr></table></figure>
+<p>只有调用了start，一个新的执行线程才会被创建</p>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="1-3-线程中断">1.3 线程中断</h2>
+<p>Java使用中断机制向线程表明<code>想要终止</code>它，线程对象可以决定如何响应中断请求</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-comment">//...</span><br>    <span class="hljs-keyword">if</span> (isInterrupted())&#123;<br>        reutrn;<br>    &#125;<br>    <span class="hljs-comment">//...</span><br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span>&#123;<br>    Thread task=<span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>();<br>    <span class="hljs-comment">//...</span><br>    task.interrput();<br><br>    sout.printf(task.getState());<br>    sout.printf(task.isInterrupted());<br>    sout.printf(task.isAlive());<br>&#125;<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>Thread.interrputed()静态方法是测试当前线程（正在执行这个指令的线程）是否被中断，调用之后会将中断bool值重置为false，thread.isInterrupted()不是静态方法，需要通过对象调用，不会改变线程的中断状态</p>
 </blockquote>
 
                 
@@ -299,7 +338,7 @@
     <div class="post-meta">
       <i class="iconfont icon-tags"></i>
       
-        <a href="/tags/cpp/" class="print-no-link">#cpp</a>
+        <a href="/tags/java/" class="print-no-link">#java</a>
       
     </div>
   
@@ -313,9 +352,9 @@
                   <article class="post-prev col-6">
                     
                     
-                      <a href="/2024/06/11/javaCC/" title="javaCC">
+                      <a href="/2024/06/11/effectiveJava/" title="effectiveJava">
                         <i class="iconfont icon-arrowleft"></i>
-                        <span class="hidden-mobile">javaCC</span>
+                        <span class="hidden-mobile">effectiveJava</span>
                         <span class="visible-mobile">上一篇</span>
                       </a>
                     
@@ -323,8 +362,8 @@
                   <article class="post-next col-6">
                     
                     
-                      <a href="/2024/06/07/linuxCPP/" title="linuxCPP">
-                        <span class="hidden-mobile">linuxCPP</span>
+                      <a href="/2024/06/08/effectiveCPP/" title="effectiveCPP">
+                        <span class="hidden-mobile">effectiveCPP</span>
                         <span class="visible-mobile">下一篇</span>
                         <i class="iconfont icon-arrowright"></i>
                       </a>

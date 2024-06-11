@@ -4,6 +4,44 @@
   
   
   <entry>
+    <title>effectiveJava</title>
+    <link href="/2024/06/11/effectiveJava/"/>
+    <url>/2024/06/11/effectiveJava/</url>
+    
+    <content type="html"><![CDATA[]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>java</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
+    <title>javaCC</title>
+    <link href="/2024/06/11/javaCC/"/>
+    <url>/2024/06/11/javaCC/</url>
+    
+    <content type="html"><![CDATA[<h1>第一章 线程管理</h1><h2 id="1-1-简介">1.1 简介</h2><p>并发包括进程级别的并发和线程级别的并发。</p><blockquote><ul><li>进程是资源分配的基本单位，线程是调度的基本单位</li><li>每个线程都有一份栈，但共享一个堆，每个进程有一个堆</li></ul></blockquote><p>当多线程应用程序运行在<code>单核</code>处理器上时（或者线程执行顺序不是预先定义的），程序就是<code>并发</code>运行的；当运行在多个处理器或<code>多核</code>处理器上时（线程按照指定顺序执行），程序是·并行运行的</p><blockquote><p>一个 Java 应用程序至少有三个线程，main 线程，GC 线程，异常处理线程</p></blockquote><h2 id="1-2-线程的创建、运行和设置">1.2 线程的创建、运行和设置</h2><p>Java是纯OO语言，线程也是一个对象，创建线程的方法有</p><ul><li><p>继承Thread，重写 run</p></li><li><p>实现 Runnabe 接口，重写 run，以接口对象为参数创建 Thread 对象</p></li><li><p>实现 Callable 接口，重写 call（可以有返回值，支持泛型），接口对象为参数创建 FutureTask 对象，后者再为参数创建 Thread 对象，FutureTask.get() 接受返回值</p></li><li><p>线程池</p><blockquote><p>更推荐实现接口创建线程，即 has-a 的方式定义线程，而不是 is-a，把并行运行的<code>任务与运行机制解耦</code></p></blockquote><p>线程属性有</p></li><li><p>id</p></li><li><p>name</p></li><li><p>priority，1是最低优先级，10是最高优先级。仅供底层操作系统作为参考，不能保证任何事情</p></li><li><p>status，Thread.State 枚举中定义</p><ul><li><p>NEW，创建完毕但未开始执行</p></li><li><p>RUNNABLE，正在JVM中执行</p></li><li><p>BLOCKED，阻塞且等待调度</p></li><li><p>WAITING，此线程在等待另外一个线程</p></li><li><p>TIMED_WAITING：此线程等待另外一个线程一段时间</p></li><li><p>TERMINATED，终止，执行完毕</p><blockquote><p>6种状态里没有os中提到的<code>就绪</code>（获得了除处理机外的一切资源），这里的<code>阻塞</code>状态可能既包括了os中的<code>就绪</code>，也包括了os中的<code>阻塞</code>（等待某资源，即使处理机空闲）</p></blockquote><blockquote><p><code>阻塞</code>发生在一个线程试图获取一个内部的对象锁（而不是java.util.concurrent中的Lock），而这个锁被其他线程占有；当线程等待另一个线程通知调度器出现一个条件时，线程进入<code>等待</code>，比如调用wait，或者等待java.util.concurrent中的Lock。超时等待是调用了有超时参数的方法。<strong>实际上阻塞与等待没有太大区别</strong></p></blockquote><blockquote><p><code>中断</code>与<code>终止</code>和<code>阻塞</code>两种状态不同。中断是假终止，<strong>除了已经废弃的<code>stop</code>方法，实际上没有办法可以强制线程进入<code>终止</code></strong>。如果线程被阻塞就无法检查中断，会抛出<code>InterruptedException</code>。中断只是表示该线程需要处理，被中断的线程可以决定如何响应中断，一般的响应措施就是return，进行终止</p></blockquote><p><img src="1.2.png" alt="线程状态转换"></p>  <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java">Thread.currentThread().getName();<br>Thread.NORM_PRIORITY;<br><br>thread= <span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>();<br>thread.setPriority(); <span class="hljs-comment">//抛出IllegalArgumentException，以防传入的优先级不是1-10</span><br>thread.setName();<br>thread.getState();<br><br>thread.start();<br></code></pre></td></tr></table></figure><p>只有调用了start，一个新的执行线程才会被创建</p></li></ul></li></ul><h2 id="1-3-线程中断">1.3 线程中断</h2><p>Java使用中断机制向线程表明<code>想要终止</code>它，线程对象可以决定如何响应中断请求</p><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-comment">//...</span><br>    <span class="hljs-keyword">if</span> (isInterrupted())&#123;<br>        reutrn;<br>    &#125;<br>    <span class="hljs-comment">//...</span><br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span>&#123;<br>    Thread task=<span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>();<br>    <span class="hljs-comment">//...</span><br>    task.interrput();<br><br>    sout.printf(task.getState());<br>    sout.printf(task.isInterrupted());<br>    sout.printf(task.isAlive());<br>&#125;<br></code></pre></td></tr></table></figure><blockquote><p>Thread.interrputed()静态方法是测试当前线程（正在执行这个指令的线程）是否被中断，调用之后会将中断bool值重置为false，thread.isInterrupted()不是静态方法，需要通过对象调用，不会改变线程的中断状态</p></blockquote>]]></content>
+    
+    
+    
+    <tags>
+      
+      <tag>java</tag>
+      
+    </tags>
+    
+  </entry>
+  
+  
+  
+  <entry>
     <title>effectiveCPP</title>
     <link href="/2024/06/08/effectiveCPP/"/>
     <url>/2024/06/08/effectiveCPP/</url>
