@@ -24,8 +24,9 @@
 <meta property="og:description" content="《Java 9并发编程实战》的笔记">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/06/11/javaCC/1.2.png">
+<meta property="og:image" content="http://example.com/2024/06/11/javaCC/1-8.jpg">
 <meta property="article:published_time" content="2024-06-11T07:26:58.000Z">
-<meta property="article:modified_time" content="2024-06-11T09:22:17.881Z">
+<meta property="article:modified_time" content="2024-06-13T03:11:04.644Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -190,7 +191,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          903 字
+          2.2k 字
         
       </span>
     
@@ -201,7 +202,7 @@
         
         
         
-          8 分钟
+          19 分钟
         
       </span>
     
@@ -326,6 +327,42 @@
 <blockquote>
 <p>Thread.interrputed()静态方法是测试当前线程（正在执行这个指令的线程）是否被中断，调用之后会将中断bool值重置为false，thread.isInterrupted()不是静态方法，需要通过对象调用，不会改变线程的中断状态</p>
 </blockquote>
+<h2 id="1-4-控制线程中断">1.4 控制线程中断</h2>
+<p>Java 中的一些 API 如 sleep 或 wait，当线程在 BLOCKED 或 WAITING 的时候被中断会抛出 InterruptedException，可以 catch 处理。或者自己在程序中想要处理中断也可以自己控制线程中断，比如有复杂算法或递归调用的程序中可以手动抛出InterruptedException</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (Thread.interrputed)&#123;<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">InterruptedException</span>()<br>&#125; <span class="hljs-comment">//检查完中断之后会修改中断bool值</span><br><br><br></code></pre></td></tr></table></figure>
+<h2 id="1-5-线程的休眠和唤醒">1.5 线程的休眠和唤醒</h2>
+<p>线程有时需要在指定时间暂停执行，此时不需要使用任何资源。可以用静态方法 Thread.sleep 或 TimeUnit 枚举元素的 sleep 方法（调用当前Thread的sleep）</p>
+<p>调用 sleep 时，线程释放 CPU 资源，但线程在休眠时发生中断会立即抛出 InterruptedException 异常，而不会等到休眠时间结束</p>
+<p>在并发 API 中，<code>yield</code> 方法也能使线程释放 CPU 资源，此方法告知JVM当前线程可以为其他任务而放弃自己的CPU资源，JVM不保证一定会响应该请求。通常只在调试中调用此方法</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">try</span>&#123;<br>    TimeUnit.SECONDS.sleep(<span class="hljs-number">5</span>); <span class="hljs-comment">//当前线程等待5s，不使用cpu</span><br>&#125;<span class="hljs-keyword">catch</span> (InterruptedException e)&#123;<br>    sout.printf(<span class="hljs-string">&quot;thread has been interrputed&quot;</span>)<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
+<h2 id="1-6-等待线程执行结束">1.6 等待线程执行结束</h2>
+<p>有时某些程序必须等必要的资源初始化完毕之后才能开始执行后续的工作，此时可以将初始化任务作为单独的线程执行，待其结束后再执行其余线程。在线程a中调用线程b的join方法，线程a即可阻塞，等待线程b执行结束</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java">main&#123;<br>    thread1.start();<br>    thread2.start();<br>    <br>    thread1.join(); <span class="hljs-comment">//先执行线程1，完成初始化工作，此时main线程被阻塞，不能进行业务处理</span><br>    thread2.join(); <span class="hljs-comment">//再执行线程2，完成另外的初始化工作</span><br><br>    <span class="hljs-comment">//...业务处理</span><br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>join有带时间参数的重载，最多等待指定的毫秒数，时间到了就算线程没结束也会直接继续运行</p>
+<h2 id="1-7-守护线程的创建与运行">1.7 守护线程的创建与运行</h2>
+<p>有名为守护线程(daemon)的特殊线程，当程序中仅剩守护线程时，JVM结束守护线程，然后结束程序。正因为最后结束运行，守护线程一般是为用户线程提供服务而位于后台，它通常包含一个无限循环等待请求服务，例如Java中的GC。setDaemon(bool isDaemon)必须在start之前执行</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">task</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Thread</span>&#123;<br>    ctor&#123;<br>        setDaemon(<span class="hljs-literal">true</span>);<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>一旦线程开始执行，其daemon状态便不可更改，此时调用setDaemon将抛出IllegalTheadStateException，通过isDaemon可以检查一个线程是否是守护线程</p>
+<h2 id="1-8-处理线程中的不可控异常">1.8 处理线程中的不可控异常</h2>
+<p>可检查异常必须在方法的throws中声明，不能预料到的非检查异常不需要声明或捕获</p>
+<p><img src="1-8.jpg" srcset="/img/loading.gif" lazyload alt="throwable"></p>
+<p>线程对象如果抛出checked异常必须捕获处理，因为run不接受throws，如果是unchecked异常会默认将异常输出并退出，但Java中也提供了处理unchecked异常的机制，避免程序结束</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ExceptionHandler</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">UncaughtExceptionHandler</span>&#123;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">uncaughtException</span><span class="hljs-params">(Thread t,Throwable e)</span>&#123;<br>        sout.printf(<span class="hljs-string">&quot;unchecked exception&quot;</span>);<br>        e.printStackTrace(System.out);<br>        sout.printf(<span class="hljs-string">&quot;thread status&quot;</span>,t.getState());<br>    &#125;<br><br>&#125;<br><br>Thread t=<span class="hljs-keyword">new</span> <span class="hljs-title class_">Thread</span>(task);<br>thread.setUncaughtExceptionHandler(<span class="hljs-keyword">new</span> <span class="hljs-title class_">ExceptionHandler</span>());<br>thread.start();<br></code></pre></td></tr></table></figure>
+<p>当线程抛出<strong>unchecked</strong>异常时，JVM将调用配置的相应方法，如果没配置会打印信息，然后结束抛出异常的线程</p>
+<p>Thread还定义了静态方法setDefaultUncaughtExceptionHandler用来给所有线程对象设置默认的异常处理器。JVM会为异常依次查找</p>
+<ul>
+<li>本节的UncaughtExceptionHandler</li>
+<li>1.10节中的线程组异常处理器</li>
+<li>默认异常处理器</li>
+</ul>
+<p>如果都没有找到就会打印异常信息，结束抛出异常的线程</p>
+<h2 id="1-9-使用线程本地变量">1.9 使用线程本地变量</h2>
+<p>数据共享在多个线程间非常重要，如果实现Runnabe接口并创建了一个对象，然后用此Runnabe对象为参数创建多个线程来执行此任务，所有线程都能够共享该任务对象的属性，可能会导致线程不安全</p>
+<p>多线程执行<strong>同一个Runnabe实例</strong>时，有方法能够<strong>独享</strong>一个变量。Java的并发API中提供了<code>线程本地变量</code>，只要线程存活，线程本地变量就会一直存在</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SafeTask</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Runnabe</span>&#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> ThreadLocal&lt;type&gt; obj=<span class="hljs-keyword">new</span> <span class="hljs-title class_">ThreadLocal</span>&lt;type&gt;();<br>    <span class="hljs-keyword">protected</span> obj <span class="hljs-title function_">initialValue</span><span class="hljs-params">()</span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Obj</span>();<br>    &#125;<br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span>&#123;<br>        sout.printf(obj.get());<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>线程本地变量机制会为每个使用该属性的线程保存独立的属性值，可以用get和set读写。第一次访问线程本地变量的时候，如果与该线程对象关联的属性值不存在，将会触发initialValue方法，为该属性赋值并返回初始值</p>
+<p>ThreadLocal类提供了remove方法用于删除调用线程的线程本地变量</p>
+<p>并发API中提供的InheritableThreadLocal类能够实现本地变量继承，当线程A有一个线程本地变量，它又创建了线程B，那么线程B也有了相同的线程本地变量。也可以重写childValue，该方法为新创建的子线程初始化本地变量，接受父线程的本地变量值作为参数</p>
 
                 
               </div>

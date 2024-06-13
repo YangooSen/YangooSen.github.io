@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/example.gif">
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/op.png">
 <meta property="article:published_time" content="2024-04-07T11:54:31.000Z">
-<meta property="article:modified_time" content="2024-06-07T13:32:53.397Z">
+<meta property="article:modified_time" content="2024-06-13T12:19:55.955Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="ds">
 <meta name="twitter:card" content="summary_large_image">
@@ -192,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.3k 字
+          2.5k 字
         
       </span>
     
@@ -203,7 +203,7 @@
         
         
         
-          20 分钟
+          21 分钟
         
       </span>
     
@@ -308,10 +308,18 @@
 <p><a target="_blank" rel="noopener" href="https://programmercarl.com/0236.%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">236. 二叉树的最近公共祖先</a>，自己做成的是把路径收集起来找分叉的那个点，没想到这里的后序遍历怎么做，<a target="_blank" rel="noopener" href="https://programmercarl.com/0235.%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E8hh%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88.html">相似问题:235. 二叉搜索树的最近公共祖先</a>但需要思考，还是能用自己的方法做</p>
 </li>
 <li>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_52812620/article/details/126631784">注意节点删除和AVL的节点插入</a>，总是不会写记不住</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_52812620/article/details/126631784">注意节点删除和AVL的节点插入</a>，总是不会写记不住，可以和<a target="_blank" rel="noopener" href="https://programmercarl.com/0108.%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E6%8D%A2%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">108.将有序数组转换为二叉搜索树</a>做对比，这个题见到还以为要写节点插入，马上放弃了，结果换一种思路很简单（lc判定为easy）</p>
 </li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">TreeNode* <span class="hljs-title">findMin</span><span class="hljs-params">(TreeNode* root)</span></span>&#123;<br>        TreeNode* cur=root;<br>        <span class="hljs-keyword">while</span> (cur-&gt;left)&#123;<br>            cur=cur-&gt;left;<br>        &#125;<br>        <span class="hljs-keyword">return</span> cur;<br>    &#125;<br>    <span class="hljs-function">TreeNode* <span class="hljs-title">deleteNode</span><span class="hljs-params">(TreeNode* root, <span class="hljs-type">int</span> key)</span> </span>&#123;<br>        <br>        <span class="hljs-keyword">if</span> (!root) <span class="hljs-keyword">return</span> root;<br>        <span class="hljs-keyword">if</span> (key&lt;root-&gt;val) root-&gt;left=<span class="hljs-built_in">deleteNode</span>(root-&gt;left,key);<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (key&gt;root-&gt;val) root-&gt;right=<span class="hljs-built_in">deleteNode</span>(root-&gt;right,key);<br>        <span class="hljs-keyword">else</span>&#123; <span class="hljs-comment">//相等</span><br>            <span class="hljs-keyword">if</span> (!root-&gt;left &amp;&amp; !root-&gt;right)&#123;<br>                <span class="hljs-keyword">delete</span> root;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>            &#125;<br>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (!root-&gt;left &amp;&amp; root-&gt;right)&#123;<br>                TreeNode* res=root-&gt;right;<br>                <span class="hljs-keyword">delete</span> root;<br>                <span class="hljs-keyword">return</span> res;<br>            &#125;<br>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (root-&gt;left &amp;&amp; !root-&gt;right)&#123;<br>                TreeNode* res=root-&gt;left;<br>                <span class="hljs-keyword">delete</span> root;<br>                <span class="hljs-keyword">return</span> res;<br>            &#125;<br>            <span class="hljs-keyword">else</span>&#123;<br>                <span class="hljs-comment">//有两个儿子,以右子树的最小值代替此节点，然后删除右子树的最小值</span><br>                TreeNode* minNode=<span class="hljs-built_in">findMin</span>(root-&gt;right);<br>                root-&gt;val=minNode-&gt;val;<br>                root-&gt;right=<span class="hljs-built_in">deleteNode</span>(root-&gt;right,minNode-&gt;val);<br>                <span class="hljs-keyword">return</span> root;<br>            &#125;<br><br>        &#125;<br>        <span class="hljs-keyword">return</span> root; <br><br>    &#125;<br>&#125;;<br><br></code></pre></td></tr></table></figure>
+<ul>
+<li>
+<p><a target="_blank" rel="noopener" href="https://programmercarl.com/0669.%E4%BF%AE%E5%89%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">669. 修剪二叉搜索树</a>是自己做出来的，就是先写好一个有点问题但能跑通几个案例的代码，然后根据没跑通的再去修改，注意这种<code>迭代的工程思维</code>。最好还是看看怎么做，防止以后写不出</p>
+</li>
+<li>
+<p><a target="_blank" rel="noopener" href="https://programmercarl.com/0538.%E6%8A%8A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%B4%AF%E5%8A%A0%E6%A0%91.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">538.把二叉搜索树转换为累加树</a>，有想过中序遍历是递增，但发现前序后后序遍历都不是递减，就自己写了中序存数组再反着遍历的代码。没想到<code>反中序遍历右中左</code>就是递减情况</p>
+</li>
+</ul>
 <h1>数学</h1>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://programmercarl.com/0142.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8II.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">142.环形链表II</a>，想不到双指针的思路，也想不到最后的<code>x=z</code></li>

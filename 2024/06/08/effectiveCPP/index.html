@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/1-pipeline.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-06-09T08:14:27.353Z">
+<meta property="article:modified_time" content="2024-06-13T06:47:40.373Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -190,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          81 字
+          116 字
         
       </span>
     
@@ -281,12 +281,20 @@
 <ul>
 <li>#define can be processed by preprocessor, “ratio” may never be seen by compilier. This can be confused if you get error during compilation.</li>
 <li>#define cost more memory.That’s because the preprocessor blind substitution of the macro name with 1.6, it result in multiple copies of 1.6 in object code.</li>
+<li>There is no “private” #define, no way to create a class-specific constant using a #define</li>
 </ul>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">const</span> std::string <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-string">&quot;ys&quot;</span>)</span></span>;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> num=<span class="hljs-number">5</span> <span class="hljs-comment">//declare not definition, no memory allocation</span><br>    <span class="hljs-type">int</span> score[num];         <span class="hljs-comment">//use</span><br>&#125;;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">const</span> std::string <span class="hljs-title">name</span><span class="hljs-params">(<span class="hljs-string">&quot;ys&quot;</span>)</span></span>;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> num=<span class="hljs-number">5</span> <span class="hljs-comment">//it&#x27;s a declare not definition,there is no memory allocation</span><br>    <span class="hljs-type">int</span> score[num];         <span class="hljs-comment">//use</span><br>&#125;;<br><br></code></pre></td></tr></table></figure>
 <blockquote>
-<p>Usually, C++ requires that you provide a definition for anything you usem but class-specific constants that are static and of integral type are an exception. As long as you donot take their address, you can declare them and use them without providing a definition. If you do take the address of a class constant, You provide a separate definition:</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> foo::num; <span class="hljs-comment">//definition. initial value of class constant is provided where the constant is declared (5), no initial value is permitted at the point of definition</span><br></code></pre></td></tr></table></figure>
+<p>Older compilers may not accept the syntax above, because you can not provide initial value at its point of declaration.</p>
 </blockquote>
+<blockquote>
+<p>Usually, C++ requires that you provide a definition for anything you usem but <strong>class-specific constants that are static and of integral type are an exception</strong>. As long as you donot take their address, you can declare them and use them without providing a definition. If you do take the address of a class constant, You provide a separate definition:</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> foo::num; <span class="hljs-comment">//definition. </span><br><span class="hljs-comment">//initial value of class constant is provided where the constant is declared (5), </span><br><span class="hljs-comment">//no initial value is permitted at the point of definition</span><br></code></pre></td></tr></table></figure>
+<p>in cases where the above syntax cant’t be used, you put the initial value at the point of definition:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> num;<br>    <span class="hljs-comment">//... </span><br>&#125;;<br><br><span class="hljs-type">const</span> <span class="hljs-type">double</span> foo::num=<span class="hljs-number">1.35</span>;<br><br></code></pre></td></tr></table></figure>
+<p>This is all need almost all the time. The only exception is <strong>when you need the value of a class constant during compilation of the class</strong>, such as in the declaration of the array (where compilers insist on knowing the size of the array during compilation). Then the accepted way to compensate for compilers that fobid the in-class sepecification of initial value for static integral class constants is to use what is known as <code>the enum hack</code></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">enum</span> &#123;NumTurns=<span class="hljs-number">5</span>&#125;;<br>    <span class="hljs-type">int</span> scores[NumTurns];<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
 
                 
               </div>
