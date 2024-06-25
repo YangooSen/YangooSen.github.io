@@ -5,8 +5,9 @@ date: 2024-05-13 08:58:34
 excerpt: 大语言模型的笔记
 tag: LLM
 ---
-
 读书笔记来自[《大语言模型》](https://github.com/LLMBook-zh/LLMBook-zh.github.io)
+
+[大模型代码解读](https://www.bilibili.com/video/BV1Zr421c76A/?spm_id_from=333.788&vd_source=6c26f427606a59575440e9bc6cec44af)
 
 # 前言
 
@@ -243,3 +244,20 @@ llm仍然存在局限性，例如GPT可能在某些特定上下文中给出带�
 - Gemma是谷歌发布的轻量级开源llm，专注于英语任务
 - MiniCPM是面壁智能与清华大学共同研发的开源llm，同系列模型还包括了指令微调版本，DPO对齐版本和多模态版本
 - YuLan-Chat是中国人民大学研发的中英双语系列对话模型
+
+### 3.1.2 LLaMA变体系列
+
+指令微调由于相对较低的计算成本，已经成为开发定制化或专业化模型的首选方法
+
+![LLaMA模型衍生](3-1.png)
+
+### 3.1.3 大语言模型的公共API
+- 语言模型API： GPT-3.5 Turbo、GPT-4和 GPT-4 Turbo
+- 文本表征API：目前 OpenAI 主要提供三种文本表征的 API 接口，包括 text-embedding-ada-002、text-embedding-3-small 以及 text-embedding-3-large
+
+
+## 3.2 常用的预训练数据集
+
+![预训练数据](3-2.png)
+
+## 3.3 常用微调数据集

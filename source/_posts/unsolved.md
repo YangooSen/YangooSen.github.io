@@ -257,7 +257,62 @@ int KMP(string main, string pattern) {
 
 
 - [239. 滑动窗口最大值](https://programmercarl.com/0239.%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E6%9C%80%E5%A4%A7%E5%80%BC.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)单调队列解决，没见过的结构，[实现](https://zhuanlan.zhihu.com/p/346354943)的关键是只维护(push,pop)那些有可能成为最值的数。还是从前面出，从后面进，只和队口元素比较，出的时候和出口的最值比较，判断是否要pop，入的时候和入口的最值比较，判断是否push，**始终保持单调性**
+
+- [236. 二叉树的最近公共祖先](https://programmercarl.com/0236.%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%9C%80%E8%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)，自己做成的是把路径收集起来找分叉的那个点，没想到这里的后序遍历怎么做，[相似问题:235. 二叉搜索树的最近公共祖先](https://programmercarl.com/0235.%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E6%9C%80%E8hh%BF%91%E5%85%AC%E5%85%B1%E7%A5%96%E5%85%88.html)但需要思考，还是能用自己的方法做
+
+- [注意节点删除和AVL的节点插入](https://blog.csdn.net/weixin_52812620/article/details/126631784)，总是不会写记不住，可以和[108.将有序数组转换为二叉搜索树](https://programmercarl.com/0108.%E5%B0%86%E6%9C%89%E5%BA%8F%E6%95%B0%E7%BB%84%E8%BD%AC%E6%8D%A2%E4%B8%BA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)做对比，这个题见到还以为要写节点插入，马上放弃了，结果换一种思路很简单（lc判定为easy）
+
+```cpp
+class Solution {
+public:
+    TreeNode* findMin(TreeNode* root){
+        TreeNode* cur=root;
+        while (cur->left){
+            cur=cur->left;
+        }
+        return cur;
+    }
+    TreeNode* deleteNode(TreeNode* root, int key) {
+        
+        if (!root) return root;
+        if (key<root->val) root->left=deleteNode(root->left,key);
+        else if (key>root->val) root->right=deleteNode(root->right,key);
+        else{ //相等
+            if (!root->left && !root->right){
+                delete root;
+                return nullptr;
+            }
+            else if (!root->left && root->right){
+                TreeNode* res=root->right;
+                delete root;
+                return res;
+            }
+            else if (root->left && !root->right){
+                TreeNode* res=root->left;
+                delete root;
+                return res;
+            }
+            else{
+                //有两个儿子,以右子树的最小值代替此节点，然后删除右子树的最小值
+                TreeNode* minNode=findMin(root->right);
+                root->val=minNode->val;
+                root->right=deleteNode(root->right,minNode->val);
+                return root;
+            }
+
+        }
+        return root; 
+
+    }
+};
+
+```
+- [669. 修剪二叉搜索树](https://programmercarl.com/0669.%E4%BF%AE%E5%89%AA%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)是自己做出来的，就是先写好一个有点问题但能跑通几个案例的代码，然后根据没跑通的再去修改，注意这种`迭代的工程思维`。最好还是看看怎么做，防止以后写不出
+
+
+- [538.把二叉搜索树转换为累加树](https://programmercarl.com/0538.%E6%8A%8A%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E8%BD%AC%E6%8D%A2%E4%B8%BA%E7%B4%AF%E5%8A%A0%E6%A0%91.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)，有想过中序遍历是递增，但发现前序后后序遍历都不是递减，就自己写了中序存数组再反着遍历的代码。没想到`反中序遍历右中左`就是递减情况
 # 数学
+
 - [142.环形链表II](https://programmercarl.com/0142.%E7%8E%AF%E5%BD%A2%E9%93%BE%E8%A1%A8II.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)，想不到双指针的思路，也想不到最后的`x=z`
 > 相关问题 [160.链表相交](https://programmercarl.com/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4.html#%E6%80%9D%E8%B7%AF) 每次都是用map解决的，双指针对齐之后也可以解决
 
