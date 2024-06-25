@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/1-pipeline.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-06-13T06:47:40.373Z">
+<meta property="article:modified_time" content="2024-06-14T02:08:21.245Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -190,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          116 字
+          165 字
         
       </span>
     
@@ -201,7 +201,7 @@
         
         
         
-          1 分钟
+          2 分钟
         
       </span>
     
@@ -294,7 +294,14 @@
 <p>in cases where the above syntax cant’t be used, you put the initial value at the point of definition:</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> num;<br>    <span class="hljs-comment">//... </span><br>&#125;;<br><br><span class="hljs-type">const</span> <span class="hljs-type">double</span> foo::num=<span class="hljs-number">1.35</span>;<br><br></code></pre></td></tr></table></figure>
 <p>This is all need almost all the time. The only exception is <strong>when you need the value of a class constant during compilation of the class</strong>, such as in the declaration of the array (where compilers insist on knowing the size of the array during compilation). Then the accepted way to compensate for compilers that fobid the in-class sepecification of initial value for static integral class constants is to use what is known as <code>the enum hack</code></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">enum</span> &#123;NumTurns=<span class="hljs-number">5</span>&#125;;<br>    <span class="hljs-type">int</span> scores[NumTurns];<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">enum</span> &#123;NumTurns=<span class="hljs-number">5</span>&#125;;<br>    <span class="hljs-type">int</span> scores[NumTurns];<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>Another common misuse of the #define directive is using it to implement macro that look like functions.</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> CALL_WITH_MAX(a,b) f((a)&gt;(b)?(a):(b))</span><br></code></pre></td></tr></table></figure>
+<p>whenever you write this kind of macro, you have to remember to parenthesize all the arguments (call macro with an expression).</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> a=<span class="hljs-number">5</span>,b=<span class="hljs-number">0</span>;<br><span class="hljs-built_in">CALL_WITH_MAX</span>(++a,b); <span class="hljs-comment">//finally, a is 7</span><br><span class="hljs-built_in">CALL_WITH_MAX</span>(++a,b+<span class="hljs-number">10</span>) <span class="hljs-comment">//finally, a is 6</span><br></code></pre></td></tr></table></figure>
+<p>you should use a template for an inline function</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">callWithMax</span><span class="hljs-params">(<span class="hljs-type">const</span> T&amp; a,<span class="hljs-type">const</span> T&amp;b)</span></span>&#123;<br>    <span class="hljs-built_in">f</span>(a&gt;b?a:b);<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<h2 id="item3-Use-const-whenever-possible">item3: Use const whenever possible</h2>
 
                 
               </div>

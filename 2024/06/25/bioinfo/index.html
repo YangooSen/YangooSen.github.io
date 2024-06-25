@@ -1,0 +1,623 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=dark>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="YangooSen">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="生信笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="bioinfo">
+<meta property="og:url" content="http://example.com/2024/06/25/bioinfo/index.html">
+<meta property="og:site_name" content="YangooSen">
+<meta property="og:description" content="生信笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/06/25/bioinfo/head.png">
+<meta property="article:published_time" content="2024-06-25T01:42:09.000Z">
+<meta property="article:modified_time" content="2024-06-25T09:37:37.266Z">
+<meta property="article:author" content="YangooSen">
+<meta property="article:tag" content="bioinfo">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/06/25/bioinfo/head.png">
+  
+  
+  
+  <title>bioinfo - YangooSen</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>YangooSen</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span></span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span></span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/ironman.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="bioinfo"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-25 09:42" pubdate>
+          2024年6月25日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          13 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">bioinfo</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h1>Biopython 基本使用</h1>
+<p>Biopython 是 Python 在 生信方面应用的第三方包，开源在 <a target="_blank" rel="noopener" href="https://github.com/biopython/biopython">github</a>，使用的是 <code>Biopython License Agreement</code>，非常开放而基本没有任何使用限制</p>
+<p><img src="head.png" srcset="/img/loading.gif" lazyload alt="logo"></p>
+<h2 id="安装">安装</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 创建 conda 环境</span><br>conda create --name biopy python==3.8<br><br><span class="hljs-comment">#激活环境</span><br>conda activate biopy<br><br><span class="hljs-comment">#安装</span><br>conda install biopython==1.77<br></code></pre></td></tr></table></figure>
+<p>下面测试安装是否成功</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> Bio<br><br><span class="hljs-built_in">print</span>(Bio.__version__)<br><br><span class="hljs-comment"># 这里输出 1.77 版本</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>这里指定安装 1.77 版本，其他版本涉及到模块的增删，不方便统一讲解</p>
+</blockquote>
+<h2 id="基本组成">基本组成</h2>
+<p>Biopython 有多个模块构成，下面简单介绍常用的几个子包，这里的&quot;常用&quot;是主观而言，不可能覆盖到所有读者的使用情况，如果有其他这里没有涉及到的模块可以参见<a target="_blank" rel="noopener" href="https://biopython.org/wiki/Documentation">官方文档</a></p>
+<h3 id="Alphabet">Alphabet</h3>
+<p>生信中有很多字母表示，比如 DNA 中的 ACTG 核苷酸，20种氨基酸的缩写表示，每种都有一个字母代替。然而有些字母存在歧义，例如字母 S 可能表示 C 或者 G，而 H 可能表示 A 或者 C 或者 T</p>
+<blockquote>
+<p>在生物信息学中，字母 S 既可以表示核苷酸 C，也可以表示核苷酸 G，这是由于国际核酸序列符号（IUPAC）为核酸序列设定的简化表示法。</p>
+<p>IUPAC代码用于表示核酸序列中的模糊性，即某个位置上可能有多种核苷酸。具体来说：</p>
+<ul>
+<li>A：腺嘌呤（Adenine）</li>
+<li>C：胞嘧啶（Cytosine）</li>
+<li>G：鸟嘌呤（Guanine）</li>
+<li>T：胸腺嘧啶（Thymine）</li>
+<li>U：尿嘧啶（Uracil）</li>
+<li>R：嘌呤（A 或 G）</li>
+<li>Y：嘧啶（C 或 T）</li>
+<li>S：强配对（C 或 G），指 Strong，它们之间形成的氢键比 A 和 T 或 A 和 U 之间的氢键多</li>
+<li>W：弱配对（A 或 T），指 weak</li>
+<li>K：氢键较弱的配对（G 或 T）</li>
+<li>M：氨基（A 或 C）</li>
+<li>B：不是腺嘌呤（C 或 G 或 T）</li>
+<li>D：不是胞嘧啶（A 或 G 或 T）</li>
+<li>H：不是鸟嘌呤（A 或 C 或 T）</li>
+<li>V：不是胸腺嘧啶（A 或 C 或 G）</li>
+<li>N：任何核苷酸（A 或 C 或 G 或 T）</li>
+</ul>
+</blockquote>
+<p>在 Biopython 中这些歧义词表被称为 <code>ambiguous_dna</code></p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><br><span class="hljs-built_in">print</span>(IUPAC.ambiguous_dna.letters)<br><span class="hljs-built_in">print</span>(IUPAC.unambiguous_dna.letters)<br><br><span class="hljs-comment">#GATCRYWSMKHBVDN</span><br><span class="hljs-comment">#GATC</span><br><br></code></pre></td></tr></table></figure>
+<p>另外实际情况中可能会出现不常见到的氨基酸和核苷酸，为此有 <code>ExtendedIUPACProteain</code>和<code>ExtendIUPACDNA</code>。针对二级结构还有<code>SecondaryStructure</code>词表，表示 <strong>H</strong>elix, <strong>T</strong>urn, <strong>S</strong>trand, <strong>C</strong>oil</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><br><span class="hljs-built_in">print</span>(Bio.Alphabet.ThreeLetterProtein.letters)<br><span class="hljs-built_in">print</span>(IUPAC.IUPACProtein.letters)<br><span class="hljs-built_in">print</span>(IUPAC.ExtendedIUPACDNA.letters)<br><span class="hljs-built_in">print</span>(IUPAC.ExtendedIUPACProtein.letters)<br><br><span class="hljs-comment">#[&#x27;Ala&#x27;, &#x27;Asx&#x27;, &#x27;Cys&#x27;, &#x27;Asp&#x27;, &#x27;Glu&#x27;, &#x27;Phe&#x27;, &#x27;Gly&#x27;, &#x27;His&#x27;, &#x27;Ile&#x27;, &#x27;Lys&#x27;, &#x27;Leu&#x27;, &#x27;Met&#x27;, &#x27;Asn&#x27;, &#x27;Pro&#x27;, &#x27;Gln&#x27;, &#x27;Arg&#x27;, &#x27;Ser&#x27;, &#x27;Thr&#x27;, &#x27;Sec&#x27;, &#x27;Val&#x27;, &#x27;Trp&#x27;, &#x27;Xaa&#x27;, &#x27;Tyr&#x27;, &#x27;Glx&#x27;]</span><br><span class="hljs-comment">#ACDEFGHIKLMNPQRSTVWY</span><br><span class="hljs-comment">#GATCBDSW</span><br><span class="hljs-comment">#ACDEFGHIKLMNPQRSTVWYBXZJUO</span><br><br></code></pre></td></tr></table></figure>
+<p>Alphabets 被用于定义序列组成，需要配合 Seq 一起使用</p>
+<h3 id="Seq">Seq</h3>
+<p>利用 Seq 可以解析字符串为任何序列，例如</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> Bio.Alphabet                                                                                            <br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> Seq                                                                                                               <br>seq=Seq(<span class="hljs-string">&quot;CCGGGTT&quot;</span>,IUPAC.unambiguous_dna) <span class="hljs-comment">#识别为DNA序列                                                        </span><br><span class="hljs-built_in">print</span>(seq.transcribe()) <span class="hljs-comment">#转录结果  CCGGGUU</span><br><span class="hljs-built_in">print</span>(seq.translate()) <span class="hljs-comment">#翻译结果   PG</span><br><br></code></pre></td></tr></table></figure>
+<p>将字符串识别为DNA序列，即可使用作为DNA的一系列操作，例如转录和翻译等方法，一个合理的序列既可以被识别为DNA，也可以被识别为RNA。然而一旦识别为RNA后就只能使用作为RNA的方法，例如只能翻译而不能转录了，但是可以使用逆转录方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> Seq<br><br><br>seq=Seq(<span class="hljs-string">&quot;CCGGGUU&quot;</span>,IUPAC.unambiguous_rna) <span class="hljs-comment">#识别为RNA序列</span><br><span class="hljs-comment">#print(seq.transcribe()) #error</span><br><span class="hljs-built_in">print</span>(seq.translate()) <span class="hljs-comment">#翻译结果 PG</span><br><span class="hljs-built_in">print</span>(seq.back_transcribe()) <span class="hljs-comment">#逆转录结果 CCGGGT</span><br><br></code></pre></td></tr></table></figure>
+<p>通过对象调用对应的方法，也可以直接利用类中提供的函数</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> translate,transcribe,back_transcribe<br><br>dnaseq=<span class="hljs-string">&quot;ATGGTATAA&quot;</span><br><span class="hljs-built_in">print</span>(translate(dnaseq)) <span class="hljs-comment">#翻译结果 MV*</span><br><span class="hljs-built_in">print</span>(transcribe(dnaseq)) <span class="hljs-comment">#转录结果 AUGGUAUAA</span><br><br>rnaseq=transcribe(dnaseq)<br><span class="hljs-built_in">print</span>(translate(rnaseq)) <span class="hljs-comment">#翻译结果 MV*</span><br><span class="hljs-built_in">print</span>(back_transcribe(rnaseq)) <span class="hljs-comment">#逆转录结果 ATGGTATAA</span><br><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>要注意Biopython中的transcribe函数只是简单地将核苷酸字母替换为它的互补核苷酸字母，函数已经假定输入的链一定是非模板链</p>
+</blockquote>
+<p>函数和对象调用方法不同，函数输出的仅仅是字符串，而不是序列对象</p>
+<p>Seq对象也有类似string一样的方法，比如切片等</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> Seq<br><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><br>seq=Seq(<span class="hljs-string">&quot;CCGGGTTAACGTA&quot;</span>,IUPAC.unambiguous_dna)<br><br><span class="hljs-built_in">print</span>(seq[:<span class="hljs-number">5</span>])<br><span class="hljs-built_in">print</span>(<span class="hljs-built_in">len</span>(seq))<br><span class="hljs-built_in">print</span>(seq)<br><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">CCGGG</span><br><span class="hljs-string">13</span><br><span class="hljs-string">CCGGGTTAACGTA</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br></code></pre></td></tr></table></figure>
+<h3 id="MutableSeq">MutableSeq</h3>
+<p>Seq对象设定为不可修改的，例如</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs python">seq[<span class="hljs-number">0</span>]=<span class="hljs-string">&quot;T&quot;</span><br></code></pre></td></tr></table></figure>
+<p>将会报错，而通过定义为MutableSeq则可转变为可修改对象</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> Seq<br><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><br>seq=Seq(<span class="hljs-string">&quot;CCGGGTTAACGTA&quot;</span>,IUPAC.unambiguous_dna)<br><br>mut=seq.tomutable()<br><span class="hljs-built_in">print</span>(mut)<br><br><span class="hljs-comment">#转变为Muteable对象后即可修改内容</span><br>mut[<span class="hljs-number">0</span>]=<span class="hljs-string">&#x27;T&#x27;</span><br><br><span class="hljs-built_in">print</span>(mut)<br><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">CCGGGTTAACGTA</span><br><span class="hljs-string">TCGGGTTAACGTA</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br></code></pre></td></tr></table></figure>
+<p>可以简单将Muteable的序列对象理解为一个列表，它可以使用append，insert，pop，remove方法等，也有一些 DNA 序列特定的方法</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> Seq<br><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><br>seq=Seq(<span class="hljs-string">&quot;CCGGGTTAACGTA&quot;</span>,IUPAC.unambiguous_dna)<br><br>mut=seq.tomutable()<br><br>mut.reverse()  <span class="hljs-comment">#翻转</span><br><span class="hljs-built_in">print</span>(mut)<br><br>mut.complement() <span class="hljs-comment">#互补链</span><br><span class="hljs-built_in">print</span>(mut)<br><br>mut.reverse_complement() <span class="hljs-comment">#翻转互补链</span><br><span class="hljs-built_in">print</span>(mut)<br><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">ATGCAATTGGGCC</span><br><span class="hljs-string">TACGTTAACCCGG</span><br><span class="hljs-string">CCGGGTTAACGTA</span><br><span class="hljs-string"></span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br></code></pre></td></tr></table></figure>
+<h3 id="SeqRecord">SeqRecord</h3>
+<p>Seq是Biopython中的重要的一个类，但是有时生信处理中需要的不仅是一个序列，还需要它的名字，id，描述等信息，有时也需要和外部数据库做链接。Biopython中提供了SeqRecord类来做这件事，SeqRecord即可以理解为带有元数据的Seq对象</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> Seq<br><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> IUPAC<br><span class="hljs-keyword">from</span> Bio.SeqRecord <span class="hljs-keyword">import</span> SeqRecord<br><br><br>seq=Seq(<span class="hljs-string">&quot;CCGGGTTAACGTA&quot;</span>,IUPAC.unambiguous_dna)<br>record=SeqRecord(seq,<span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;0001&quot;</span>,name=<span class="hljs-string">&quot;MHC gene&quot;</span>)<br><br><span class="hljs-built_in">print</span>(record)<br><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">ID: 0001</span><br><span class="hljs-string">Name: MHC gene</span><br><span class="hljs-string">Description: &lt;unknown description&gt;</span><br><span class="hljs-string">Number of features: 0</span><br><span class="hljs-string">Seq(&#x27;CCGGGTTAACGTA&#x27;, IUPACUnambiguousDNA())</span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br></code></pre></td></tr></table></figure>
+<p>SeqRecord 有两个主要的属性</p>
+<ul>
+<li>id，序列的唯一标识符</li>
+<li>seq，真正的序列对象</li>
+</ul>
+<p>另外还有一些附属属性</p>
+<ul>
+<li>name，序列的名字</li>
+<li>description，针对序列的详细表述</li>
+<li>dbxrefs，字符串的列表，表示的是序列在数据库中的id</li>
+<li>features，SeqFeature对象的列表，表示了在<code>Genebank</code>记录中找到的相关特征，特别是用SeqIO来读取时十分常用</li>
+<li>annotations，针对序列的后续更多信息，不能在此对象初始化的时候指定这个属性</li>
+</ul>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> Seq<br><span class="hljs-keyword">import</span> Bio.Alphabet<br><span class="hljs-keyword">from</span> Bio.Alphabet <span class="hljs-keyword">import</span> generic_protein<br><span class="hljs-keyword">from</span> Bio.SeqRecord <span class="hljs-keyword">import</span> SeqRecord<br><br><br><br>record=SeqRecord(<br>        Seq(<span class="hljs-string">&quot;mdstnvrsgmksrkkkpkttvidddddcmtcsacqsklvkisditkvsldyintmrgntlacaacgsslkll&quot;</span>,generic_protein),<br>        <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;P20994.1&quot;</span>,<br>        name=<span class="hljs-string">&quot;p20994&quot;</span>,<br>        description=<span class="hljs-string">&quot;Protein A19&quot;</span>,<br>        dbxrefs=[<span class="hljs-string">&quot;Pfam:PF05077&quot;</span>,<span class="hljs-string">&quot;DIP:2186N&quot;</span>])<br><br>record.annotations[<span class="hljs-string">&quot;note&quot;</span>]=<span class="hljs-string">&quot;a simple note&quot;</span><br><br><span class="hljs-built_in">print</span>(record)<br><br><span class="hljs-string">&quot;&quot;&quot;</span><br><span class="hljs-string">ID: P20994.1</span><br><span class="hljs-string">Name: p20994</span><br><span class="hljs-string">Description: Protein A19</span><br><span class="hljs-string">Database cross-references: Pfam:PF05077, DIP:2186N</span><br><span class="hljs-string">Number of features: 0</span><br><span class="hljs-string">/note=a simple note</span><br><span class="hljs-string">Seq(&#x27;mdstnvrsgmksrkkkpkttvidddddcmtcsacqsklvkisditkvsldyint...kll&#x27;, ProteinAlphabet())</span><br><span class="hljs-string"></span><br><span class="hljs-string">&quot;&quot;&quot;</span><br><br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/bioinfo/" class="print-no-link">#bioinfo</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/11/effectiveJava/" title="effectiveJava">
+                        <span class="hidden-mobile">effectiveJava</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
