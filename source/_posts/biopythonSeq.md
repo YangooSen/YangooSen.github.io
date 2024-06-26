@@ -1,8 +1,8 @@
 ---
-title: bioinfo
+title: biopythonSeq
 katex: true
 date: 2024-06-25 09:42:09
-excerpt: 生信笔记
+excerpt: biopython中的序列处理
 tag: bioinfo
 ---
 
