@@ -1,0 +1,635 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=dark>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/icon.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="YangooSen">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="biopython中的io处理">
+<meta property="og:type" content="article">
+<meta property="og:title" content="biopythonIO">
+<meta property="og:url" content="http://example.com/2024/06/27/biopythonIO/index.html">
+<meta property="og:site_name" content="YangooSen">
+<meta property="og:description" content="biopython中的io处理">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2024-06-27T00:58:58.000Z">
+<meta property="article:modified_time" content="2024-06-27T02:32:00.151Z">
+<meta property="article:author" content="YangooSen">
+<meta property="article:tag" content="bioinfo">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>biopythonIO - YangooSen</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.7","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":false,"follow_dnt":true,"baidu":null,"google":{"measurement_id":null},"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":null,"app_key":null,"server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml","include_content_in_search":true};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+
+  
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 7.1.1"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>YangooSen</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/" target="_self">
+                <i class="iconfont icon-home-fill"></i>
+                <span></span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/" target="_self">
+                <i class="iconfont icon-tags-fill"></i>
+                <span></span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/bg/ironman.jpg') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="biopythonIO"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2024-06-27 08:58" pubdate>
+          2024年6月27日 早上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          11 分钟
+        
+      </span>
+    
+
+    
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <h1 id="seo-header">biopythonIO</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <h3 id="SeqIO">SeqIO</h3>
+<p>SeqIO 是 Biopython 中的统一IO处理模块，既可以读取序列文件，也可以读取序列比对文件（识别为多个 SeqRecord 对象）</p>
+<p>读取序列支持的格式包括</p>
+<ul>
+<li>ace</li>
+<li>clustal</li>
+<li>embl</li>
+<li>emboss</li>
+<li>fasta</li>
+<li>fsta-m10</li>
+<li>genbank</li>
+<li>ig</li>
+<li>nexus</li>
+<li>phd</li>
+<li>phylip</li>
+<li>stockholm</li>
+<li>swiss</li>
+<li>tab</li>
+</ul>
+<p>读取多个序列对象用 parse，单个对象用 read</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio <span class="hljs-keyword">import</span> SeqIO<br><br><span class="hljs-comment"># 读取 FASTA 文件</span><br><span class="hljs-keyword">for</span> record <span class="hljs-keyword">in</span> SeqIO.parse(<span class="hljs-string">&quot;example.fasta&quot;</span>, <span class="hljs-string">&quot;fasta&quot;</span>):<br>    <span class="hljs-built_in">print</span>(record.<span class="hljs-built_in">id</span>)<br>        <span class="hljs-built_in">print</span>(record.seq)<br><br><br></code></pre></td></tr></table></figure>
+<p>写入文件用 write，第一个参数是一个 iterable</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio <span class="hljs-keyword">import</span> SeqIO<br><span class="hljs-keyword">from</span> Bio.Seq <span class="hljs-keyword">import</span> Seq<br><span class="hljs-keyword">from</span> Bio.SeqRecord <span class="hljs-keyword">import</span> SeqRecord<br><br><span class="hljs-comment"># 创建序列记录</span><br>record = SeqRecord(Seq(<span class="hljs-string">&quot;AGTACACTGGT&quot;</span>), <span class="hljs-built_in">id</span>=<span class="hljs-string">&quot;example&quot;</span>, description=<span class="hljs-string">&quot;An example sequence&quot;</span>)<br>records = [record]<br><br><span class="hljs-comment"># 写入 FASTA 文件</span><br>SeqIO.write(records, <span class="hljs-string">&quot;output.fasta&quot;</span>, <span class="hljs-string">&quot;fasta&quot;</span>)<br><br><br></code></pre></td></tr></table></figure>
+<h3 id="BLAST">BLAST</h3>
+<p>BLAST（Basic Local Alignment Search Tool）是用于比较生物序列的强大工具，用于在数据库中寻找与查询序列相似的序列。BLAST 有多个版本和变体，每个版本和变体都有特定的用途和优化目标。这是最常用和最广泛使用的 BLAST 版本，由美国国家生物技术信息中心（NCBI）开发和维护。变体包括：</p>
+<ul>
+<li>blastn：用于核酸序列（DNA/RNA）的比对。</li>
+<li>blastp：用于蛋白质序列的比对。</li>
+<li>blastx：将核酸序列翻译成蛋白质，然后与蛋白质数据库进行比对。</li>
+<li>tblastn：将蛋白质序列与核酸序列数据库进行比对，核酸序列在比对过程中被翻译成蛋白质。</li>
+<li>tblastx：将核酸序列翻译成蛋白质，然后与另一组翻译后的核酸序列进行比对。</li>
+</ul>
+<blockquote>
+<p>这里的后缀指的应该是</p>
+<ul>
+<li>n nucleotide 核苷酸</li>
+<li>p protein 蛋白质</li>
+<li>x 混合</li>
+<li>t translate 表示先翻译再比对</li>
+</ul>
+</blockquote>
+<p>在 NCBI 的网络服务器上能够运行小型 BLAST 任务，但比较大的任务就必须在本地机器上跑，这样灵活性更好，比如能输入更大的数据，并且在自己的数据库上进行搜索</p>
+<p>Bio.Blast.Applications 模块主要用于构建和执行各种 BLAST 程序的命令行调用。这些程序包括</p>
+<ul>
+<li>blastn</li>
+<li>blastp</li>
+<li>blastx</li>
+<li>tblastn</li>
+<li>tblastx</li>
+</ul>
+<p>分别用于不同类型的序列比对，对应的程序分别是 Ncbi{tblastn}Commandline，只需要替换中间的部分</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Blast.Applications <span class="hljs-keyword">import</span> NcbiblastnCommandline<br><br><span class="hljs-comment"># 创建 blastn 命令行对象</span><br>blastn_cline = NcbiblastnCommandline(cmd=BLAST_EXE, query=<span class="hljs-string">&quot;query.fasta&quot;</span>, db=<span class="hljs-string">&quot;nt&quot;</span>, evalue=<span class="hljs-number">0.001</span>, outfmt=<span class="hljs-number">5</span>, out=<span class="hljs-string">&quot;output.xml&quot;</span>)<br><br><span class="hljs-comment"># 执行 blastn</span><br>stdout, stderr = blastn_cline()<br><br><span class="hljs-comment"># 检查标准输出和错误输出</span><br><span class="hljs-built_in">print</span>(stdout)<br><span class="hljs-built_in">print</span>(stderr)<br><br><br></code></pre></td></tr></table></figure>
+<p>输出保存在 stdout 和 output.xml 中</p>
+<blockquote>
+<p>以下是 NcbiblastnCommandline 中常用参数的意义：</p>
+<ul>
+<li>query: 输入的查询序列文件（FASTA 格式）。</li>
+<li>db: 要比对的数据库。</li>
+<li>evalue: 期望值阈值，用于过滤结果。通常设置为一个较小的值（如 0.001）。</li>
+<li>outfmt: 输出格式。常见的格式有：</li>
+<li>0 - Pairwise</li>
+<li>5 - XML（适用于 NCBIXML 解析）</li>
+<li>6 - 表格（TAB）</li>
+<li>out: 输出文件名。</li>
+<li>task: 指定 blastn 的任务类型，如：</li>
+<li>blastn - 标准 blastn</li>
+<li>blastn-short - 用于比对短序列</li>
+<li>dc-megablast - 用于比较远缘的核酸序列</li>
+<li>word_size: 词长（默认为 11）。较大的词长会加快速度但可能降低敏感性。</li>
+<li>gapopen: 开启一个 gap（缺口）的罚分。</li>
+<li>gapextend: 延伸一个 gap 的罚分。</li>
+<li>penalty: 错误匹配的罚分。</li>
+<li>reward: 正确匹配的奖励分。</li>
+<li>num_threads: 使用的线程数，默认为 1。增加线程数可以加快比对速度。</li>
+</ul>
+</blockquote>
+<p>输出文件是 xml 格式，Biopython 内置了 NCBIXML 类来针对读取 BLAST 输出文件</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Blast <span class="hljs-keyword">import</span> NCBIXML<br><br><span class="hljs-comment"># 打开 BLAST 输出文件</span><br><span class="hljs-keyword">with</span> <span class="hljs-built_in">open</span>(<span class="hljs-string">&quot;output.xml&quot;</span>) <span class="hljs-keyword">as</span> result_handle:<br>    blast_records = NCBIXML.parse(result_handle)<br><br>    <span class="hljs-comment"># 迭代解析 BLAST 记录</span><br>    <span class="hljs-keyword">for</span> blast_record <span class="hljs-keyword">in</span> blast_records:<br>        <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Query: <span class="hljs-subst">&#123;blast_record.query&#125;</span>&quot;</span>)<br><br>        <span class="hljs-keyword">for</span> alignment <span class="hljs-keyword">in</span> blast_record.alignments:<br>            <span class="hljs-keyword">for</span> hsp <span class="hljs-keyword">in</span> alignment.hsps:<br>                <span class="hljs-keyword">if</span> hsp.expect &lt; <span class="hljs-number">0.001</span>:  <span class="hljs-comment"># 根据期望值筛选</span><br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;****Alignment****&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;sequence: <span class="hljs-subst">&#123;alignment.title&#125;</span>&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;length: <span class="hljs-subst">&#123;alignment.length&#125;</span>&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;E-value: <span class="hljs-subst">&#123;hsp.expect&#125;</span>&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Score: <span class="hljs-subst">&#123;hsp.score&#125;</span>&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Identities: <span class="hljs-subst">&#123;hsp.identities&#125;</span>&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Gaps: <span class="hljs-subst">&#123;hsp.gaps&#125;</span>&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Query: <span class="hljs-subst">&#123;hsp.query[<span class="hljs-number">0</span>:<span class="hljs-number">75</span>]&#125;</span>...&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Match: <span class="hljs-subst">&#123;hsp.<span class="hljs-keyword">match</span>[<span class="hljs-number">0</span>:<span class="hljs-number">75</span>]&#125;</span>...&quot;</span>)<br>                    <span class="hljs-built_in">print</span>(<span class="hljs-string">f&quot;Subject: <span class="hljs-subst">&#123;hsp.sbjct[<span class="hljs-number">0</span>:<span class="hljs-number">75</span>]&#125;</span>...&quot;</span>)<br><br><br></code></pre></td></tr></table></figure>
+<p>输出信息中主要包括两部分，第一部分是此次任务的元数据，比如所用数据库，程序版本等，第二部分则是比对结果</p>
+<h3 id="生物学数据">生物学数据</h3>
+<p>Biopython 中还包括了很多生物信息学中常用的数据和工具，下面介绍常用的模块</p>
+<h4 id="CodonTable">CodonTable</h4>
+<p>Bio.Data.CodonTable 模块包含遗传密码表（codon tables），这些表将 DNA/RNA 三联体编码子（codons）映射到相应的氨基酸。Biopython 提供了多种遗传密码表，以适应不同的生物系统和研究需求。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Data <span class="hljs-keyword">import</span> CodonTable<br><br>standard_table = CodonTable.unambiguous_dna_by_id[<span class="hljs-number">1</span>]  <span class="hljs-comment"># 标准遗传密码表</span><br><span class="hljs-built_in">print</span>(standard_table.forward_table)  <span class="hljs-comment"># 查看 DNA 编码子到氨基酸的映射</span><br><br></code></pre></td></tr></table></figure>
+<h4 id="IUPAC-Data">IUPAC Data</h4>
+<p>Bio.Data.IUPACData 提供了 IUPAC 编码的核酸和氨基酸字母表。这些编码表有助于标准化和统一表示生物分子的序列。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Data <span class="hljs-keyword">import</span> IUPACData<br><br><span class="hljs-built_in">print</span>(IUPACData.ambiguous_dna_values)  <span class="hljs-comment"># 查看模糊 DNA 字母和它们可能代表的碱基</span><br><br></code></pre></td></tr></table></figure>
+<h4 id="SCOP-Data">SCOP Data</h4>
+<p>Bio.Data.SCOPData 包含与 SCOP（Structural Classification of Proteins）数据库相关的信息。SCOP 是一个对已知蛋白质结构进行分级和分类的数据库。</p>
+<h4 id="Dictionaries">Dictionaries</h4>
+<p>Bio.Data 模块还包括其他常量和字典，用于生物信息学的各种计算和分析。例如，氨基酸的三字母和单字母代码，蛋白质和 DNA 的物理化学性质等。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs python"><span class="hljs-keyword">from</span> Bio.Data <span class="hljs-keyword">import</span> CodonTable, IUPACData<br><br><span class="hljs-built_in">print</span>(CodonTable.unambiguous_dna_by_id[<span class="hljs-number">1</span>].forward_table)  <span class="hljs-comment"># 标准遗传密码表的前向表</span><br><span class="hljs-built_in">print</span>(IUPACData.protein_letters)  <span class="hljs-comment"># 氨基酸的单字母代码</span><br><br><br></code></pre></td></tr></table></figure>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/bioinfo/" class="print-no-link">#bioinfo</a>
+      
+    </div>
+  
+</div>
+
+
+              
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2024/06/26/biopythonAlign/" title="biopythonAlign">
+                        <span class="hidden-mobile">biopythonAlign</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.4/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.20.1/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
