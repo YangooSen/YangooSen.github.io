@@ -25,8 +25,9 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/1-pipeline.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/3-const.png">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/7vf.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-10T01:53:02.874Z">
+<meta property="article:modified_time" content="2024-07-12T02:13:29.547Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -191,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          1.1k 字
+          3.2k 字
         
       </span>
     
@@ -202,7 +203,7 @@
         
         
         
-          9 分钟
+          27 分钟
         
       </span>
     
@@ -356,7 +357,76 @@
 <blockquote>
 <p>如果你使用C++11及其之后的标准，可以更方便地禁用这些函数，通过将它们声明为删除的（delete）</p>
 </blockquote>
-<h2 id="Item7">Item7:</h2>
+<h2 id="Item7-Declare-destructors-virtual-in-polymorphic-base-classes">Item7: Declare destructors virtual in polymorphic base classes</h2>
+<blockquote>
+<p>非虚函数的调用是在编译时决定的，而不是在运行时。对于非虚的析构函数，编译器在编译时已经决定了通过父类指针调用父类的析构函数，而不是在运行时根据指针指向的对象类型来决定调用哪个析构函数。</p>
+<p>具体来说，当你使用一个指向基类的指针删除一个派生类对象时，如果基类的析构函数不是虚函数，编译器会将该删除操作解析为调用基类的析构函数，而不会涉及派生类的析构函数。这是因为编译器无法在编译时确定指针实际上指向的是哪个类的对象。</p>
+<p>下面是更详细的解释：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    ~<span class="hljs-built_in">Base</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Base destructor&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    ~<span class="hljs-built_in">Derived</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived destructor&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Base* ptr = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Derived</span>();<br>    <span class="hljs-keyword">delete</span> ptr; <span class="hljs-comment">// 这是未定义行为</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在上述代码中，编译器看到的是一个指向<code>Base</code>类的指针<code>ptr</code>。当执行<code>delete ptr</code>时，编译器调用的是<code>Base</code>类的析构函数，因为<code>Base</code>的析构函数不是虚函数。由于这个调用是在编译时决定的，编译器不会在运行时检查<code>ptr</code>实际指向的是<code>Derived</code>类的对象。因此，只调用了<code>Base</code>的析构函数，而<code>Derived</code>的析构函数则被忽略了。</p>
+<p>为了让析构函数具有多态性，使得在删除通过基类指针指向的派生类对象时能够正确调用派生类的析构函数，必须将基类的析构函数声明为虚函数。这样编译器在生成代码时会插入必要的运行时检查，以确保在运行时根据对象的实际类型来调用正确的析构函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Base</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Base destructor&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    ~<span class="hljs-built_in">Derived</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived destructor&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Base* ptr = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Derived</span>();<br>    <span class="hljs-keyword">delete</span> ptr; <span class="hljs-comment">// 现在是定义行为，会先调用Derived析构函数，再调用Base析构函数</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个代码中，由于<code>Base</code>的析构函数被声明为虚函数，当通过基类指针删除派生类对象时，运行时系统会检查实际的对象类型，并首先调用<code>Derived</code>类的析构函数，然后再调用<code>Base</code>类的析构函数。输出结果将是：</p>
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs delphi">Derived <span class="hljs-function"><span class="hljs-keyword">destructor</span></span><br><span class="hljs-function"><span class="hljs-title">Base</span> <span class="hljs-title">destructor</span></span><br></code></pre></td></tr></table></figure>
+<p>这样确保了所有对象的析构函数都能被正确调用，避免资源泄漏和其他未定义行为。</p>
+</blockquote>
+<p><img src="7vf.png" srcset="/img/loading.gif" lazyload alt="virtual function"></p>
+<blockquote>
+<p>在C++中，虚函数表（Virtual Function Table，VTable）和虚指针（Virtual Pointer，VPTR）是用来实现多态性（Polymorphism）的关键概念。</p>
+<h3 id="虚函数表（VTable）">虚函数表（VTable）</h3>
+<p>虚函数表是用来实现动态多态性的一种机制。在包含虚函数的类中，每个对象都有一个指向虚函数表的指针。这个表存储了类的虚函数的地址。当调用一个虚函数时，实际执行的函数是根据对象指向的虚函数表中的地址来确定的，而不是根据对象的类型或者指针的类型。<br>
+具体来说：</p>
+<ul>
+<li>每个类（含有虚函数的类）有一个对应的虚函数表。</li>
+<li>虚函数表是一个数组，每个元素是一个指向虚函数的指针。</li>
+<li>对象的内存布局中，通常会有一个虚指针，指向该对象所属类的虚函数表。</li>
+<li>当通过基类的指针或引用调用虚函数时，实际执行的是派生类中的对应虚函数，这是通过虚函数表和虚指针实现的。</li>
+</ul>
+<h3 id="虚指针（VPTR）">虚指针（VPTR）</h3>
+<p>虚指针是一个指向虚函数表的指针，它位于每个对象的内存布局中，用来指示该对象的实际类型。具体来说</p>
+<ul>
+<li>对于含有虚函数的类的每个对象，都会包含一个虚指针。</li>
+<li>虚指针指向该对象所属类的虚函数表的起始地址。</li>
+<li>通过虚指针，可以在运行时确定调用哪个类的虚函数表，从而实现多态性。<br>
+综上所述，虚函数表和虚指针是C++实现多态性的关键机制。它们使得在运行时能够动态地确定调用哪个类的虚函数，从而实现了面向对象编程中的多态性特性。</li>
+</ul>
+</blockquote>
+<p>Declare a virtual destructor in a class if and only if that class contains at least one virtual function. Do not add useless memory usage of vptr.</p>
+<p><strong>If a class has any virtual functions, it should have a virtual destructor.</strong></p>
+<h2 id="Item8-Prevent-exceptions-from-leaving-destructor">Item8: Prevent exceptions from leaving destructor</h2>
+<p>在C++的析构函数中抛出异常是不被鼓励的。这是因为在C++中，如果一个析构函数在堆栈展开期间抛出异常，会导致程序调用<code>std::terminate</code>，从而终止程序。堆栈展开期间通常发生在另一个异常被抛出时，因此如果析构函数在这种情况下再抛出一个异常，就会有两个同时存在的未处理异常，C++标准规定在这种情况下必须终止程序。</p>
+<p>这是一个简化的示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Example</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    ~<span class="hljs-built_in">Example</span>() &#123;<br>        <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;Destructor exception&quot;</span>);<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        Example e;<br>        <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;Main exception&quot;</span>);<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::exception&amp; e) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，析构函数中抛出的异常与<code>main</code>函数中抛出的异常同时存在，程序会调用<code>std::terminate</code>，<strong>导致程序崩溃而不是捕获并处理异常</strong>。</p>
+<p>为了避免这种情况，应该在析构函数中处理任何可能抛出的异常，或者在析构函数中不抛出异常，以保证异常永远不会离开析构函数。以下是一个处理异常的示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Example</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    ~<span class="hljs-built_in">Example</span>() &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// Code that might throw an exception</span><br>        &#125; <span class="hljs-built_in">catch</span> (...) &#123;<br>            <span class="hljs-comment">// Handle exception or log it</span><br>        &#125;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        Example e;<br>        <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;Main exception&quot;</span>);<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::exception&amp; e) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个示例中，析构函数捕获并处理了任何可能抛出的异常，确保不会在堆栈展开期间抛出异常，从而避免程序终止。</p>
+<blockquote>
+<p>堆栈展开（Stack Unwinding）是指在C++程序中，当一个异常被抛出并传播时，为了找到合适的异常处理器（catch块），程序会按调用栈的顺序依次退出函数，并在此过程中调用已经构造的对象的析构函数。这一过程确保了资源的正确释放和对象的正确销毁。</p>
+<p>堆栈展开的过程如下：</p>
+<ol>
+<li>
+<p><strong>异常抛出</strong>：当一个异常被抛出时，程序会开始寻找处理该异常的catch块。</p>
+</li>
+<li>
+<p><strong>寻找catch块</strong>：程序从当前抛出异常的位置开始，沿着调用栈向上查找，直到找到合适的catch块来处理该异常。</p>
+</li>
+<li>
+<p><strong>调用析构函数</strong>：在寻找catch块的过程中，程序会依次退出各个函数，并为在这些函数中构造的对象调用析构函数，以释放资源和进行清理。</p>
+</li>
+<li>
+<p><strong>处理异常</strong>：一旦找到合适的catch块，程序就会跳转到该catch块，执行其中的代码来处理异常。</p>
+</li>
+</ol>
+<p>如果在堆栈展开的过程中，一个析构函数抛出异常，而此时已经有一个未处理的异常存在，则会导致程序中出现两个未处理的异常。C++标准规定，在这种情况下，程序会调用<code>std::terminate</code>，从而终止程序。</p>
+<p>下面是一个示例代码来说明堆栈展开：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdexcept&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Example</span> &#123;<br><span class="hljs-keyword">public</span>:<br><span class="hljs-built_in">Example</span>() &#123;<br>std::cout &lt;&lt; <span class="hljs-string">&quot;Example constructed\n&quot;</span>;<br>&#125;<br>~<span class="hljs-built_in">Example</span>() &#123;<br>std::cout &lt;&lt; <span class="hljs-string">&quot;Example destructed\n&quot;</span>;<br>&#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">funcB</span><span class="hljs-params">()</span> </span>&#123;<br>Example e;<br>std::cout &lt;&lt; <span class="hljs-string">&quot;In funcB\n&quot;</span>;<br><span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;Exception in funcB&quot;</span>);<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">funcA</span><span class="hljs-params">()</span> </span>&#123;<br>Example e;<br>std::cout &lt;&lt; <span class="hljs-string">&quot;In funcA\n&quot;</span>;<br><span class="hljs-built_in">funcB</span>();<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br><span class="hljs-keyword">try</span> &#123;<br><span class="hljs-built_in">funcA</span>();<br>&#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::exception&amp; e) &#123;<br>std::cout &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>&#125;<br><span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>输出：</p>
+<figure class="highlight coq"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs coq"><span class="hljs-keyword">Example</span> constructed<br>In funcA<br><span class="hljs-keyword">Example</span> constructed<br>In funcB<br><span class="hljs-keyword">Example</span> destructed<br><span class="hljs-keyword">Example</span> destructed<br>Caught exception: Exception <span class="hljs-built_in">in</span> funcB<br></code></pre></td></tr></table></figure>
+<p>在这个示例中，当<code>funcB</code>中抛出异常时，堆栈展开过程开始。首先，<code>funcB</code>中的局部对象<code>e</code>的析构函数被调用，然后程序退出<code>funcB</code>，接着<code>funcA</code>中的局部对象<code>e</code>的析构函数被调用，最后异常被<code>main</code>中的catch块捕获并处理。这展示了堆栈展开过程中如何调用析构函数来清理资源。</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">DBConn</span>&#123;<br>  <span class="hljs-keyword">private</span>:<br>      DBConnection db; <br>      <span class="hljs-type">bool</span> closed;<br>  <span class="hljs-keyword">public</span>:<br>      <span class="hljs-comment">//db.close() may throw some exceptions</span><br>      <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">close</span><span class="hljs-params">()</span></span>&#123;<br>          db.<span class="hljs-built_in">close</span>();<br>          closed=<span class="hljs-literal">true</span>;<br>      &#125;   <br>      ~<span class="hljs-built_in">DBConn</span>()&#123;<br>          <span class="hljs-keyword">if</span> (!closed)&#123;<br>              <span class="hljs-keyword">try</span>&#123; <span class="hljs-comment">//must handle to prevent from terminating</span><br>                  db.<span class="hljs-built_in">close</span>();<br>              &#125;   <br>              <span class="hljs-built_in">catch</span>(<span class="hljs-comment">//...)&#123;</span><br>                  <span class="hljs-comment">//...</span><br>              &#125;<br>          &#125;<br>      &#125;   <br>  <br>  &#125;<br></code></pre></td></tr></table></figure>
+<p>Moving the responsibility for calling <code>close</code> from DBConn’s destructor to DBConn’s client is a better strategy. <strong>If an operation may fail by throwing an exception and there may be a need to handle that exception, the exception has to come from some non-destructor function.</strong></p>
 
                 
               </div>
