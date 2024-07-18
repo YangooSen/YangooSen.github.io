@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/3-const.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/7vf.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-17T03:43:22.619Z">
+<meta property="article:modified_time" content="2024-07-18T11:18:21.138Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -192,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.1k 字
+          9.7k 字
         
       </span>
     
@@ -203,7 +203,7 @@
         
         
         
-          76 分钟
+          81 分钟
         
       </span>
     
@@ -364,7 +364,7 @@ C++ 标准委员会（ISO/IEC JTC 1/SC 22/WG 21）将继续推动 C++ 的发展�
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> foo::num; <span class="hljs-comment">//definition. </span><br><span class="hljs-comment">//initial value of class constant is provided where the constant is declared (5), </span><br><span class="hljs-comment">//no initial value is permitted at the point of definition</span><br></code></pre></td></tr></table></figure>
 <p>in cases where the above syntax cant’t be used, you put the initial value at the point of definition:</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> num;<br>    <span class="hljs-comment">//... </span><br>&#125;;<br><br><span class="hljs-type">const</span> <span class="hljs-type">double</span> foo::num=<span class="hljs-number">1.35</span>;<br><br></code></pre></td></tr></table></figure>
-<p>This is all need almost all the time. The only exception is <strong>when you need the value of a class constant during compilation of the class</strong>, such as in the declaration of the array (where compilers insist on knowing the size of the array during compilation). Then the accepted way to compensate for compilers that fobid the in-class sepecification of initial value for static integral class constants is to use what is known as <code>the enum hack</code></p>
+<p>This is all need almost all the time. The only exception is <strong>when you need the value of a class constant during compilation of the class</strong>, such as in the declaration of the array (where compilers insist on knowing the size of the array during compilation). Then the accepted way to compensate for compilers that fobid the in-class specification of initial value for static integral class constants is to use what is known as <code>the enum hack</code></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">enum</span> &#123;NumTurns=<span class="hljs-number">5</span>&#125;;<br>    <span class="hljs-type">int</span> scores[NumTurns];<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>Another common misuse of the #define directive is using it to implement macro that look like functions.</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> CALL_WITH_MAX(a,b) f((a)&gt;(b)?(a):(b))</span><br></code></pre></td></tr></table></figure>
@@ -425,6 +425,29 @@ C++ 标准委员会（ISO/IEC JTC 1/SC 22/WG 21）将继续推动 C++ 的发展�
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Uncopyable</span> &#123;<br><span class="hljs-keyword">protected</span>:<br>    <span class="hljs-comment">// 构造函数和析构函数可以是protected的，以允许派生类实例化</span><br>    <span class="hljs-built_in">Uncopyable</span>() &#123;&#125;<br>    ~<span class="hljs-built_in">Uncopyable</span>() &#123;&#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-comment">// 拷贝构造函数和拷贝赋值运算符声明为private，禁止拷贝</span><br>    <span class="hljs-built_in">Uncopyable</span>(<span class="hljs-type">const</span> Uncopyable&amp;); <span class="hljs-comment">// 不需要参数名</span><br>    Uncopyable&amp; <span class="hljs-keyword">operator</span>=(<span class="hljs-type">const</span> Uncopyable&amp;);<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Uncopyable &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Derived</span>() &#123;&#125;<br>    <span class="hljs-comment">// 其他成员函数和数据</span><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived obj1;<br>    Derived obj2 = obj1; <span class="hljs-comment">// 错误：拷贝构造函数不可用</span><br>    Derived obj3;<br>    obj3 = obj1; <span class="hljs-comment">// 错误：拷贝赋值运算符不可用</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
 <blockquote>
 <p>如果你使用C++11及其之后的标准，可以更方便地禁用这些函数，通过将它们声明为删除的（delete）</p>
+</blockquote>
+<blockquote>
+<p>如果父类的无参数构造函数被声明为 private，而子类没有显式实现构造函数，那么在尝试创建子类对象时会导致<strong>编译错误</strong>。这是因为编译器生成的子类默认构造函数将尝试调用基类的默认构造函数，但由于基类的默认构造函数是私有的，子类无法访问它。</p>
+</blockquote>
+<blockquote>
+<p>这里是一个具体的例子来说明这种情况：<br>
+class Base {<br>
+private:<br>
+Base() {<br>
+// 基类无参数构造函数为 private<br>
+}</p>
+<p>public:<br>
+Base(int x) {<br>
+// 基类带参数的构造函数<br>
+}<br>
+};</p>
+<p>class Derived : public Base {<br>
+// 没有定义构造函数<br>
+};</p>
+<p>int main() {<br>
+Derived d;  // 编译错误<br>
+return 0;<br>
+}</p>
 </blockquote>
 <h2 id="Item7-Declare-destructors-virtual-in-polymorphic-base-classes">Item7: Declare destructors virtual in polymorphic base classes</h2>
 <blockquote>
@@ -642,6 +665,63 @@ C++ 标准委员会（ISO/IEC JTC 1/SC 22/WG 21）将继续推动 C++ 的发展�
 </ul>
 <p>使用智能指针时，理解它们的默认删除方式并确保正确管理动态内存是非常重要的。</p>
 </blockquote>
+<h2 id="item-14-Think-carefully-about-copying-behavior-in-resource-managing-classes">item 14: Think carefully about copying behavior in resource-managing classes</h2>
+<blockquote>
+<p>在C++中，“synchronization primitives”（同步原语）是指一组用于管理和协调多线程程序中对共享资源访问的基本构件。它们确保在并发环境中，多个线程能够安全地访问和修改共享数据，而不会导致数据竞争或其它并发问题。</p>
+<p>常见的同步原语包括：</p>
+<ol>
+<li>
+<p><strong>Mutex（互斥锁）</strong>：</p>
+<ul>
+<li>用于保证同一时刻只有一个线程可以访问共享资源。C++标准库提供了<code>std::mutex</code>类。</li>
+</ul>
+</li>
+<li>
+<p><strong>Recursive Mutex（递归互斥锁）</strong>：</p>
+<ul>
+<li>允许同一个线程多次获得锁，而不会导致死锁。C++标准库提供了<code>std::recursive_mutex</code>类。</li>
+</ul>
+</li>
+<li>
+<p><strong>Timed Mutex（定时互斥锁）</strong>：</p>
+<ul>
+<li>允许线程在尝试获取锁时设置一个超时时间。如果在指定时间内无法获取锁，线程将停止尝试。C++标准库提供了<code>std::timed_mutex</code>类。</li>
+</ul>
+</li>
+<li>
+<p><strong>Shared Mutex（共享互斥锁）</strong>：</p>
+<ul>
+<li>允许多个线程同时读取共享资源，但写入操作必须独占。C++17引入了<code>std::shared_mutex</code>类。</li>
+</ul>
+</li>
+<li>
+<p><strong>Condition Variable（条件变量）</strong>：</p>
+<ul>
+<li>用于线程间的通信，允许一个线程等待某个条件发生，并在条件满足时被通知。C++标准库提供了<code>std::condition_variable</code>类。</li>
+</ul>
+</li>
+<li>
+<p><strong>Latch和Barrier</strong>：</p>
+<ul>
+<li>用于协调多个线程在某个点上进行同步。<code>std::latch</code>和<code>std::barrier</code>在C++20中引入。</li>
+</ul>
+</li>
+<li>
+<p><strong>Atomic Operations（原子操作）</strong>：</p>
+<ul>
+<li>提供对基本数据类型的原子操作，确保这些操作在多线程环境中是安全的。C++标准库提供了<code>std::atomic</code>模板类。</li>
+</ul>
+</li>
+</ol>
+<p>这些同步原语帮助开发者确保多线程程序中的数据一致性和正确性。通过合理使用这些工具，可以有效避免数据竞争、死锁等常见的并发编程问题。</p>
+</blockquote>
+<p>What should happen when an RAII object is copied? Most of the time, you’ll want to choose one  of the following possibilities:</p>
+<ul>
+<li>prohibit copying like item6 does</li>
+<li>reference-count the underlying resource by containing a shared_ptr data member, and initialize shared_ptr with specification of a “deleter”</li>
+<li>copying the underlying resource</li>
+<li>transfer ownership of the underlying resource</li>
+</ul>
 
                 
               </div>
