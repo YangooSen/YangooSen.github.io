@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/3-const.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/7vf.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-18T11:18:21.138Z">
+<meta property="article:modified_time" content="2024-07-19T02:12:21.504Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -192,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          9.7k 字
+          11k 字
         
       </span>
     
@@ -203,7 +203,7 @@
         
         
         
-          81 分钟
+          89 分钟
         
       </span>
     
@@ -722,6 +722,53 @@ return 0;<br>
 <li>copying the underlying resource</li>
 <li>transfer ownership of the underlying resource</li>
 </ul>
+<h2 id="Item-15-Provide-access-to-raw-resources-in-resource-managing-class">Item 15: Provide access to raw resources in resource-managing class</h2>
+<blockquote>
+<p>在 C++ 中，智能指针是一种自动管理内存的工具，主要通过 RAII（Resource Acquisition Is Initialization）机制来管理资源的生命周期。智能指针不仅提供了基础指针的功能，还可以在离开作用域时自动释放资源，从而避免内存泄漏。</p>
+<p>C++11 引入了标准库中的几种常用智能指针：<code>std::unique_ptr</code>、<code>std::shared_ptr</code> 和 <code>std::weak_ptr</code>。这些智能指针实现了 <code>get()</code> 方法和解引用操作。</p>
+<h3 id="get-方法"><code>get()</code> 方法</h3>
+<ul>
+<li><strong><code>std::unique_ptr&lt;T&gt;::get()</code></strong>：返回原生指针，但不转移所有权。</li>
+<li><strong><code>std::shared_ptr&lt;T&gt;::get()</code></strong>：返回原生指针，但不影响引用计数。</li>
+</ul>
+<h3 id="解引用操作符">解引用操作符</h3>
+<ul>
+<li><strong><code>operator*()</code></strong>：返回所指对象的引用。</li>
+<li><strong><code>operator-&gt;()</code></strong>：返回所指对象的指针。</li>
+</ul>
+<h3 id="代码示例">代码示例</h3>
+<p>以下是 <code>std::unique_ptr</code> 和 <code>std::shared_ptr</code> 的使用示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;memory&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">display</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Hello from MyClass!&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 使用 unique_ptr</span><br>    std::unique_ptr&lt;MyClass&gt; uniquePtr = std::<span class="hljs-built_in">make_unique</span>&lt;MyClass&gt;();<br>    uniquePtr-&gt;<span class="hljs-built_in">display</span>(); <span class="hljs-comment">// 解引用操作</span><br>    MyClass* rawPtr1 = uniquePtr.<span class="hljs-built_in">get</span>(); <span class="hljs-comment">// 获取原生指针</span><br>    rawPtr1-&gt;<span class="hljs-built_in">display</span>();<br><br>    <span class="hljs-comment">// 使用 shared_ptr</span><br>    std::shared_ptr&lt;MyClass&gt; sharedPtr = std::<span class="hljs-built_in">make_shared</span>&lt;MyClass&gt;();<br>    sharedPtr-&gt;<span class="hljs-built_in">display</span>(); <span class="hljs-comment">// 解引用操作</span><br>    MyClass* rawPtr2 = sharedPtr.<span class="hljs-built_in">get</span>(); <span class="hljs-comment">// 获取原生指针</span><br>    rawPtr2-&gt;<span class="hljs-built_in">display</span>();<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="智能指针的优点">智能指针的优点</h3>
+<ul>
+<li><strong>自动释放资源</strong>：智能指针在离开作用域时自动释放资源，无需手动调用 <code>delete</code>。</li>
+<li><strong>防止内存泄漏</strong>：智能指针确保所有权管理，防止内存泄漏。</li>
+<li><strong>线程安全</strong>：<code>std::shared_ptr</code> 是线程安全的，可以在多个线程中安全使用。</li>
+</ul>
+<h3 id="注意事项">注意事项</h3>
+<ul>
+<li><strong>循环引用</strong>：使用 <code>std::shared_ptr</code> 时要注意循环引用问题，可以通过 <code>std::weak_ptr</code> 解决。</li>
+<li><strong>性能开销</strong>：智能指针在管理资源时会有一定的性能开销，特别是在多线程环境中使用 <code>std::shared_ptr</code> 时。</li>
+</ul>
+<p>总的来说，智能指针是现代 C++ 编程中的重要工具，有助于更安全和高效地管理动态内存。</p>
+</blockquote>
+<blockquote>
+<p>是的，C++ 标准库中的智能指针提供了对原生指针类型的隐式类型转换。这使得智能指针在需要使用原生指针的地方（例如，与 C API 交互）可以无缝地转换为原生指针。下面是 <code>std::unique_ptr</code> 和 <code>std::shared_ptr</code> 的隐式类型转换的详细说明：</p>
+<h3 id="std-unique-ptr"><code>std::unique_ptr</code></h3>
+<p><code>std::unique_ptr</code> 提供了一个隐式转换操作符，可以将 <code>std::unique_ptr</code> 对象转换为原生指针类型。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;memory&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">display</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Hello from MyClass!&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">useRawPointer</span><span class="hljs-params">(MyClass* ptr)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (ptr) &#123;<br>        ptr-&gt;<span class="hljs-built_in">display</span>();<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::unique_ptr&lt;MyClass&gt; uniquePtr = std::<span class="hljs-built_in">make_unique</span>&lt;MyClass&gt;();<br>    <span class="hljs-built_in">useRawPointer</span>(uniquePtr.<span class="hljs-built_in">get</span>()); <span class="hljs-comment">// 使用 get 方法</span><br>    <span class="hljs-built_in">useRawPointer</span>(uniquePtr); <span class="hljs-comment">// 隐式转换</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="std-shared-ptr"><code>std::shared_ptr</code></h3>
+<p>同样地，<code>std::shared_ptr</code> 也提供了隐式转换操作符，可以将 <code>std::shared_ptr</code> 对象转换为原生指针类型。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;memory&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">display</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Hello from MyClass!&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">useRawPointer</span><span class="hljs-params">(MyClass* ptr)</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (ptr) &#123;<br>        ptr-&gt;<span class="hljs-built_in">display</span>();<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::shared_ptr&lt;MyClass&gt; sharedPtr = std::<span class="hljs-built_in">make_shared</span>&lt;MyClass&gt;();<br>    <span class="hljs-built_in">useRawPointer</span>(sharedPtr.<span class="hljs-built_in">get</span>()); <span class="hljs-comment">// 使用 get 方法</span><br>    <span class="hljs-built_in">useRawPointer</span>(sharedPtr); <span class="hljs-comment">// 隐式转换</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="注意事项-2">注意事项</h3>
+<p>虽然智能指针提供了隐式转换，但在使用时需要注意以下几点：</p>
+<ol>
+<li><strong>生命周期管理</strong>：隐式转换获得的原生指针不管理对象的生命周期，因此需要确保在使用原生指针时，智能指针仍然有效。</li>
+<li><strong>循环引用</strong>：特别是在使用 <code>std::shared_ptr</code> 时，要注意循环引用的问题，避免导致内存泄漏。</li>
+</ol>
+<p>通过隐式转换，智能指针可以更方便地与需要原生指针的代码进行交互，同时仍然享有智能指针带来的安全性和资源管理的优势。</p>
+</blockquote>
+<p>Like most well-designed classes, it hides what clients don’t need to see, but it makes available those things that clients honestly need to access.</p>
 
                 
               </div>
