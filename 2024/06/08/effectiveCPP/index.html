@@ -26,8 +26,11 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/1-pipeline.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/3-const.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/7vf.png">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-corr.png">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-new.png">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-delete.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-19T02:12:21.504Z">
+<meta property="article:modified_time" content="2024-07-21T05:02:03.198Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -203,7 +206,7 @@
         
         
         
-          89 分钟
+          92 分钟
         
       </span>
     
@@ -769,6 +772,31 @@ return 0;<br>
 <p>通过隐式转换，智能指针可以更方便地与需要原生指针的代码进行交互，同时仍然享有智能指针带来的安全性和资源管理的优势。</p>
 </blockquote>
 <p>Like most well-designed classes, it hides what clients don’t need to see, but it makes available those things that clients honestly need to access.</p>
+<h2 id="item-16-Use-the-same-form-in-corresponding-uses-of-new-and-delete">item 16: Use the same form in corresponding uses of new and delete</h2>
+<p><img src="16-corr.png" srcset="/img/loading.gif" lazyload alt="搭配使用"><br>
+<img src="16-new.png" srcset="/img/loading.gif" lazyload alt="new"><br>
+<img src="16-delete.png" srcset="/img/loading.gif" lazyload alt="delete"></p>
+<p>To avoid confusion, abstain from <code>typedef</code> for array types, use vector.</p>
+<h2 id="item-17-Store-newed-object-in-smart-pointers-in-standalone-statements">item 17: Store newed object in smart pointers in standalone statements</h2>
+<blockquote>
+<p>在 C++ 中，使用 <code>std::shared_ptr</code> 来管理动态分配的对象通常可以有效地防止内存泄漏。然而，在特定情况下，可能会引起微妙的内存泄漏问题。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">func</span>(<span class="hljs-built_in">shared_ptr</span>&lt;foo&gt;(<span class="hljs-keyword">new</span> foo), <span class="hljs-built_in">priority</span>());<br></code></pre></td></tr></table></figure>
+<p>这个调用可能引发内存泄漏的原因是，如果在构造 <code>std::shared_ptr&lt;foo&gt;</code> 对象时抛出异常或者 priority() 中抛出异常，当编译器的执行顺序是</p>
+<ul>
+<li>new foo</li>
+<li>priority()</li>
+<li>ctor of shared_ptr</li>
+</ul>
+<p>，可能会导致 <code>new foo</code> 分配的内存未被释放。具体步骤如下：</p>
+<ol>
+<li><code>new foo</code> 创建一个 <code>foo</code> 对象，并返回一个原始指针。</li>
+<li>这个指针被传递给 <code>std::shared_ptr&lt;foo&gt;</code> 的构造函数。</li>
+<li>如果在 <code>std::shared_ptr&lt;foo&gt;</code> 构造过程中抛出异常（例如，分配 <code>shared_ptr</code> 管理块的内存失败），则 <code>new foo</code> 分配的内存不会被释放，因为没有 <code>shared_ptr</code> 成功创建来管理它。</li>
+</ol>
+<p>为了防止这种情况，可以使用 <code>std::make_shared</code>，并且声明在单独的一行中，不与priority()在一起，它会在单一步骤中进行对象创建和 <code>shared_ptr</code> 的管理内存分配，从而避免上述问题：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::shared_ptr&lt;foo&gt; p = std::<span class="hljs-built_in">make_shared</span>&lt;foo&gt;();<br><span class="hljs-built_in">func</span>(p, <span class="hljs-built_in">priority</span>());<br></code></pre></td></tr></table></figure>
+<p>使用 <code>std::make_shared</code> 会更安全和高效，因为它确保了对象和 <code>shared_ptr</code> 的控制块同时分配和构造，从而避免了潜在的异常安全问题。</p>
+</blockquote>
 
                 
               </div>
