@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-new.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-delete.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-22T04:26:36.592Z">
+<meta property="article:modified_time" content="2024-07-23T02:05:36.704Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -195,7 +195,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          13k 字
+          14k 字
         
       </span>
     
@@ -206,7 +206,7 @@
         
         
         
-          111 分钟
+          119 分钟
         
       </span>
     
@@ -914,6 +914,85 @@ return 0;<br>
 <p>这些措施可以帮助减少或避免 cross-DLL 问题，提高 DLL 之间的互操作性。</p>
 </blockquote>
 <p>shared_ptr is an easy way to eliminate some client error.</p>
+<h2 id="item-19-Treat-class-design-as-type-design">item 19: Treat class design as type design</h2>
+<p>The answers to the following questions often lead to constraints on your design:</p>
+<ul>
+<li>How should objects of your new type be created and destroyed</li>
+<li>How should object initialization differ from object assignment</li>
+<li>What does it mean for objects of your new type to be passed by value</li>
+</ul>
+<blockquote>
+<p>在C++中，拷贝构造函数在以下几种情况中会被调用，其中包括按值传递对象的情况：</p>
+<ol>
+<li>
+<p><strong>按值传递对象</strong>：<br>
+当一个对象以值传递的方式传递给函数时，函数的参数会对该对象进行拷贝，这时会调用拷贝构造函数。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(MyClass obj)</span> </span>&#123;<br>    <span class="hljs-comment">// 在这里拷贝构造函数已经被调用</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>按值返回对象</strong>：<br>
+当一个函数按值返回一个对象时，会调用拷贝构造函数来创建返回值。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">MyClass <span class="hljs-title">createObject</span><span class="hljs-params">()</span> </span>&#123;<br>    MyClass obj;<br>    <span class="hljs-keyword">return</span> obj; <span class="hljs-comment">// 这里会调用拷贝构造函数</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>用一个对象初始化另一个对象</strong>：<br>
+当使用一个对象来初始化另一个对象时，会调用拷贝构造函数。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">MyClass obj1;<br>MyClass obj2 = obj1; <span class="hljs-comment">// 这里会调用拷贝构造函数</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>通过对象的拷贝初始化容器中的元素</strong>：<br>
+当将对象存储在STL容器中时，容器有时会对对象进行拷贝，从而调用拷贝构造函数。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::vector&lt;MyClass&gt; vec;<br>MyClass obj;<br>vec.<span class="hljs-built_in">push_back</span>(obj); <span class="hljs-comment">// 这里会调用拷贝构造函数</span><br></code></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>下面是一个简单的示例，展示了拷贝构造函数在按值传递时的调用：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MyClass</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Default constructor called&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-built_in">MyClass</span>(<span class="hljs-type">const</span> MyClass&amp; other) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Copy constructor called&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(MyClass obj)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Function body&quot;</span> &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    MyClass obj;<br>    <span class="hljs-built_in">func</span>(obj); <span class="hljs-comment">// 调用拷贝构造函数</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在上述代码中，当<code>func</code>函数以值传递的方式接收<code>MyClass</code>对象时，会调用拷贝构造函数。运行结果如下：</p>
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs delphi"><span class="hljs-keyword">Default</span> <span class="hljs-function"><span class="hljs-keyword">constructor</span> <span class="hljs-title">called</span></span><br><span class="hljs-function"><span class="hljs-title">Copy</span> <span class="hljs-title">constructor</span> <span class="hljs-title">called</span></span><br><span class="hljs-function"><span class="hljs-title">Function</span> <span class="hljs-title">body</span></span><br></code></pre></td></tr></table></figure>
+<p>由此可见，拷贝构造函数在按值传递对象时会被调用。</p>
+</blockquote>
+<ul>
+<li>What are the restrictions on legal values for your new type</li>
+<li>Does your new type fit into an inheritance graph</li>
+</ul>
+<blockquote>
+<p>在C++中，当你有一个多态（polymorphic）基类时，基类的析构函数最好声明为虚函数。这是为了确保当你通过基类指针删除派生类对象时，会正确调用派生类的析构函数，从而避免资源泄漏或未定义行为。</p>
+</blockquote>
+<blockquote>
+<p>在C++中，子类的析构函数会自动调用父类的析构函数，这是正确的。然而，子类的构造函数不会自动调用父类的构造函数。需要通过显式调用父类构造函数来实现。具体解释如下：</p>
+<ol>
+<li>
+<p><strong>构造函数</strong>：</p>
+<ul>
+<li>当创建子类对象时，子类的构造函数首先被调用。</li>
+<li>然后，子类构造函数必须显式地调用父类构造函数。这通常在子类构造函数的初始化列表中完成。</li>
+<li>如果不显式调用父类构造函数，C++编译器会自动调用父类的默认构造函数（即没有参数的构造函数）。如果父类没有默认构造函数，且没有在子类构造函数中显式调用其他构造函数，则会导致编译错误。</li>
+</ul>
+<p>例如：</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Base</span>(<span class="hljs-type">int</span> value) &#123;<br>        <span class="hljs-comment">// 构造函数实现</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Derived</span>(<span class="hljs-type">int</span> value) : <span class="hljs-built_in">Base</span>(value) &#123;<br>        <span class="hljs-comment">// Derived 的构造函数实现</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>析构函数</strong>：</p>
+<ul>
+<li>当销毁子类对象时，子类的析构函数首先被调用。</li>
+<li>在子类的析构函数完成后，父类的析构函数会自动被调用。</li>
+<li>这确保了对象销毁时，资源可以被正确释放，避免内存泄漏等问题。</li>
+</ul>
+<p>例如：</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Base</span>() &#123;<br>        <span class="hljs-comment">// 析构函数实现</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    ~<span class="hljs-built_in">Derived</span>() <span class="hljs-keyword">override</span> &#123;<br>        <span class="hljs-comment">// Derived 的析构函数实现</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+</ol>
+<p>总结：子类的构造函数不会自动调用父类构造函数，需要显式调用；而子类的析构函数会自动调用父类的析构函数。</p>
+</blockquote>
+<ul>
+<li>What kind of type conversions are  allowed for your new type</li>
+<li>What operators and functions make sense for the new type</li>
+<li>What standard functions should be disallowed such as declaring private</li>
+<li>Whow should have access to the members of your new type</li>
+<li>what is the “undeclared interface” of your new type</li>
+<li>How general is your new type such as class template</li>
+<li>Is a new type really what you need</li>
+</ul>
 
                 
               </div>
