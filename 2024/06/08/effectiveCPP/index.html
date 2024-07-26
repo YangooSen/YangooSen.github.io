@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-new.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-delete.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-25T08:50:21.600Z">
+<meta property="article:modified_time" content="2024-07-26T09:16:12.045Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -195,7 +195,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          15k 字
+          16k 字
         
       </span>
     
@@ -206,7 +206,7 @@
         
         
         
-          129 分钟
+          130 分钟
         
       </span>
     
@@ -893,7 +893,7 @@ return 0;<br>
 </blockquote>
 <h1>4. Designs and Declarations</h1>
 <h2 id="Item-18-Make-interfaces-easy-to-use-correctly-and-hard-to-use-incorrectly">Item 18: Make interfaces easy to use correctly and hard to use incorrectly</h2>
-<p>Developing interfaces that are easy to use correctly and hard to use incorrectly requires that you consider the kinks of mistakes that clients might make.</p>
+<p>Developing interfaces that are easy to use correctly and hard to use incorrectly requires that you consider the kinds of mistakes that clients might make.</p>
 <p>The type system is your primary ally in preventing undesirable code from compiling, such as introducing simple wrapper types.</p>
 <blockquote>
 <p>在 C++ 中，cross-DLL 问题（跨 DLL 问题）通常指的是在不同的动态链接库（DLL）之间共享和管理对象和函数时所遇到的一些问题。主要的问题包括：</p>
@@ -1054,6 +1054,19 @@ return 0;<br>
 </blockquote>
 <h2 id="Item-21-Don’t-try-to-return-a-reference-whenyou-must-return-an-object">Item 21: Don’t try to return a reference whenyou must return an object</h2>
 <p>Never return a pointer or reference to a local stack object, a reference to heap-allocated object (noone can delete pointer otherwise), or a pointer or reference to a local static object if there is a chance that more than one such object will be needed.</p>
+<h2 id="Item-23-Declare-data-members-private">Item 23: Declare data members private</h2>
+<p>use private data members:</p>
+<ul>
+<li>syntactic consistency for access anything</li>
+<li>more pricise control over the accessibility of data member</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">AccessLevels</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-comment">// 不可访问数据</span><br>    <span class="hljs-type">int</span> inaccessibleData;<br><br>    <span class="hljs-comment">// 只读数据（通过const成员函数访问）</span><br>    <span class="hljs-type">int</span> readOnlyData;<br>    <br>    <span class="hljs-comment">// 只写数据，不能访问它现在的值</span><br>    <span class="hljs-type">int</span> writeOnlyData;<br><br>    <span class="hljs-comment">// 可读可写数据</span><br>    <span class="hljs-type">int</span> readWriteData;<br><span class="hljs-keyword">public</span>:<br>    <br>    <span class="hljs-comment">//可读可写</span><br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getReadWriteData</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> readWriteData;<br>    &#125;<br>    <br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setReadWriteData</span><span class="hljs-params">(<span class="hljs-type">int</span> value)</span></span>&#123;<br>        readWriteData=value;<br>    &#125;<br>    <br>    <span class="hljs-comment">//只能读readOnlyData</span><br>    <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">getReadOnlyData</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> readOnlyData;<br>    &#125;<br><br>    <span class="hljs-comment">// 只写数据（通过成员函数写入）</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">setWriteOnlyData</span><span class="hljs-params">(<span class="hljs-type">int</span> value)</span> </span>&#123;<br>        writeOnlyData = value;<br>    &#125;<br><br><br></code></pre></td></tr></table></figure>
+<ul>
+<li>Encapsulation. Hiding data member behind fuctional interface can offer all kinds of implementation flexibility.</li>
+</ul>
+<p>if you don’t hide data members, you’ll soon find that even if you own the source code to a class, your ability to change anything public is extremely restricted, because too much client code will be broken. <strong>Unencapsulated means unchangeable</strong>, especially for classes that are widely used.</p>
+<p><strong>Something’s encapsulation is inversely proportional to the amount of code that might be broken if that something changes.</strong> For public data members, all client code that uses it. For protected data member, all derived class that use it.</p>
+<p>Protected data members are unencapsulated as public ones. From an encapsulation point of view, there are really <strong>only two access levels</strong>: private (which offs encapsulation) and everything else (which doesn’t).</p>
 
                 
               </div>
