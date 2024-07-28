@@ -30,7 +30,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-new.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-delete.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-28T04:21:58.895Z">
+<meta property="article:modified_time" content="2024-07-28T04:52:37.555Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -1124,6 +1124,8 @@ return 0;<br>
 实际上标准c++库就是这么组织的，不同的头文件（<vector>，<algorithm>等）在同一个命名空间 std 中声明不同的函数，使用 vector 的人不需要 #include <algorithm>，这样使得编译不会互相依赖，提升用户体验，也能提高封装性；同时用户也能够方便地扩展命名空间中的函数</p>
 </blockquote>
 <h2 id="Item-24-Declare-non-member-functions-when-type-conversions-should-apply-to-all-parameter">Item 24: Declare non-member functions when type conversions should apply to all parameter</h2>
+<p>if declare numerical type like this:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Rational</span>&#123;<br><span class="hljs-comment">//...</span><br><span class="hljs-type">const</span> Rational <span class="hljs-keyword">operator</span>*(<span class="hljs-type">const</span> Rational&amp; rhs) <span class="hljs-type">const</span>;<br>&#125;;<br><br><span class="hljs-function">Rational <span class="hljs-title">oneHalf</span><span class="hljs-params">(<span class="hljs-number">1</span>,<span class="hljs-number">2</span>)</span></span>;<br><br>Rational res=oneHalf*<span class="hljs-number">2</span>; <span class="hljs-comment">//fine, implicit type conversion</span><br><br>Rational res=<span class="hljs-number">2</span>*oneHalf <span class="hljs-comment">//error</span><br><br><span class="hljs-comment">//fine if 2 =&gt; Rational, must explicit type conversion</span><br><br><span class="hljs-comment">//parameters are eligible for implicit type conversion only if they are listed in the parameter list</span><br><br><span class="hljs-comment">//Rational res=Rational(2).operator*(oneHalf);</span><br><br><span class="hljs-comment">//also fine if declare non-member function and type conversions, perform type conversion on all arguments in the parameter list</span><br></code></pre></td></tr></table></figure>
 
                 
               </div>
