@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-30T09:40:27.774Z">
+<meta property="article:modified_time" content="2024-07-31T04:34:13.026Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -197,7 +197,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          19k 字
+          20k 字
         
       </span>
     
@@ -208,7 +208,7 @@
         
         
         
-          158 分钟
+          170 分钟
         
       </span>
     
@@ -1195,6 +1195,7 @@ return 0;<br>
 <img src="swap2.png" srcset="/img/loading.gif" lazyload alt="swap"></p>
 <h1>5. Implementations</h1>
 <h2 id="Item-26-Postpone-variable-definition-as-long-as-possible">Item 26: Postpone variable definition as long as possible</h2>
+<blockquote>
 <p>You should postpone the definition until you must use it and you have initialization arguments for it. By doing so, you avoid constructing and destructing unneeded objects, and you avoid unnecessary default ctor.</p>
 <p>在C++中，循环中需要使用的变量定义在循环外面和定义在循环内部，两种方法在耗时上的差异通常可以忽略不计，但在某些特定情况下，可能会有一些性能差异。</p>
 <ol>
@@ -1223,6 +1224,121 @@ return 0;<br>
 </ul>
 <h3 id="总结">总结</h3>
 <p>在大多数情况下，两种方法的性能差异是可以忽略的。更重要的是代码的可读性和维护性。<strong>建议在实际编写代码时，更倾向于使用作用域最小的变量定义方式，即在循环内部定义只在循环中使用的变量，只在循环内部使用的变量，尽量在循环内部定义，这样使得代码更加清晰，也更加容易维护</strong></p>
+</blockquote>
+<h2 id="Item-27-Minimize-casting">Item 27: Minimize casting</h2>
+<ul>
+<li>When casting is necessary, try to hide it inside a function. Clients can then call the function insetead of putting casts in  thier own code.</li>
+<li>Prefer C+±style casts to old-style casts. They are easier to see, and they are more specific about what they do.<br>
+The rules of C++ are designed to guarantee that type errors are impossible, but casts subvert the type system.</li>
+</ul>
+<p>C-style casts, old style:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">(T) <span class="hljs-function">expression</span><br><span class="hljs-function"></span><br><span class="hljs-function"><span class="hljs-title">T</span><span class="hljs-params">(expression)</span></span><br><span class="hljs-function"></span><br></code></pre></td></tr></table></figure>
+<p>C+±style casts, new style:</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-built_in">const_cast</span>&lt;T&gt;(expression)<br><span class="hljs-built_in">dynamic_cast</span>&lt;T&gt;(expression)<br><span class="hljs-built_in">reinterpret_cast</span>&lt;T&gt;(expression)<br><span class="hljs-built_in">static_cast</span>&lt;T&gt;(expression)<br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>一个好的c++程序应该尽量少用cast<br>
+C++中有四种类型的类型转换（cast），分别是：<code>static_cast</code>、<code>dynamic_cast</code>、<code>const_cast</code>和<code>reinterpret_cast</code>。每种类型转换都有其特定的用途和适用场景。以下是每种类型转换的详细介绍：</p>
+<h3 id="1-static-cast">1. <code>static_cast</code></h3>
+<p><code>static_cast</code>用于在相关类型之间进行转换，主要用于编译时类型检查。这种转换是安全的，但它不会进行运行时类型检查。<strong>会生成临时对象存储数据，注意可能会导致函数调用的时候是对临时对象作用的，而不是原本待转换类型的对象</strong></p>
+<ul>
+<li>
+<p>用途：</p>
+<ul>
+<li>基类和派生类之间的转换（需要类型安全）。</li>
+<li>基本数据类型之间的转换（如整数到浮点数）。</li>
+<li>void*和其他指针类型之间的转换。</li>
+</ul>
+</li>
+<li>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;&#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;&#125;;<br><br>Base* basePtr = <span class="hljs-keyword">new</span> Derived;<br>Derived* derivedPtr = <span class="hljs-built_in">static_cast</span>&lt;Derived*&gt;(basePtr);<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="2-dynamic-cast">2. <code>dynamic_cast</code></h3>
+<p><code>dynamic_cast</code>主要用于多态类型之间的转换。它执行运行时类型检查，确保转换的安全性。如果转换失败，将返回<code>nullptr</code>（对于指针）或抛出<code>std::bad_cast</code>异常（对于引用）。此cast非常耗时，例如至少要做的就是类名称的比对，如果涉及到n层继承，就需要比对n次类名的string，非常耗时，能用其他方式完成所需目标，尽量别用这个cast，非常耗时；另外如果继承关系发生改变或新增，也会重新产生更多臃肿的代码</p>
+<ul>
+<li>
+<p>用途：</p>
+<ul>
+<li>用于在继承层次中向下转换（downcast），确保转换对象是目标类型的实例。</li>
+<li>需要在类中至少有一个虚函数（通常是虚析构函数）。</li>
+</ul>
+</li>
+<li>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br>  <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Base</span>() &#123;&#125;<br>&#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;&#125;;<br><br>Base* basePtr = <span class="hljs-keyword">new</span> Derived;<br>Derived* derivedPtr = <span class="hljs-built_in">dynamic_cast</span>&lt;Derived*&gt;(basePtr);<br><span class="hljs-keyword">if</span> (derivedPtr) &#123;<br>  <span class="hljs-comment">// 转换成功</span><br>&#125; <span class="hljs-keyword">else</span> &#123;<br>  <span class="hljs-comment">// 转换失败</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="3-const-cast">3. <code>const_cast</code></h3>
+<p><code>const_cast</code>用于添加或移除<code>const</code>或<code>volatile</code>属性。它不用于类型之间的转换，只用于修饰符的调整。</p>
+<ul>
+<li>
+<p>用途：</p>
+<ul>
+<li>移除<code>const</code>属性以修改原本为常量的变量。</li>
+<li>添加<code>const</code>属性以将变量设为只读。</li>
+</ul>
+</li>
+<li>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">int</span>* p)</span> </span>&#123;<br>  <span class="hljs-type">int</span>* modifiable = <span class="hljs-built_in">const_cast</span>&lt;<span class="hljs-type">int</span>*&gt;(p);<br>  *modifiable = <span class="hljs-number">10</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="4-reinterpret-cast">4. <code>reinterpret_cast</code></h3>
+<p><code>reinterpret_cast</code>用于将指针或引用转换为其他类型的指针或引用，几乎不进行类型检查。它用于低级别的、平台相关的代码中。</p>
+<ul>
+<li>
+<p>用途：</p>
+<ul>
+<li>将一个指针类型转换为不同的指针类型。</li>
+<li>在指针和整数之间进行转换。</li>
+<li>进行位模式重新解释。</li>
+</ul>
+</li>
+<li>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> i = <span class="hljs-number">42</span>;<br><span class="hljs-type">void</span>* ptr = &amp;i;<br><span class="hljs-type">int</span>* intPtr = <span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">int</span>*&gt;(ptr);<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="总结-2">总结</h3>
+<p>这四种类型转换各自有特定的应用场景和使用方法。正确使用这些类型转换可以提高代码的可读性和安全性，同时避免不必要的类型错误和运行时错误。</p>
+</blockquote>
+<blockquote>
+<p>C++中的四种类型转换（<code>static_cast</code>、<code>dynamic_cast</code>、<code>const_cast</code>和<code>reinterpret_cast</code>）在编译时的行为各不相同，有些会生成额外的代码，有些则不会。以下是每种类型转换在编译时可能的行为：</p>
+<h3 id="1-static-cast-2">1. <code>static_cast</code></h3>
+<p><strong>实际上生成了一个拷贝对象</strong><br>
+<code>static_cast</code>主要在编译时进行类型检查和转换。它告诉编译器将一个对象看作另一种类型，但不会执行额外的运行时检查。对于基本数据类型之间的转换，编译器可能会生成必要的代码以实现转换（例如从整数到浮点数，因为他们的底层表示并不一样，不能直接转换视角看待）。对于指针和引用之间的转换，通常不会生成额外的代码。</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">float</span> f = <span class="hljs-number">3.14</span>;<br><span class="hljs-type">int</span> i = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">int</span>&gt;(f);  <span class="hljs-comment">// 可能生成代码以实现浮点数到整数的转换，生成了另一个暂时的拷贝int对象，存储数值之后赋值给i</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="2-dynamic-cast-2">2. <code>dynamic_cast</code></h3>
+<p><code>dynamic_cast</code>会在运行时执行类型检查，确保转换的安全性。它通常用于多态类型之间的转换，需要运行时类型信息（RTTI）。因此，使用<code>dynamic_cast</code>时，编译器会生成额外的代码来执行这些检查。</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Base* basePtr = <span class="hljs-keyword">new</span> Derived;<br>Derived* derivedPtr = <span class="hljs-built_in">dynamic_cast</span>&lt;Derived*&gt;(basePtr);  <span class="hljs-comment">// 生成运行时类型检查代码</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="3-const-cast-2">3. <code>const_cast</code></h3>
+<p><code>const_cast</code>用于添加或移除<code>const</code>或<code>volatile</code>属性，不会在运行时生成额外的代码。它仅仅是告诉编译器忽略这些修饰符，因此不会对生成的机器代码产生影响。</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span>* p = &amp;i;<br><span class="hljs-type">int</span>* modifiable = <span class="hljs-built_in">const_cast</span>&lt;<span class="hljs-type">int</span>*&gt;(p);  <span class="hljs-comment">// 不生成额外的代码</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="4-reinterpret-cast-2">4. <code>reinterpret_cast</code></h3>
+<p><code>reinterpret_cast</code>用于在不同的指针或引用类型之间进行转换。它通常不会生成额外的代码，只是改变了编译器对数据的解释方式。对于指针和整数之间的转换，编译器可能会生成一些代码，但这取决于具体的转换和平台。</p>
+<ul>
+<li><strong>示例</strong>：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> i = <span class="hljs-number">42</span>;<br><span class="hljs-type">void</span>* ptr = &amp;i;<br><span class="hljs-type">int</span>* intPtr = <span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">int</span>*&gt;(ptr);  <span class="hljs-comment">// 不生成额外的代码</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="总结-3">总结</h3>
+<ul>
+<li><code>static_cast</code>：编译时类型检查和转换，可能生成代码（特别是基本类型之间的转换）。</li>
+<li><code>dynamic_cast</code>：运行时类型检查，通常会生成额外的代码。</li>
+<li><code>const_cast</code>：仅在编译时生效，不生成额外的代码。</li>
+<li><code>reinterpret_cast</code>：改变编译器对数据的解释方式，通常不生成额外的代码。</li>
+</ul>
+<p>每种类型转换的主要目的是在编译时或运行时确保类型安全和正确性，根据具体使用场景选择合适的类型转换非常重要。</p>
+</blockquote>
 
                 
               </div>
