@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-07-31T04:34:13.026Z">
+<meta property="article:modified_time" content="2024-08-04T10:26:27.537Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -197,7 +197,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          20k 字
+          22k 字
         
       </span>
     
@@ -208,7 +208,7 @@
         
         
         
-          170 分钟
+          188 分钟
         
       </span>
     
@@ -386,6 +386,9 @@ C++ 标准委员会（ISO/IEC JTC 1/SC 22/WG 21）将继续推动 C++ 的发展�
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">vecto&lt;<span class="hljs-type">int</span>&gt;::const_iterator iter2; <span class="hljs-comment">//const T*, const data, non-const pointer</span><br>*iter2=<span class="hljs-number">10</span> <span class="hljs-comment">//error</span><br>iter2++ <span class="hljs-comment">// ok</span><br><br></code></pre></td></tr></table></figure>
 <p>Having a function return a constant value often makes it  possible to reduce the incidence of client error, such as:</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Rational</span>&#123;<br>    <span class="hljs-comment">//...</span><br>&#125;;<br><span class="hljs-type">const</span> Rational <span class="hljs-keyword">operator</span>*(<span class="hljs-type">const</span> Rational&amp; lhs,<span class="hljs-type">const</span> Rational&amp; rhs);<br>Rational a,v,c;<br><span class="hljs-keyword">if</span> (a*b=c) <span class="hljs-comment">//error</span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>注意const对象不能赋值给非const对象，用非const对象接收返回值的话会报错</p>
+</blockquote>
 <p>The purpose of <code>const</code> on <code>member function</code> is to identify which member function may be invoked on <code>const</code> objects.</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> position) <span class="hljs-type">const</span> &#123;<span class="hljs-keyword">return</span> text[position];&#125;<br>    <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> position)&#123;<span class="hljs-keyword">return</span> text[position];&#125;<br>&#125;<br><br><span class="hljs-keyword">private</span>:<br>    string text;<br><br><br><span class="hljs-function">foo <span class="hljs-title">tb</span><span class="hljs-params">(<span class="hljs-string">&quot;Hello&quot;</span>)</span></span>;<br>cout &lt;&lt; tb[<span class="hljs-number">0</span>]; <span class="hljs-comment">//non-const operator[]</span><br><br><span class="hljs-function"><span class="hljs-type">const</span> foo <span class="hljs-title">ctb</span><span class="hljs-params">(<span class="hljs-string">&quot;Hello&quot;</span>)</span></span>;<br>cout &lt;&lt; tb[<span class="hljs-number">0</span>] <span class="hljs-comment">//const operator[]</span><br></code></pre></td></tr></table></figure>
 <p><img src="3-const.png" srcset="/img/loading.gif" lazyload alt="const"></p>
@@ -400,11 +403,14 @@ C++ 标准委员会（ISO/IEC JTC 1/SC 22/WG 21）将继续推动 C++ 的发展�
 </blockquote>
 <p><strong>Member function differing only in their constness can be overloaded</strong></p>
 <p>const member function <strong>might modify some of the bits in the object</strong>, even though compilers enforce bitwise constness.</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> position) <span class="hljs-type">const</span> &#123;<span class="hljs-keyword">return</span> ptext[position];&#125;<br>&#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* ptext;<br><br><br><span class="hljs-function"><span class="hljs-type">const</span> foo <span class="hljs-title">cctb</span><span class="hljs-params">(<span class="hljs-string">&quot;Hello&quot;</span>)</span></span>;<br><span class="hljs-type">char</span>* pc=&amp;cct[<span class="hljs-number">0</span>]; <span class="hljs-comment">//call the const operator[]</span><br>*pc=<span class="hljs-string">&#x27;J&#x27;</span>; <span class="hljs-comment">//modify data with pointer</span><br><br></code></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;bits/stdc++.h&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span>::std;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">foo</span>(<span class="hljs-type">char</span>* c):<span class="hljs-built_in">ptext</span>(c)&#123;&#125;;<br>    <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> position) <span class="hljs-type">const</span> &#123;<span class="hljs-keyword">return</span> ptext[position];&#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* ptext;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span>&#123;<br>    <span class="hljs-type">char</span>* p=<span class="hljs-string">&quot;Hello&quot;</span>;<br>    <br>    <span class="hljs-function"><span class="hljs-type">const</span> foo <span class="hljs-title">cctb</span><span class="hljs-params">(p)</span></span>;<br>    <span class="hljs-type">char</span>* pc=&amp;cctb[<span class="hljs-number">0</span>]; <span class="hljs-comment">//call the const operator[]</span><br>    *pc=<span class="hljs-string">&#x27;J&#x27;</span>; <span class="hljs-comment">//modify data with pointer</span><br>    <br>&#125;<br><br></code></pre></td></tr></table></figure>
+<blockquote>
+<p>即使函数本身是const，仍然有可能修改成员变量，但返回值是const的话永远不可能修改返回值</p>
+</blockquote>
 <p><code>mutable</code> free data member from constraints of bitwise constness</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Logger</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Logger</span>() : <span class="hljs-built_in">logCount</span>(<span class="hljs-number">0</span>) &#123;&#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">log</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; message)</span> <span class="hljs-type">const</span> </span>&#123;<br>        ++logCount; <span class="hljs-comment">// logCount是mutable的，所以可以在const成员函数中修改</span><br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Log[&quot;</span> &lt;&lt; logCount &lt;&lt; <span class="hljs-string">&quot;]: &quot;</span> &lt;&lt; message &lt;&lt; std::endl;<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">mutable</span> <span class="hljs-type">int</span> logCount;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Logger logger;<br>    logger.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;First message&quot;</span>);<br>    logger.<span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;Second message&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
 <p>To avoid duplication in <code>const</code> and <code>non-const</code> member functions, you can use casting</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    string text;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> position) <span class="hljs-type">const</span> &#123;<span class="hljs-keyword">return</span> text[position];&#125;<br>    <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> position)&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">const_cast</span>&lt;<span class="hljs-type">char</span>&amp;&gt;(<br>            <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">const</span> foo&amp;&gt;(*<span class="hljs-keyword">this</span>)[position];<br>        )<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    string text;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> position) <span class="hljs-type">const</span> &#123;<span class="hljs-keyword">return</span> text[position];&#125;<br>    <span class="hljs-type">char</span>&amp; <span class="hljs-keyword">operator</span>[](<span class="hljs-type">size_t</span> position)&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">const_cast</span>&lt;<span class="hljs-type">char</span>&amp;&gt;(<br>            <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">const</span> foo&amp;&gt;(*<span class="hljs-keyword">this</span>)[position];<br>        )<br>    &#125;<br>&#125;;<br><br></code></pre></td></tr></table></figure>
 <blockquote>
 <p><code>static_cast</code> 是 C++ 中用于进行类型转换的运算符。它提供了一种安全的类型转换方式，可以在编译时进行类型检查。其主要作用包括：</p>
 <ol>
@@ -1158,7 +1164,7 @@ return 0;<br>
 <p>在C++中，命名空间用于组织代码并避免命名冲突。假设在命名空间中声明了一个类和该类的特化模板函数，并且在全局命名空间中也有一个同名的模板函数，那么在另一个文件中调用该类的模板函数时，是否会调用命名空间中的模板函数取决于几个因素，如命名空间的使用和调用方式。</p>
 <p>考虑以下代码示例：</p>
 <h3 id="文件1：namespace-example-h">文件1：namespace_example.h</h3>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">namespace</span> MyNamespace &#123;<br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br>    <span class="hljs-keyword">public</span>:<br>        <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-comment">// ...</span><br>        &#125;<br>    &#125;;<br><br>    <span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function">    <span class="hljs-type">void</span> <span class="hljs-title">myFunction</span><span class="hljs-params">(T t)</span> </span>&#123;<br>        <span class="hljs-comment">// 特化模板函数</span><br>    &#125;<br><br>    <span class="hljs-keyword">template</span>&lt;&gt;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myFunction</span><span class="hljs-params">(MyClass t)</span> </span>&#123;<br>        t.<span class="hljs-built_in">doSomething</span>();<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 全局命名空间中的模板函数</span><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myFunction</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">namespace</span> MyNamespace &#123;<br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br>    <span class="hljs-keyword">public</span>:<br>        <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span> </span>&#123;<br>            <span class="hljs-comment">// ...</span><br>        &#125;<br>    &#125;;<br><br>    <span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function">    <span class="hljs-type">void</span> <span class="hljs-title">myFunction</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    &#125;<br><br>    <span class="hljs-keyword">template</span>&lt;&gt;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myFunction</span><span class="hljs-params">(MyClass t)</span> </span>&#123;<br>        t.<span class="hljs-built_in">doSomething</span>();<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">// 全局命名空间中的模板函数</span><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myFunction</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <h3 id="文件2：main-cpp">文件2：main.cpp</h3>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;namespace_example.h&quot;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    MyClass obj;<br>    <span class="hljs-built_in">myFunction</span>(obj); <span class="hljs-comment">// 调用哪个 myFunction?</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <h3 id="分析：">分析：</h3>
@@ -1179,6 +1185,33 @@ return 0;<br>
 </blockquote>
 <ul>
 <li>Provide a <strong>swap member function</strong> when std::swap would be inefficient of your type. <strong>Make sure your swap doesn’t throw exceptions.</strong></li>
+</ul>
+<p>在C++中实现swap函数时可能会抛出异常，这对使用copy-and-swap技术有一定的影响。让我们详细讨论一下这个问题。</p>
+<blockquote>
+<h3 id="copy-and-swap技术简介">copy-and-swap技术简介</h3>
+<p>copy-and-swap是一种常用的C++编程技术，主要用于实现异常安全的赋值运算符。其基本思想是：</p>
+<ol>
+<li>先创建一个临时副本。</li>
+<li>使用这个副本进行所需的操作（如赋值）。</li>
+<li>交换临时副本和当前对象的资源。</li>
+</ol>
+<p>这样做的好处是，如果任何操作（如复制构造、赋值、交换）抛出异常，当前对象保持不变，不会处于部分修改的状态。</p>
+<h3 id="swap函数的异常抛出">swap函数的异常抛出</h3>
+<p>通常，swap函数的实现应该保证不抛出异常（<code>noexcept</code>），因为一旦swap函数抛出异常，整个copy-and-swap技术就无法保证其异常安全性。例如，标准库中的<code>std::swap</code>函数是被标记为<code>noexcept</code>的。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">namespace</span> std &#123;<br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">swap</span><span class="hljs-params">(T&amp; a, T&amp; b)</span> <span class="hljs-title">noexcept</span><span class="hljs-params">(<span class="hljs-comment">/* see below */</span>)</span></span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>但是，如果你自己实现的swap函数可能会抛出异常，那么在copy-and-swap技术中使用它就会导致问题：</p>
+<ol>
+<li><strong>异常传播</strong>：如果swap函数在交换过程中抛出异常，那么就会导致原始对象和临时对象处于未定义的状态。</li>
+<li><strong>异常安全性</strong>：copy-and-swap技术的一个核心是通过交换来保证异常安全性，如果swap函数抛出异常，异常安全性将无法得到保证。</li>
+</ol>
+<h3 id="如何处理">如何处理</h3>
+<p>为了确保copy-and-swap技术的安全性，你需要确保你的swap函数是<code>noexcept</code>的。你可以使用<code>noexcept</code>关键字来显式声明你的swap函数不抛出异常：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">swap</span><span class="hljs-params">(MyClass&amp; lhs, MyClass&amp; rhs)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>    <span class="hljs-comment">// 交换成员</span><br>    std::<span class="hljs-built_in">swap</span>(lhs.member1, rhs.member1); <span class="hljs-comment">// 假设这些成员的swap操作也是noexcept的</span><br>    std::<span class="hljs-built_in">swap</span>(lhs.member2, rhs.member2);<br>    <span class="hljs-comment">// ...</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>同时，你可以在类的赋值运算符中利用这个<code>noexcept</code>的swap函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    MyClass&amp; <span class="hljs-keyword">operator</span>=(MyClass rhs) &#123;<br>        <span class="hljs-built_in">swap</span>(*<span class="hljs-keyword">this</span>, rhs); <span class="hljs-comment">// 使用noexcept的swap函数</span><br>        <span class="hljs-keyword">return</span> *<span class="hljs-keyword">this</span>;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">friend</span> <span class="hljs-type">void</span> <span class="hljs-title">swap</span><span class="hljs-params">(MyClass&amp; lhs, MyClass&amp; rhs)</span> <span class="hljs-keyword">noexcept</span></span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>通过确保swap函数的<code>noexcept</code>，你可以保证copy-and-swap技术的异常安全性，从而提高程序的稳定性和健壮性。</p>
+</blockquote>
+<ul>
 <li>if you offer a member swap, also offer a <strong>non-member swap</strong> that calls the member. For classes (not templates), specialize <strong>std::swap</strong> too.</li>
 <li>When calling swap, employ a using declaration for std::swap, then call swap without namespace qualification</li>
 </ul>
@@ -1339,6 +1372,106 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 </ul>
 <p>每种类型转换的主要目的是在编译时或运行时确保类型安全和正确性，根据具体使用场景选择合适的类型转换非常重要。</p>
 </blockquote>
+<h2 id="Item-28-Avoid-returning-“handles”-to-object-internals">Item 28: Avoid returning “handles” to object internals</h2>
+<p>Avoid returning handles (references, pointers, or iterators) to object internals. Not returning handles increases encapsulation, helps const member functions act const, and Minimizes the creation of dangling handles.</p>
+<h2 id="Item-29-Strive-for-exception-safe-code">Item 29: Strive for exception-safe code</h2>
+<p>When an exception is thrown,  exception-safe functions:</p>
+<ul>
+<li>Leak no resource</li>
+<li>Don’t allow data structures to become corrupted</li>
+</ul>
+<blockquote>
+<p>在C++中，exception-safe函数提供三种类型的保证，分别是：</p>
+<ol>
+<li>
+<p><strong>基本保证（Basic Guarantee）</strong>：</p>
+<ul>
+<li>当异常发生时，程序的所有不变性（invariants）依然保持，并且没有资源泄漏。</li>
+<li>尽管程序的状态可能不确定，但它依然是有效的，可以继续执行。</li>
+<li>这是异常安全性的最低要求。</li>
+</ul>
+</li>
+<li>
+<p><strong>强烈保证（Strong Guarantee）</strong>：</p>
+<ul>
+<li>当异常发生时，程序的状态会回滚到调用函数之前的状态，就好像函数调用从未发生过。</li>
+<li>这意味着要么函数成功并正常执行，要么异常发生且程序状态没有变化。</li>
+<li>强烈保证通常通过事务性操作（transactional operation）来实现，类似于数据库中的回滚机制。</li>
+</ul>
+</li>
+<li>
+<p><strong>无异常保证（No-Throw Guarantee 或 Nothrow Guarantee）</strong>：</p>
+<ul>
+<li>函数承诺不会抛出任何异常。</li>
+<li>这是最强的保证，通常用于析构函数、内存管理函数等关键函数。</li>
+<li>要实现这种保证，需要确保函数内部的所有操作都是不抛出异常的。</li>
+</ul>
+</li>
+</ol>
+<p>这三种保证有助于在C++中编写健壮和可靠的代码，特别是在处理资源管理和异常处理时。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，函数声明中的异常规范（exception specification）用于指明函数可能抛出的异常类型。</p>
+<p>在 C++11 之前，有一种称为“空异常规范”（empty exception specification）的语法形式，用于声明函数不抛出任何异常。具体语法是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> <span class="hljs-title">throw</span><span class="hljs-params">()</span></span>;<br></code></pre></td></tr></table></figure>
+<p>这意味着 <code>foo</code> 函数不应该抛出任何异常。如果这个函数确实抛出了异常，程序会调用 <code>std::unexpected</code> 函数，这通常会导致程序终止。这种情况并不是指函数一定不抛出异常，而是指如果抛出异常，那将是非常严重的错误，并不是指实现上一定不会抛出异常</p>
+<p>从 C++11 开始，标准引入了 <code>noexcept</code> 关键字来取代这种语法。 <code>noexcept</code> 关键字可以用于指示一个函数是否会抛出异常：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> <span class="hljs-keyword">noexcept</span></span>;<br></code></pre></td></tr></table></figure>
+<p>与 <code>throw()</code> 类似，<code>noexcept</code> 也表示函数不会抛出任何异常。使用 <code>noexcept</code> 的好处在于它不仅更简洁，还可以参与到更多的优化中，使编译器能更好地优化代码。</p>
+<p>总之，“空异常规范”指的是在函数声明中显式指明该函数不会抛出任何异常。在 C++11 之前使用 <code>throw()</code>，而在 C++11 及之后建议使用 <code>noexcept</code>。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，使用 “copy and swap” 技术是一种常见的方法来提供强异常保证（strong exception guarantee）。强异常保证意味着：即使在出现异常时，对象的状态也会保持不变，make all-or-nothin。实现这一技术通常包括以下步骤：</p>
+<ul>
+<li>复制构造函数：创建一个将要修改对象的临时拷贝对象，所有的修改都针对于这个临时拷贝对象，而不是原对象</li>
+<li>交换操作：用临时对象与当前对象交换数据。</li>
+<li>提供异常安全：通过交换操作，如果在操作过程中发生异常，当前对象的状态依然保持不变，因为只有当所有操作成功后，交换才会进行。</li>
+</ul>
+<p>实现这种方法一般会用到 pimpl idiom 技术</p>
+<p>Pimpl（Pointer to IMPLementation）idiom 是一种用于 C++ 编程的设计模式。它通过将类的实现细节隐藏在实现文件（.cpp 文件）中，只在头文件（.h 文件）中保留接口声明，从而达到减少编译依赖、加快编译速度和隐藏实现细节的目的。以下是对 Pimpl idiom 的详细解释：</p>
+<h3 id="原理">原理</h3>
+<p>Pimpl idiom 的核心思想是将类的具体实现封装在一个独立的实现类中，通过一个指向实现类的指针来访问实现类的成员。这样可以将实现类的定义从头文件中移到实现文件中，从而隐藏实现细节。</p>
+<h3 id="实现步骤">实现步骤</h3>
+<ol>
+<li>
+<p><strong>在头文件中声明接口类</strong>：</p>
+<ul>
+<li>声明一个包含指向实现类指针的类。</li>
+<li>声明接口函数，但不提供实现。</li>
+</ul>
+</li>
+<li>
+<p><strong>在实现文件中定义实现类</strong>：</p>
+<ul>
+<li>定义实现类，并在接口类的构造函数中实例化它。</li>
+</ul>
+</li>
+<li>
+<p><strong>在接口函数中调用实现类的相应函数</strong>：</p>
+<ul>
+<li>在接口函数中，通过指向实现类的指针调用相应的实现函数。</li>
+</ul>
+</li>
+</ol>
+<h3 id="示例代码">示例代码</h3>
+<h4 id="头文件-MyClass-h">头文件 (MyClass.h)</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 头文件</span><br><span class="hljs-meta">#<span class="hljs-keyword">ifndef</span> MYCLASS_H</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> MYCLASS_H</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;memory&gt;</span> <span class="hljs-comment">// 用于 std::unique_ptr</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MyClass</span>(); <span class="hljs-comment">// 构造函数</span><br>    ~<span class="hljs-built_in">MyClass</span>(); <span class="hljs-comment">// 析构函数</span><br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">// 接口函数</span><br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">Impl</span>; <span class="hljs-comment">// 前向声明实现类</span><br>    std::unique_ptr&lt;Impl&gt; pImpl; <span class="hljs-comment">// 指向实现类的指针</span><br>&#125;;<br><br><span class="hljs-meta">#<span class="hljs-keyword">endif</span> <span class="hljs-comment">// MYCLASS_H</span></span><br></code></pre></td></tr></table></figure>
+<h4 id="实现文件-MyClass-cpp">实现文件 (MyClass.cpp)</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 实现文件</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;MyClass.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span>::Impl &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomethingImpl</span><span class="hljs-params">()</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Doing something!&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br>MyClass::<span class="hljs-built_in">MyClass</span>() : <span class="hljs-built_in">pImpl</span>(std::<span class="hljs-built_in">make_unique</span>&lt;Impl&gt;()) &#123;&#125;<br><br>MyClass::~<span class="hljs-built_in">MyClass</span>() = <span class="hljs-keyword">default</span>;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">MyClass::doSomething</span><span class="hljs-params">()</span> </span>&#123;<br>    pImpl-&gt;<span class="hljs-built_in">doSomethingImpl</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="优点">优点</h3>
+<ol>
+<li><strong>减少编译依赖</strong>：头文件中的更改不会导致依赖该头文件的其他文件重新编译，因为实现细节在实现文件中。</li>
+<li><strong>隐藏实现细节</strong>：实现类的定义和实现完全隐藏在实现文件中，用户无法访问。</li>
+<li><strong>稳定接口</strong>：接口类的接口相对稳定，即使实现发生改变，接口也不变。</li>
+</ol>
+<h3 id="缺点">缺点</h3>
+<ol>
+<li><strong>引入间接层</strong>：通过指针访问实现类的成员会引入一定的运行时开销。</li>
+<li><strong>复杂性增加</strong>：代码结构变得更加复杂，增加了维护成本。</li>
+</ol>
+<p>Pimpl idiom 是一种有效的设计模式，特别适用于需要频繁修改实现细节但希望保持接口稳定的场景。</p>
+</blockquote>
+<p>A fuction can usually offer a guarantee no stronger than the weakest guarantee of the fuctions it calls.</p>
 
                 
               </div>
