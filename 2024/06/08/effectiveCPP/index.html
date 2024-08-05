@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-04T10:26:27.537Z">
+<meta property="article:modified_time" content="2024-08-05T05:10:49.431Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -197,7 +197,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          22k 字
+          24k 字
         
       </span>
     
@@ -208,7 +208,7 @@
         
         
         
-          188 分钟
+          200 分钟
         
       </span>
     
@@ -1472,6 +1472,87 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>Pimpl idiom 是一种有效的设计模式，特别适用于需要频繁修改实现细节但希望保持接口稳定的场景。</p>
 </blockquote>
 <p>A fuction can usually offer a guarantee no stronger than the weakest guarantee of the fuctions it calls.</p>
+<h2 id="Item-30-Understand-the-ins-and-outs-of-inlining">Item 30: Understand the ins and outs of inlining</h2>
+<blockquote>
+<p>在C++编译器处理中，内联函数（inline functions）的优化主要体现在以下几个方面，某些优化仅针对内联函数才会实现，其他函数不会有这样的优化，但需要注意的是内联函数很少支持debug，这可能会给代码编写带来麻烦：</p>
+<ol>
+<li>
+<p><strong>内联展开（Inline Expansion）</strong>：</p>
+<ul>
+<li>编译器会将内联函数的代码直接插入到每个调用点，而不是生成函数调用。这消除了函数调用的开销，包括参数传递和返回值处理的开销。</li>
+</ul>
+</li>
+<li>
+<p><strong>减少函数调用开销</strong>：</p>
+<ul>
+<li>函数调用通常涉及栈操作（如保存返回地址、传递参数、保存和恢复寄存器等），内联函数通过直接插入代码消除了这些开销，提高了性能。</li>
+</ul>
+</li>
+<li>
+<p><strong>常量传播（Constant Propagation）</strong>：</p>
+<ul>
+<li>如果内联函数中使用了常量参数，编译器可以在展开内联函数时进行常量传播，从而优化内联函数内部的代码。</li>
+</ul>
+</li>
+<li>
+<p><strong>消除代码冗余（Code Elimination）</strong>：</p>
+<ul>
+<li>通过内联展开，编译器可以更好地进行死代码消除和冗余代码删除等优化。这是因为内联展开后，编译器可以更全面地分析代码上下文。</li>
+</ul>
+</li>
+<li>
+<p><strong>跨函数优化（Inter-Procedural Optimization）</strong>：</p>
+<ul>
+<li>内联函数的展开使得跨函数优化变得更容易进行，例如循环展开、指令重排等优化可以在更大范围内进行。</li>
+</ul>
+</li>
+<li>
+<p><strong>减少函数调用延迟</strong>：</p>
+<ul>
+<li>对于小函数，内联展开可以显著减少由于函数调用引起的延迟，特别是在性能关键的代码路径上。</li>
+</ul>
+</li>
+</ol>
+<p>需要注意的是，内联函数并不总是带来性能提升。对于较大的函数，内联展开可能导致代码膨胀（code bloat），从而对性能产生负面影响。此外，编译器并不一定会内联标记为<code>inline</code>的函数，尤其是在函数较大或者递归调用的情况下，编译器可能会忽略内联建议以避免代码膨胀和递归展开带来的问题。最终是否进行内联展开，通常取决于编译器的优化策略和启用的优化选项。</p>
+</blockquote>
+<blockquote>
+<p>在C++中，内联函数确实通常声明和定义在头文件中。这是因为内联函数需要在编译时内联展开（即替换函数调用为函数体），而编译器在编译每个源文件时需要知道内联函数的定义。</p>
+<p>以下是一些原因和详细解释：</p>
+<ol>
+<li>
+<p><strong>内联展开</strong>：内联函数的目的是在编译时将函数调用展开为函数体，以减少函数调用的开销。为了做到这一点，编译器在每个调用内联函数的源文件中都需要看到内联函数的定义。</p>
+</li>
+<li>
+<p><strong>多重定义</strong>：如果内联函数的定义只在一个源文件中，而在其他源文件中只进行声明，编译器无法在其他源文件中进行内联展开。将内联函数的定义放在头文件中，可以确保所有包含该头文件的源文件都能看到函数定义，从而实现内联展开。</p>
+</li>
+<li>
+<p><strong>链接器优化</strong>：内联函数的定义放在头文件中，也有助于链接器进行优化。链接器可以更好地优化和消除不必要的函数调用，从而生成更高效的代码。</p>
+</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// my_inline_functions.h</span><br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br></code></pre></td></tr></table></figure>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// main.cpp</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;my_inline_functions.h&quot;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> result = <span class="hljs-built_in">add</span>(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在上面的例子中，<code>add</code> 函数是一个内联函数，其定义放在头文件 <code>my_inline_functions.h</code> 中。这样，任何包含该头文件的源文件都可以对 <code>add</code> 函数进行内联展开。</p>
+<p>不过，值得注意的是，虽然通常情况下内联函数定义在头文件中，但有时也可以在源文件中定义内联函数，只要确保在所有使用该函数的源文件中包含相应的头文件声明。例如，可以使用 <code>static</code> 或 <code>extern inline</code> 来控制内联函数的链接行为。</p>
+</blockquote>
+<blockquote>
+<p>是的，当构造函数抛出异常时，任何已经成功构造的成员对象或基类子对象的析构函数会被自动调用。C++ 的这种行为确保了在异常情况下，不会有资源泄漏，维持了对象的整体一致性。</p>
+<p>具体来说：</p>
+<ol>
+<li>
+<p><strong>成员对象</strong>：如果一个类的构造函数在构造过程中抛出异常，所有已经成功构造的成员对象的析构函数都会被调用。未成功构造的成员对象的析构函数不会被调用，因为它们根本就没有构造成功。</p>
+</li>
+<li>
+<p><strong>基类对象</strong>：如果派生类的构造函数抛出异常，任何已经成功构造的基类子对象的析构函数也会被调用。</p>
+</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdexcept&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Member</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">Member</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Member constructed\n&quot;</span>;<br>    &#125;<br>    ~<span class="hljs-built_in">Member</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Member destructed\n&quot;</span>;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br>    Member m;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">MyClass</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;MyClass constructor\n&quot;</span>;<br>        <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;Constructor exception&quot;</span>);<br>    &#125;<br>    ~<span class="hljs-built_in">MyClass</span>() &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;MyClass destructor\n&quot;</span>;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        MyClass obj;<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::exception&amp; e) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; <span class="hljs-string">&quot;\n&quot;</span>;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，当 <code>MyClass</code> 的构造函数抛出异常时，已经构造的 <code>Member</code> 对象的析构函数会被调用。</p>
+<p>运行结果是：</p>
+<figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs delphi">Member constructed<br>MyClass <span class="hljs-function"><span class="hljs-keyword">constructor</span></span><br><span class="hljs-function"><span class="hljs-title">Member</span> <span class="hljs-title">destructed</span></span><br><span class="hljs-function"><span class="hljs-title">Caught</span> <span class="hljs-title">exception</span>:</span> <span class="hljs-function"><span class="hljs-keyword">Constructor</span> <span class="hljs-title">exception</span></span><br></code></pre></td></tr></table></figure>
+<p>从输出可以看出，即使 <code>MyClass</code> 的构造函数抛出异常，已经构造的 <code>Member</code> 对象的析构函数仍然被正确调用。这展示了 C++ 语言在异常情况下自动进行清理的机制。</p>
+</blockquote>
 
                 
               </div>
