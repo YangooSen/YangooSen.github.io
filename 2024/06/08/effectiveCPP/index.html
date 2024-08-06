@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-06T09:13:54.342Z">
+<meta property="article:modified_time" content="2024-08-06T09:16:06.798Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -1687,6 +1687,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Creator* creatorA = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ConcreteCreatorA</span>();<br>    Creator* creatorB = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ConcreteCreatorB</span>();<br><br>    creatorA-&gt;<span class="hljs-built_in">doSomething</span>(); <span class="hljs-comment">// Using Product A</span><br>    creatorB-&gt;<span class="hljs-built_in">doSomething</span>(); <span class="hljs-comment">// Using Product B</span><br><br>    <span class="hljs-keyword">delete</span> creatorA;<br>    <span class="hljs-keyword">delete</span> creatorB;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个例子中，<code>Creator</code> 类提供了 <code>doSomething()</code> 方法，它依赖于 <code>factoryMethod()</code> 来创建具体的产品。具体的工厂类 <code>ConcreteCreatorA</code> 和 <code>ConcreteCreatorB</code> 实现了 <code>factoryMethod()</code> 来创建不同的产品对象。这样，通过使用工厂方法模式，客户端代码可以在不修改现有代码的情况下轻松地添加新产品。也可以在抽象基类中将 create 作为静态方法（抽象类不能实例化，必须是静态方法）生成对象，而不用具体的工厂类</p>
 </blockquote>
+<p>The general idea behind minimizing compilation dependencies is to depend on declarations instead of definitions. Two approaches based on this idea are Handle classes and Interface classes.</p>
 
                 
               </div>
