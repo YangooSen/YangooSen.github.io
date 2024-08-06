@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-05T05:10:49.431Z">
+<meta property="article:modified_time" content="2024-08-06T09:13:54.342Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -197,7 +197,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          24k 字
+          26k 字
         
       </span>
     
@@ -208,7 +208,7 @@
         
         
         
-          200 分钟
+          219 分钟
         
       </span>
     
@@ -452,7 +452,7 @@ C++ 标准委员会（ISO/IEC JTC 1/SC 22/WG 21）将继续推动 C++ 的发展�
 </li>
 </ul>
 <h2 id="item4-Make-sure-that-objects-are-initialized-before-they’re-used">item4: Make sure that objects are initialized before they’re used</h2>
-<p>The rules of  C++ stipulate that data member of an object are <strong>initialized before the body of a ctor</strong> is entered. The best way to write ctor is to use member initialization list insetead of assignment.</p>
+<p>The rules of  C++ stipulate that data member of an object are <strong>initialized before the body of a ctor</strong> is entered. The best way to write ctor is to use member initialization list instead of assignment.</p>
 </blockquote>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> a;<br>    string b;<br>    <span class="hljs-comment">// build-in type like a has no difference in cost in two situation, undefined situation</span><br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// member initialization list is more effective</span><br>    <span class="hljs-comment">//call b&#x27;s copy ctor to initialization</span><br>    <span class="hljs-built_in">MyClass</span>(<span class="hljs-type">int</span> x, string y) : <span class="hljs-built_in">a</span>(x), <span class="hljs-built_in">b</span>(y) &#123;&#125;<br><br>    <span class="hljs-comment">// assignment</span><br>    <span class="hljs-comment">//call b&#x27;s default ctor, then assignment</span><br>    <span class="hljs-built_in">MyClass</span>(<span class="hljs-type">int</span> x, string y) &#123;<br>        a = x;<br>        b = y;<br>    &#125;<br>&#125;;<br><br></code></pre></td></tr></table></figure>
 <p>Sometimes the initialization must be used, such as <code>const</code> and <code>reference</code></p>
@@ -489,7 +489,7 @@ C++ 标准委员会（ISO/IEC JTC 1/SC 22/WG 21）将继续推动 C++ 的发展�
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myFunction</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">int</span> localStaticVar = <span class="hljs-number">30</span>; <span class="hljs-comment">// 局部静态变量</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <p>总结起来，非局部静态对象包括全局静态对象和命名空间内的静态对象，它们在程序的整个运行期间存在，但作用域限制在其声明的文件或命名空间中。</p>
 </blockquote>
-<p>Client use functions return reference to objects insetead of using the objects themselves, then every objects can be initialize correctly. <strong>In other words, non-local static object are replaced with local static object.</strong></p>
+<p>Client use functions return reference to objects instead of using the objects themselves, then every objects can be initialize correctly. <strong>In other words, non-local static object are replaced with local static object.</strong></p>
 <blockquote>
 <p>在C++中，局部静态对象（local static object）是在其所属的函数或代码块首次执行到该对象的声明时进行初始化的。这意味着它们的初始化只会发生一次，无论该函数或代码块被调用多少次。</p>
 <p>具体来说：</p>
@@ -1260,7 +1260,7 @@ return 0;<br>
 </blockquote>
 <h2 id="Item-27-Minimize-casting">Item 27: Minimize casting</h2>
 <ul>
-<li>When casting is necessary, try to hide it inside a function. Clients can then call the function insetead of putting casts in  thier own code.</li>
+<li>When casting is necessary, try to hide it inside a function. Clients can then call the function instead of putting casts in  thier own code.</li>
 <li>Prefer C+±style casts to old-style casts. They are easier to see, and they are more specific about what they do.<br>
 The rules of C++ are designed to guarantee that type errors are impossible, but casts subvert the type system.</li>
 </ul>
@@ -1428,7 +1428,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <li>提供异常安全：通过交换操作，如果在操作过程中发生异常，当前对象的状态依然保持不变，因为只有当所有操作成功后，交换才会进行。</li>
 </ul>
 <p>实现这种方法一般会用到 pimpl idiom 技术</p>
-<p>Pimpl（Pointer to IMPLementation）idiom 是一种用于 C++ 编程的设计模式。它通过将类的实现细节隐藏在实现文件（.cpp 文件）中，只在头文件（.h 文件）中保留接口声明，从而达到减少编译依赖、加快编译速度和隐藏实现细节的目的。以下是对 Pimpl idiom 的详细解释：</p>
+<p>Pimpl（Pointer to IMPLementation）idiom 是一种用于 C++ 编程的设计模式。它通过将类的实现细节隐藏在实现文件（.cpp 文件）中，只在头文件（.h 文件）中保留接口声明，从而达到减少编译依赖、加快编译速度和隐藏实现细节的目的，<strong>主要通过的就是将用户要使用的类与这个类的成员类分离，修改成员类不会导致用户使用的类重新编译（因为只有一个指针成员，指针的存储空间大小是固定的，编译器知道如何分配空间，不需要访问实现文件），只需要实现文件重新编译，而用户用的接口文件不用重新编译</strong>。以下是对 Pimpl idiom 的详细解释：</p>
 <h3 id="原理">原理</h3>
 <p>Pimpl idiom 的核心思想是将类的具体实现封装在一个独立的实现类中，通过一个指向实现类的指针来访问实现类的成员。这样可以将实现类的定义从头文件中移到实现文件中，从而隐藏实现细节。</p>
 <h3 id="实现步骤">实现步骤</h3>
@@ -1536,6 +1536,22 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>不过，值得注意的是，虽然通常情况下内联函数定义在头文件中，但有时也可以在源文件中定义内联函数，只要确保在所有使用该函数的源文件中包含相应的头文件声明。例如，可以使用 <code>static</code> 或 <code>extern inline</code> 来控制内联函数的链接行为。</p>
 </blockquote>
 <blockquote>
+<p>内联函数的函数体<strong>必须声明在头文件</strong>中，是因为编译器需要在每个使用该函数的翻译单元中都能看到函数的定义，以便在调用点展开内联代码。</p>
+<p>具体来说，内联函数的定义和调用的关系如下：</p>
+<ul>
+<li>
+<p>内联展开（Inline Expansion）：内联函数是一种优化手段，编译器会在调用点直接插入函数体，而不是生成函数调用指令。这样可以减少函数调用的开销，尤其是对于小函数。这需要在编译时就能看到函数的定义。</p>
+</li>
+<li>
+<p>多个翻译单元：C++程序通常由多个翻译单元（源文件）组成，每个翻译单元独立编译。在每个翻译单元中都可能调用内联函数。为了使编译器能够在每个翻译单元中展开内联函数，函数的定义必须对所有使用它的翻译单元可见。</p>
+</li>
+<li>
+<p>头文件的作用：头文件通常包含函数声明和内联函数定义，并被多个源文件包含。这样，所有包含这个头文件的源文件（翻译单元）都能看到内联函数的定义，从而允许编译器在这些源文件中展开内联函数。</p>
+</li>
+</ul>
+<p>如果将内联函数的定义放在源文件中，则只有包含该源文件的翻译单元才能看到函数定义，其他翻译单元将无法内联该函数，这违反了内联函数的初衷。</p>
+</blockquote>
+<blockquote>
 <p>是的，当构造函数抛出异常时，任何已经成功构造的成员对象或基类子对象的析构函数会被自动调用。C++ 的这种行为确保了在异常情况下，不会有资源泄漏，维持了对象的整体一致性。</p>
 <p>具体来说：</p>
 <ol>
@@ -1552,6 +1568,124 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>运行结果是：</p>
 <figure class="highlight delphi"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs delphi">Member constructed<br>MyClass <span class="hljs-function"><span class="hljs-keyword">constructor</span></span><br><span class="hljs-function"><span class="hljs-title">Member</span> <span class="hljs-title">destructed</span></span><br><span class="hljs-function"><span class="hljs-title">Caught</span> <span class="hljs-title">exception</span>:</span> <span class="hljs-function"><span class="hljs-keyword">Constructor</span> <span class="hljs-title">exception</span></span><br></code></pre></td></tr></table></figure>
 <p>从输出可以看出，即使 <code>MyClass</code> 的构造函数抛出异常，已经构造的 <code>Member</code> 对象的析构函数仍然被正确调用。这展示了 C++ 语言在异常情况下自动进行清理的机制。</p>
+</blockquote>
+<h2 id="Item-31-Minimize-compilation-dependencies-between-files">Item 31: Minimize compilation dependencies between files</h2>
+<blockquote>
+<p>在C++中，<strong>前向声明（forward declaration）</strong> 是一种在实际定义之前声明类、函数或变量的方法。前向声明通常用于解决循环依赖问题或者减少编译时间。它告诉编译器某个名字是存在的，但暂时不提供完整的定义。这种声明方式非常有用，特别是在涉及到多个头文件和类之间互相引用的情况下。</p>
+<h3 id="类的前向声明">类的前向声明</h3>
+<p>假设你有两个类 <code>A</code> 和 <code>B</code>，它们互相引用对方：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// Forward declaration of class B</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span>;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> &#123;<br>    B* b;  <span class="hljs-comment">// Pointer to an instance of class B</span><br>    <span class="hljs-comment">// Other members and methods</span><br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span> &#123;<br>    A* a;  <span class="hljs-comment">// Pointer to an instance of class A</span><br>    <span class="hljs-comment">// Other members and methods</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>class B;</code> 是类 <code>B</code> 的前向声明，使得 <code>A</code> 可以声明一个指向 <code>B</code> 类型的指针。在实际使用 <code>B</code> 类型的成员或方法时，必须有 <code>B</code> 的完整定义。</p>
+<h3 id="函数的前向声明">函数的前向声明</h3>
+<p>函数前向声明允许在使用函数之前声明它，以便编译器知道它的存在。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// Forward declaration of function foo</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span>, <span class="hljs-type">double</span>)</span></span>;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">foo</span>(<span class="hljs-number">42</span>, <span class="hljs-number">3.14</span>);  <span class="hljs-comment">// OK: foo has been forward declared</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> x, <span class="hljs-type">double</span> y)</span> </span>&#123;<br>    <span class="hljs-comment">// Function definition</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>void foo(int, double);</code> 是函数 <code>foo</code> 的前向声明，使得在 <code>main</code> 函数中可以调用 <code>foo</code>，即使 <code>foo</code> 的定义在后面。</p>
+<h3 id="前向声明的限制">前向声明的限制</h3>
+<ol>
+<li><strong>类的前向声明</strong>：只能声明指针或引用，不能声明实际对象或调用未定义的方法。</li>
+<li><strong>函数的前向声明</strong>：参数类型和返回类型必须匹配，不能使用默认参数。</li>
+</ol>
+<h3 id="使用前向声明的好处">使用前向声明的好处</h3>
+<ol>
+<li><strong>解决循环依赖</strong>：当两个类互相引用时，通过前向声明可以避免无限递归包含头文件的问题。</li>
+<li><strong>减少编译时间</strong>：前向声明减少了头文件的包含次数，从而减少编译时间。</li>
+</ol>
+<p>总的来说，前向声明是C++编程中一个重要的技巧，可以帮助你管理复杂的代码依赖关系并优化编译过程。</p>
+</blockquote>
+<blockquote>
+<p>在C++中，声明、定义和实现是编程中常用的概念，它们有不同的作用和使用场景。下面详细说明每个概念及其区别：</p>
+<h3 id="声明（Declaration）">声明（Declaration）</h3>
+<p>声明用于告诉编译器某个名字（如变量、函数或类）存在，并指定其类型或签名，但不提供完整的信息或存储空间。例如：</p>
+<ul>
+<li>
+<p><strong>变量声明：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">extern</span> <span class="hljs-type">int</span> a; <span class="hljs-comment">// 声明变量 a，但不定义</span><br></code></pre></td></tr></table></figure>
+<p><code>extern</code> 关键字用于声明变量而不定义它，这意味着变量的存储空间在其他地方分配。</p>
+</li>
+<li>
+<p><strong>函数声明：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span>, <span class="hljs-type">double</span>)</span></span>; <span class="hljs-comment">// 声明函数 foo，但不定义</span><br></code></pre></td></tr></table></figure>
+<p>这告诉编译器存在一个名为 <code>foo</code> 的函数，接受一个 <code>int</code> 和一个 <code>double</code> 参数，并返回 <code>void</code>。</p>
+</li>
+<li>
+<p><strong>类声明（前向声明）：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span>; <span class="hljs-comment">// 前向声明类 MyClass</span><br></code></pre></td></tr></table></figure>
+<p>前向声明用于告诉编译器类的存在，而不提供类的完整定义。</p>
+</li>
+</ul>
+<h3 id="定义（Definition）">定义（Definition）</h3>
+<p>定义是为声明的实体（变量、函数或类）提供实际的存储空间或完整的信息。在定义中，编译器为变量分配存储空间，为函数提供实际的实现代码，为类提供其成员和方法的具体信息。</p>
+<ul>
+<li>
+<p><strong>变量定义：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> a = <span class="hljs-number">10</span>; <span class="hljs-comment">// 定义并初始化变量 a</span><br></code></pre></td></tr></table></figure>
+<p>这不仅声明了变量 <code>a</code>，还为其分配存储空间并初始化为 <code>10</code>。</p>
+</li>
+<li>
+<p><strong>函数定义：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> x, <span class="hljs-type">double</span> y)</span> </span>&#123;<br>    <span class="hljs-comment">// 函数实现代码</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>这不仅声明了函数 <code>foo</code>，还提供了函数体的实现。</p>
+</li>
+<li>
+<p><strong>类定义：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myMethod</span><span class="hljs-params">()</span></span>;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> myData;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>这不仅声明了类 <code>MyClass</code>，还定义了其成员变量和成员函数。</p>
+</li>
+</ul>
+<h3 id="实现（Implementation）">实现（Implementation）</h3>
+<p>实现通常指函数或方法的具体代码，也可以理解为类的成员函数在类定义外的定义。实现通常在源文件（<code>.cpp</code> 文件）中进行，以便与声明分离，提供更好的代码组织和编译效率。</p>
+<ul>
+<li>
+<p><strong>函数实现：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(<span class="hljs-type">int</span> x, <span class="hljs-type">double</span> y)</span> </span>&#123;<br>    <span class="hljs-comment">// 函数实现代码</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>类成员函数实现：</strong></p>
+<p>在头文件（<code>.h</code> 或 <code>.hpp</code> 文件）中声明类和其成员函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">myMethod</span><span class="hljs-params">()</span></span>;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> myData;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在源文件（<code>.cpp</code> 文件）中实现成员函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;MyClass.h&quot;</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">MyClass::myMethod</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 方法实现代码</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="总结-4">总结</h3>
+<ul>
+<li><strong>声明</strong>：告诉编译器名字的存在及其类型或签名。</li>
+<li><strong>定义</strong>：为声明的实体提供存储空间或完整信息，此时编译器分配存储空间。</li>
+<li><strong>实现</strong>：提供函数或方法的具体代码。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>减小编译依赖的关键技术就是 pimpl idiom，用户使用的是接口类(Handle class)，这个接口类只有一个指向实现类的指针，这样接口文件就不需要依赖其他复杂的成员类。修改成员类的实现的时候就不会导致用户使用的接口文件的重新编译，只需要重新编译实现文件。除此之外也能用纯虚的抽象基类(interface class)和派生类作为实现的方法，只需要这个作为接口的抽象基类不改变，用户就不需要重新编译</p>
+</blockquote>
+<p>Make your header files self-sufficient whenever it’s practical, and when it’s not, <strong>depend on declarations in other files, not definitions</strong>. Hence:</p>
+<ul>
+<li>Avoid using objects when object references and pointers will do.</li>
+</ul>
+<blockquote>
+<p>定义指针的时候只需要类型的声明，而定义对象的时候则需要对象完整的定义，因为定义会让编译器分配空间，指针的存储空间是确定的；而要定义对象就必须让编译器知道对象的存储空间大小</p>
+</blockquote>
+<ul>
+<li>Depend on class declarations instead of class definitions whenever you can.</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Date</span>; <span class="hljs-comment">//forward-declaration, practically, client include declaration file, not definition file</span><br><br><span class="hljs-comment">//fine - no definition of Date</span><br><span class="hljs-function">Date <span class="hljs-title">today</span><span class="hljs-params">()</span></span>;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">clear</span><span class="hljs-params">(Date d)</span></span>;<br><br></code></pre></td></tr></table></figure>
+<p>By moving the onus of providing class definitions from your header file of function declarations to client’s files containing function calls, you eliminate artificial client dependencies on type definitions they don’t really need.</p>
+<ul>
+<li>Provide separate header files for declarations and definitions</li>
+</ul>
+<blockquote>
+<p>在C++中，工厂方法是一种设计模式，它提供了一种创建对象的接口，但由子类决定实例化哪一个类。这使得在不改变代码结构的情况下，客户端代码可以灵活地创建不同类型的对象。工厂方法模式通常用于解耦对象的创建和使用。</p>
+<p>下面是一个简单的例子，展示了如何在C++中实现工厂方法模式。</p>
+<p>首先，定义一个产品的接口或抽象基类：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Product</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">use</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Product</span>() &#123;&#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>然后，定义具体的产品类：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ConcreteProductA</span> : <span class="hljs-keyword">public</span> Product &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">use</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Using Product A&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ConcreteProductB</span> : <span class="hljs-keyword">public</span> Product &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">use</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Using Product B&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>接下来，定义工厂方法的接口或抽象基类：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Creator</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> Product* <span class="hljs-title">factoryMethod</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span> </span>&#123;<br>        Product* product = <span class="hljs-built_in">factoryMethod</span>();<br>        product-&gt;<span class="hljs-built_in">use</span>();<br>        <span class="hljs-keyword">delete</span> product;<br>    &#125;<br><br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Creator</span>() &#123;&#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>最后，实现具体的工厂类：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">ConcreteCreatorA</span> : <span class="hljs-keyword">public</span> Creator &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">Product* <span class="hljs-title">factoryMethod</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">ConcreteProductA</span>();<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">ConcreteCreatorB</span> : <span class="hljs-keyword">public</span> Creator &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">Product* <span class="hljs-title">factoryMethod</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-keyword">new</span> <span class="hljs-built_in">ConcreteProductB</span>();<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在客户端代码中，可以这样使用工厂方法模式：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Creator* creatorA = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ConcreteCreatorA</span>();<br>    Creator* creatorB = <span class="hljs-keyword">new</span> <span class="hljs-built_in">ConcreteCreatorB</span>();<br><br>    creatorA-&gt;<span class="hljs-built_in">doSomething</span>(); <span class="hljs-comment">// Using Product A</span><br>    creatorB-&gt;<span class="hljs-built_in">doSomething</span>(); <span class="hljs-comment">// Using Product B</span><br><br>    <span class="hljs-keyword">delete</span> creatorA;<br>    <span class="hljs-keyword">delete</span> creatorB;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>Creator</code> 类提供了 <code>doSomething()</code> 方法，它依赖于 <code>factoryMethod()</code> 来创建具体的产品。具体的工厂类 <code>ConcreteCreatorA</code> 和 <code>ConcreteCreatorB</code> 实现了 <code>factoryMethod()</code> 来创建不同的产品对象。这样，通过使用工厂方法模式，客户端代码可以在不修改现有代码的情况下轻松地添加新产品。也可以在抽象基类中将 create 作为静态方法（抽象类不能实例化，必须是静态方法）生成对象，而不用具体的工厂类</p>
 </blockquote>
 
                 
