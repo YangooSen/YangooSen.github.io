@@ -32,7 +32,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-07T08:12:48.116Z">
+<meta property="article:modified_time" content="2024-08-10T12:40:54.142Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -197,7 +197,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          26k 字
+          29k 字
         
       </span>
     
@@ -208,7 +208,7 @@
         
         
         
-          219 分钟
+          240 分钟
         
       </span>
     
@@ -1691,6 +1691,105 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <h1>6.Inheritance and Object-Oriented Design</h1>
 <h2 id="Item-32-Make-sure-public-inheritance-models-“is-a”">Item 32: Make sure public inheritance models “is-a”</h2>
 <p>“Is-a” is true only for public inheritance. Private inheritance means something entirely different (see Item 39)</p>
+<h2 id="Item-32-Avoid-hiding-inherited-names">Item 32: Avoid hiding inherited names</h2>
+<blockquote>
+<p>C++编译器在解析标识符（名字）时，会按照一定的作用域规则逐层查找，这个过程被称为“名字查找”或“名称解析”，这个标识符可以是变量，也可以是函数，成员函数等。发生在成员函数层面时，可能会隐藏从基类中继承的函数名。具体的查找顺序如下：</p>
+<ol>
+<li>
+<p><strong>局部作用域</strong>：编译器首先会在当前的局部作用域中查找标识符。如果找到了，直接使用。</p>
+</li>
+<li>
+<p><strong>更外层的作用域</strong>：如果在当前作用域中找不到标识符，编译器会继续向更外层的作用域查找，直到找到匹配的标识符为止。</p>
+</li>
+<li>
+<p><strong>全局作用域</strong>：如果在所有嵌套的局部作用域中都找不到，编译器会最终查找全局作用域中的标识符。</p>
+</li>
+<li>
+<p><strong>隐藏效应（Shadowing）</strong>：当某个名字在局部作用域中被重新定义时，它会“隐藏”外层或全局作用域中同名的标识符。也就是说，局部作用域中的名字会覆盖同名的全局变量或外层作用域的名字。</p>
+</li>
+</ol>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-type">int</span> x = <span class="hljs-number">10</span>;  <span class="hljs-comment">// 全局作用域</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">double</span> x = <span class="hljs-number">20</span>;  <span class="hljs-comment">// 局部作用域，隐藏了全局作用域的 x</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Local x: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Global x: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    <span class="hljs-built_in">foo</span>();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中：</p>
+<ul>
+<li>在 <code>main()</code> 函数中，输出的是全局作用域的 <code>x</code>，所以输出 <code>Global x: 10</code>。</li>
+<li>在 <code>foo()</code> 函数中，局部定义的 <code>x</code> 隐藏了全局作用域的 <code>x</code>，所以输出 <code>Local x: 20</code>。</li>
+</ul>
+<p>这种隐藏效应是C++语言中作用域规则的一个关键特点。在实际编程中，如果不小心处理可能会引起混淆或错误，所以要注意作用域的使用和命名的一致性。<br>
+当发生在函数名的解析上时，即使函数的参数列表不同，只要名字相同，全局的函数名就会被局部的函数隐藏，有时可能会导致基类的函数被继承子类声明的同名函数（<strong>即使参数列表不同</strong>）隐藏，就像局部的 double x也能覆盖全局的int x一样，名字是关键，类型并不重要</p>
+</blockquote>
+<blockquote>
+<p>在C++中，“inherit the overloads”指的是子类继承了基类中所有重载的函数。这意味着基类中定义的所有重载函数在子类中依然可用，除非子类对某些重载进行了覆盖或隐藏。</p>
+<h3 id="举个例子">举个例子</h3>
+<p>假设我们有一个基类 <code>Base</code>，其中有多个重载的函数 <code>func</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Base func(int): &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">double</span> x)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Base func(double): &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>现在，我们有一个从 <code>Base</code> 继承的子类 <code>Derived</code>，它可能会定义一个新的重载的 <code>func</code> 函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(std::string x)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived func(std::string): &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在 <code>Derived</code> 中，如果我们不做任何额外处理，<code>Base</code> 类中的 <code>func(int)</code> 和 <code>func(double)</code> 将被隐藏，只有 <code>Derived</code> 中定义的 <code>func(std::string)</code> 可见：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived d;<br>    d.<span class="hljs-built_in">func</span>(<span class="hljs-string">&quot;Hello&quot;</span>); <span class="hljs-comment">// 调用 Derived::func(std::string)</span><br>    d.<span class="hljs-built_in">func</span>(<span class="hljs-number">10</span>);      <span class="hljs-comment">// 错误！Base::func(int) 被隐藏</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="如何继承重载函数">如何继承重载函数</h3>
+<p>为了在子类中也能使用基类的所有重载版本，可以使用 <code>using</code> 语句将基类的重载函数引入子类的作用域：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">using</span> Base::func; <span class="hljs-comment">// 引入 Base 类中的所有重载版本的 func</span><br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(std::string x)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived func(std::string): &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>现在，你可以在 <code>Derived</code> 中使用所有的重载函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived d;<br>    d.<span class="hljs-built_in">func</span>(<span class="hljs-string">&quot;Hello&quot;</span>); <span class="hljs-comment">// 调用 Derived::func(std::string)</span><br>    d.<span class="hljs-built_in">func</span>(<span class="hljs-number">10</span>);      <span class="hljs-comment">// 调用 Base::func(int)</span><br>    d.<span class="hljs-built_in">func</span>(<span class="hljs-number">3.14</span>);    <span class="hljs-comment">// 调用 Base::func(double)</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="总结-5">总结</h3>
+<p>“Inherit the overloads” 的意思是子类可以继承基类中所有重载的函数。通过在子类中使用 <code>using</code> 关键字，可以确保基类中的所有重载版本在子类中依然可用，从而避免隐藏效应。</p>
+</blockquote>
+<blockquote>
+<p>“Inline forwarding functions” 是 C++ 中的一种设计模式，通常用于将一个函数的调用转发给另一个函数。这种方法可以在编写通用代码、优化性能和增强代码可维护性方面发挥重要作用。</p>
+<h3 id="什么是-Forwarding-Functions？">什么是 Forwarding Functions？</h3>
+<p>“Forwarding function”（转发函数）指的是一个函数，它的主要任务是将其参数转发给另一个函数。这个转发的过程可以是简单的直接调用，也可以包括一些额外的逻辑，比如参数转换、验证等。</p>
+<h3 id="什么是-Inline-Forwarding-Functions？">什么是 Inline Forwarding Functions？</h3>
+<p>“Inline forwarding functions” 就是以 <code>inline</code> 方式定义的转发函数，通常用于避免函数调用的开销。<code>inline</code> 关键字提示编译器将函数的调用直接展开为内联代码，减少函数调用的额外成本。</p>
+<h3 id="举个例子-2">举个例子</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Processing int: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">double</span> x)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Processing double: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// Inline forwarding function</span><br>    <span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123;<br>        Base::<span class="hljs-built_in">process</span>(x);  <span class="hljs-comment">// Forward the int to Base::process(int)</span><br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(<span class="hljs-type">double</span> x)</span> </span>&#123;<br>        Base::<span class="hljs-built_in">process</span>(x);  <span class="hljs-comment">// Forward the double to Base::process(double)</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>Derived</code> 类定义了两个 <code>process</code> 函数，它们都是 <code>inline</code> 的，并且它们的唯一功能是将调用转发给基类 <code>Base</code> 中的相应函数。</p>
+<h3 id="为什么使用-Inline-Forwarding-Functions？">为什么使用 Inline Forwarding Functions？</h3>
+<ol>
+<li>
+<p><strong>性能优化</strong>：通过将函数内联展开，可以减少函数调用的开销，尤其是在性能关键的代码中。</p>
+</li>
+<li>
+<p><strong>代码复用</strong>：可以在派生类中直接调用基类的函数，而不必重复实现相同的功能。</p>
+</li>
+<li>
+<p><strong>类型安全</strong>：可以确保转发函数的参数类型与被转发函数一致，避免不必要的类型转换。</p>
+</li>
+<li>
+<p><strong>增强可读性</strong>：转发函数有助于保持接口的一致性，提供更直观的代码结构。</p>
+</li>
+</ol>
+<h3 id="举个更复杂的例子">举个更复杂的例子</h3>
+<p>在模板和泛型编程中，<code>std::forward</code> 通常与转发函数一起使用，以保留参数的左值/右值属性：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(T&amp;&amp; x)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Processing: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">forward_to_process</span><span class="hljs-params">(T&amp;&amp; x)</span> </span>&#123;<br>    <span class="hljs-built_in">process</span>(std::forward&lt;T&gt;(x));  <span class="hljs-comment">// Forwarding the argument while preserving its value category</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">10</span>;<br>    forward_to_process(a);  <span class="hljs-comment">// Lvalue is forwarded as Lvalue</span><br>    forward_to_process(<span class="hljs-number">20</span>); <span class="hljs-comment">// Rvalue is forwarded as Rvalue</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>forward_to_process</code> 是一个内联转发函数，它使用 <code>std::forward</code> 将参数转发给 <code>process</code> 函数，同时保留了参数的左右值属性。</p>
+<h3 id="总结-6">总结</h3>
+<p>Inline forwarding functions 是一种内联的转发函数，它可以通过直接调用另一个函数来减少函数调用的开销。这种技术在模板编程和泛型编程中非常有用，特别是在需要保持参数类型和左右值属性的情况下。</p>
+</blockquote>
+<h2 id="Item-34-Differentiate-between-inheritance-of-interface-and-inheritance-of-implementation">Item 34: Differentiate between inheritance of interface and inheritance of implementation</h2>
+<blockquote>
+<p>在C++中，为纯虚函数（也称为抽象函数）提供定义实现确实有实际应用，尽管这种做法不常见，但在某些情况下是非常有用的。以下是几个实际应用的场景：</p>
+<h3 id="1-提供默认实现">1. <strong>提供默认实现</strong></h3>
+<p>纯虚函数通常被用作接口，用来强制派生类提供自己的实现。然而，基类可以为纯虚函数提供一个默认实现，供派生类在特定情况下调用。派生类可以选择使用基类的实现，而不是重新定义自己的版本。当有新类继承基类的时候必须实现纯虚函数，如果有自己独特实现可以自己定义，否则可以直接调用父类的纯虚函数。**实际上有实现的纯虚函数已经分裂成了两部分：函数接口和函数默认实现。函数接口一定可以被继承，而默认实现来说，当子类需要的时候可以也继承，但必须自己亲手调用，而不是必定继承。**但是非纯的虚函数，实现和接口都是必定继承的</p>
+   <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>; <span class="hljs-comment">// 纯虚函数</span><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Base::foo</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 默认实现</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Default implementation in Base class.&quot;</span> &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        Base::<span class="hljs-built_in">foo</span>(); <span class="hljs-comment">// 调用基类中的实现</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h3 id="2-实现部分逻辑，并强制派生类完成剩余部分">2. <strong>实现部分逻辑，并强制派生类完成剩余部分</strong></h3>
+<p>基类可以实现纯虚函数中的部分逻辑，而将剩余部分留给派生类实现。这样可以确保派生类遵循某种框架或约定，同时仍然强制它们提供具体的实现。</p>
+   <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>; <span class="hljs-comment">// 纯虚函数</span><br><span class="hljs-keyword">protected</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">commonTask</span><span class="hljs-params">()</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Common task done by Base.&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Base::process</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-built_in">commonTask</span>(); <span class="hljs-comment">// 调用基类中的通用任务</span><br>    <span class="hljs-comment">// 留给派生类的具体实现</span><br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        Base::<span class="hljs-built_in">process</span>(); <span class="hljs-comment">// 调用基类中实现的部分逻辑</span><br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Specific task done by Derived.&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h3 id="3-避免重复代码">3. <strong>避免重复代码</strong></h3>
+<p>如果多个派生类中存在公共的操作步骤，这些步骤可以在基类的纯虚函数中实现，而让派生类负责处理与自身相关的独特操作。</p>
+<h3 id="4-实现基类析构函数">4. <strong>实现基类析构函数</strong></h3>
+<p>纯虚析构函数是一个特殊情况。通常，我们定义一个纯虚析构函数以确保基类是抽象类，同时为其提供一个实现以确保正确的资源管理。</p>
+   <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Base</span>() = <span class="hljs-number">0</span>; <span class="hljs-comment">// 纯虚析构函数</span><br>&#125;;<br><br>Base::~<span class="hljs-built_in">Base</span>() &#123;<br>    <span class="hljs-comment">// 析构函数实现</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Base destructor called.&quot;</span> &lt;&lt; std::endl;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在上述这些场景中，基类中的纯虚函数既可以提供共性功能的实现，也可以在一定程度上约束派生类的实现方式，因此在某些设计模式中会用到这种技术。</p>
+</blockquote>
+<ul>
+<li>Pure virtual functions specify inheritance of interface only.</li>
+<li>Impure virtual functions specify inheritance of inheritance plus inheritance of a default implementation.</li>
+<li>Non-virtual functions specify inheritance of inheritance plus inheritance of a mandatory implementation.</li>
+</ul>
+<blockquote>
+<p>mandatory implementation 指的是必须是这个函数实现，命令性质的，任何派生类都不应该修改</p>
+</blockquote>
 
                 
               </div>
