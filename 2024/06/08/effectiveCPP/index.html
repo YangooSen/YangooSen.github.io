@@ -31,8 +31,9 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/16-delete.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-10T12:40:54.142Z">
+<meta property="article:modified_time" content="2024-08-11T09:49:28.477Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -197,7 +198,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          29k 字
+          31k 字
         
       </span>
     
@@ -208,7 +209,7 @@
         
         
         
-          240 分钟
+          258 分钟
         
       </span>
     
@@ -1790,6 +1791,120 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <blockquote>
 <p>mandatory implementation 指的是必须是这个函数实现，命令性质的，任何派生类都不应该修改</p>
 </blockquote>
+<h2 id="Item-35-Consider-alternatives-to-virtual-functions">Item 35: Consider alternatives to  virtual functions</h2>
+<p>There are different ways to virtual function.</p>
+<h3 id="The-Template-Method-Pattern-via-the-Non-Virtual-Interface-Idiom">The Template Method Pattern via the Non-Virtual Interface Idiom</h3>
+<blockquote>
+<p><strong>这里书中提到了子类重新定义父类的私有函数，不对吧</strong>。<br>
+在 C++ 中，<code>Non-Virtual Interface</code> (NVI) 是一种设计惯用法，用于创建公共接口，同时将具体实现细节隐藏在基类中。NVI 模式的关键思想是将公共方法定义为非虚函数（<code>non-virtual</code>），而实际的实现细节则通过私有或受保护的虚函数实现。这样可以提高代码的健壮性和可维护性，实际使用的是模板方法，基类创建一个模板调用子类才能实现的虚函数。</p>
+<h3 id="NVI-模式的基本结构">NVI 模式的基本结构</h3>
+<ol>
+<li>
+<p><strong>公共非虚接口</strong> (<code>Public Non-Virtual Interface</code>)：</p>
+<ul>
+<li>这是提供给外部使用的公共方法。它通常是一个非虚函数，定义在基类中，负责调用虚函数来实现具体功能。</li>
+<li>这种非虚函数通常负责执行一些通用操作，比如参数检查、资源管理或日志记录。</li>
+</ul>
+</li>
+<li>
+<p>** 受保护的虚函数** (<code>Private/Protected Virtual Function</code>)：</p>
+<ul>
+<li>这些是具体实现的方法，通常在派生类中进行重写。基类中的公共非虚接口调用这些虚函数来实现特定的行为。</li>
+</ul>
+</li>
+</ol>
+<h3 id="示例代码-2">示例代码</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">interfaceMethod</span><span class="hljs-params">()</span> </span>&#123; <span class="hljs-comment">// 公共非虚接口</span><br>        <span class="hljs-comment">// 一些通用操作</span><br>        <span class="hljs-built_in">commonOperation</span>();<br><br>        <span class="hljs-comment">// 调用虚函数实现具体功能</span><br>        <span class="hljs-built_in">specificOperation</span>();<br>    &#125;<br><br><span class="hljs-keyword">protected</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">specificOperation</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>; <span class="hljs-comment">// 纯虚函数，派生类需实现</span><br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">commonOperation</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-comment">// 通用操作代码</span><br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Common operation in Base&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">protected</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">specificOperation</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123; <span class="hljs-comment">// 实现基类中的虚函数</span><br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Specific operation in Derived&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived d;<br>    d.<span class="hljs-built_in">interfaceMethod</span>(); <span class="hljs-comment">// 调用非虚接口，实际执行 Derived 中的 specificOperation()</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="NVI-模式的优点">NVI 模式的优点</h3>
+<ol>
+<li><strong>统一接口</strong>：通过非虚函数提供统一的接口，确保所有派生类遵循相同的调用方式。</li>
+<li><strong>增强控制</strong>：在基类中可以进行通用操作的预处理和后处理（如参数验证、日志记录等）。</li>
+<li><strong>隐藏实现细节</strong>：派生类只需要实现特定功能，而不需要考虑公共接口的实现细节。</li>
+<li><strong>提高稳定性</strong>：公共接口的非虚函数不会被派生类重写，减少了错误的可能性。</li>
+</ol>
+<p>NVI 模式在需要严格控制接口行为、避免派生类修改公共接口行为的情况下非常有用。</p>
+</blockquote>
+<h3 id="The-Strategy-Pattern-via-Function-Pointers">The Strategy Pattern via Function Pointers</h3>
+<blockquote>
+<p>C++ 中的函数指针是一个指向函数的指针，这意味着它可以存储一个函数的地址，并通过这个指针调用该函数。函数指针允许在运行时动态地调用函数，使代码更加灵活和可扩展。</p>
+<h3 id="基本概念">基本概念</h3>
+<ol>
+<li>
+<p><strong>函数指针的声明</strong>:<br>
+函数指针的声明方式与普通指针类似，只不过指针的类型是函数的返回类型加上参数列表。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 声明一个指向返回类型为 int，参数类型为 (int, int) 的函数的指针</span><br><span class="hljs-built_in">int</span> (*funcPtr)(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>);<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>赋值给函数指针</strong>:<br>
+可以将与函数指针签名（返回类型和参数类型）相匹配的函数的地址赋给函数指针。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br><br><span class="hljs-built_in">int</span> (*funcPtr)(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>) = &amp;add;  <span class="hljs-comment">// 将函数 add 的地址赋给函数指针</span><br></code></pre></td></tr></table></figure>
+<p>在 C++ 中，函数名本身就表示函数的地址，所以可以省略 <code>&amp;</code>，即：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">int</span> (*funcPtr)(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>) = add; <br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>通过函数指针调用函数</strong>:<br>
+通过函数指针调用函数的方式与直接调用函数类似，只不过需要在指针前面加上 <code>*</code> 或省略它：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> result = (*funcPtr)(<span class="hljs-number">2</span>, <span class="hljs-number">3</span>);  <span class="hljs-comment">// 调用函数 add，结果为 5</span><br><span class="hljs-comment">// 或者</span><br><span class="hljs-type">int</span> result = <span class="hljs-built_in">funcPtr</span>(<span class="hljs-number">2</span>, <span class="hljs-number">3</span>);  <span class="hljs-comment">// 同样调用函数 add，结果为 5</span><br></code></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="函数指针的应用场景">函数指针的应用场景</h3>
+<ol>
+<li>
+<p><strong>回调函数</strong>: 在某些 API 或库函数中，用户可以将自定义的函数作为参数传递给库函数。库函数在特定情况下调用用户提供的函数。这种机制常用于事件驱动编程和信号处理。</p>
+</li>
+<li>
+<p><strong>实现策略模式</strong>: 可以用函数指针来实现不同策略之间的切换，如排序算法中选择不同的比较函数。</p>
+</li>
+<li>
+<p><strong>函数表</strong>: 可以创建一个函数指针数组，根据索引动态调用不同的函数。</p>
+</li>
+</ol>
+<h3 id="例子">例子</h3>
+<p>以下是一个简单的例子，演示如何使用函数指针来选择不同的运算：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-comment">// 定义两个函数，分别用于加法和乘法</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">multiply</span><span class="hljs-params">(<span class="hljs-type">int</span> a, <span class="hljs-type">int</span> b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a * b;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 定义一个函数指针</span><br>    <span class="hljs-built_in">int</span> (*operation)(<span class="hljs-type">int</span>, <span class="hljs-type">int</span>);<br><br>    <span class="hljs-comment">// 根据用户输入选择不同的运算</span><br>    <span class="hljs-type">char</span> op;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Enter operation (+ or *): &quot;</span>;<br>    std::cin &gt;&gt; op;<br><br>    <span class="hljs-keyword">if</span> (op == <span class="hljs-string">&#x27;+&#x27;</span>) &#123;<br>        operation = add;<br>    &#125; <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (op == <span class="hljs-string">&#x27;*&#x27;</span>) &#123;<br>        operation = multiply;<br>    &#125;<br><br>    <span class="hljs-comment">// 使用函数指针调用函数</span><br>    <span class="hljs-type">int</span> result = <span class="hljs-built_in">operation</span>(<span class="hljs-number">5</span>, <span class="hljs-number">3</span>);<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Result: &quot;</span> &lt;&lt; result &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，根据用户的输入选择不同的运算，并通过函数指针调用相应的函数。</p>
+</blockquote>
+<h3 id="The-Strategy-Pattern-via-tr1-function">The Strategy Pattern via tr1::function</h3>
+<blockquote>
+<p>在C++中，<code>tr1::function</code> 是 C++ 标准库中的一种模板类，位于 <code>&lt;tr1/functional&gt;</code> 头文件中。它是 C++11 引入的 <code>std::function</code> 的前身，属于 TR1（Technical Report 1）库的一部分，TR1 是 C++ 标准库的一个扩展。</p>
+<p><code>tr1::function</code> 类模板用于存储、复制和调用任何可调用对象，包括普通函数、函数对象、lambda 表达式，以及成员函数指针。它提供了一种通用的方法来处理这些不同类型的可调用对象。</p>
+<h3 id="用法示例">用法示例</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tr1/functional&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">my_function</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Function called with value: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::tr1::function&lt;<span class="hljs-type">void</span>(<span class="hljs-type">int</span>)&gt; func = my_function;<br>    <span class="hljs-built_in">func</span>(<span class="hljs-number">10</span>);  <span class="hljs-comment">// 输出: Function called with value: 10</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在上面的代码中，<code>func</code> 是一个 <code>tr1::function</code> 对象，它可以存储并调用一个接受 <code>int</code> 参数并返回 <code>void</code> 的函数。</p>
+<h3 id="特点">特点</h3>
+<ul>
+<li><strong>多态性</strong>：<code>tr1::function</code> 可以存储不同类型的可调用对象，只要它们的签名匹配。</li>
+<li><strong>安全性</strong>：<code>tr1::function</code> 对象在调用被包装的可调用对象时，自动处理对象的生命周期，并且可以检测和处理空的 <code>function</code> 对象（即没有绑定到任何可调用对象的情况）。</li>
+<li><strong>灵活性</strong>：支持各种类型的可调用对象，如函数指针、成员函数指针、函数对象和 lambda 表达式。</li>
+</ul>
+<h3 id="迁移到-std-function">迁移到 <code>std::function</code></h3>
+<p>虽然 <code>tr1::function</code> 是一个有用的工具，但随着 C++11 的引入，它被 <code>std::function</code> 所取代。<code>std::function</code> 提供了更强大的功能，建议在现代 C++ 代码中使用 <code>std::function</code> 代替 <code>tr1::function</code>。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;functional&gt;</span>  <span class="hljs-comment">// 使用std::function</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">my_function</span><span class="hljs-params">(<span class="hljs-type">int</span> x)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Function called with value: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::function&lt;<span class="hljs-type">void</span>(<span class="hljs-type">int</span>)&gt; func = my_function;<br>    <span class="hljs-built_in">func</span>(<span class="hljs-number">10</span>);  <span class="hljs-comment">// 输出: Function called with value: 10</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>如果你在学习或维护遗留代码，理解 <code>tr1::function</code> 会有帮助，但在新的项目中，应该优先使用 <code>std::function</code>。</p>
+</blockquote>
+<blockquote>
+<p><code>tr1::bind</code> 是 C++ 标准库的一部分，用于创建函数对象（function object）或函数适配器（function adapter），通过将参数绑定到函数或成员函数上。<code>tr1::bind</code> 是 <code>std::bind</code> 的前身，在 C++11 引入 <code>std::bind</code> 之前用于相同的目的。</p>
+<h3 id="作用">作用</h3>
+<p><code>tr1::bind</code> 可以将特定的参数绑定到一个函数或成员函数上，从而创建一个新的函数对象，该对象可以稍后调用，而不需要提供那些已经绑定的参数。</p>
+<h3 id="语法">语法</h3>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;functional&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tr1/functional&gt;</span></span><br><br><span class="hljs-keyword">auto</span> boundFunction = std::tr1::<span class="hljs-built_in">bind</span>(function, arg1, arg2, ...);<br></code></pre></td></tr></table></figure>
+<ul>
+<li><code>function</code> 是你要绑定的函数或成员函数。</li>
+<li><code>arg1, arg2, ...</code> 是你想绑定的参数。</li>
+</ul>
+<h3 id="示例-2">示例</h3>
+<p>假设我们有一个简单的函数 <code>add</code>，它接受两个整数并返回它们的和：</p>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tr1/functional&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> x + y;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 将函数 `add` 绑定一个参数</span><br>    <span class="hljs-keyword">auto</span> addFive = std::tr1::<span class="hljs-built_in">bind</span>(add, <span class="hljs-number">5</span>, std::tr1::placeholders::_1);<br><br>    <span class="hljs-comment">// 调用绑定后的函数对象，只需提供一个参数</span><br>    std::cout &lt;&lt; <span class="hljs-built_in">addFive</span>(<span class="hljs-number">10</span>) &lt;&lt; std::endl; <span class="hljs-comment">// 输出 15</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个示例中，<code>std::tr1::bind(add, 5, std::tr1::placeholders::_1)</code> 绑定了函数 <code>add</code> 的第一个参数为 <code>5</code>，并创建了一个新的函数对象 <code>addFive</code>，它接受一个参数并将其加上 <code>5</code>。</p>
+<h3 id="升级到-C-11">升级到 C++11</h3>
+<p>如果你在使用 C++11 或更高版本，建议使用 <code>std::bind</code> 而不是 <code>tr1::bind</code>，因为 <code>tr1</code> 已被废弃。</p>
+<h3 id="std-bind-示例"><code>std::bind</code> 示例</h3>
+ <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;functional&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">add</span><span class="hljs-params">(<span class="hljs-type">int</span> x, <span class="hljs-type">int</span> y)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> x + y;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 使用 std::bind</span><br>    <span class="hljs-keyword">auto</span> addFive = std::<span class="hljs-built_in">bind</span>(add, <span class="hljs-number">5</span>, std::placeholders::_1);<br><br>    std::cout &lt;&lt; <span class="hljs-built_in">addFive</span>(<span class="hljs-number">10</span>) &lt;&lt; std::endl; <span class="hljs-comment">// 输出 15</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><code>std::bind</code> 的使用方式与 <code>tr1::bind</code> 非常相似，只不过你需要将 <code>std::tr1</code> 替换为 <code>std</code>。</p>
+</blockquote>
+<h3 id="The-“Class”-Strategy-Pattern">The “Class” Strategy Pattern</h3>
+<p>It’s more flexible and familiar to someone.</p>
+<p><img src="35.png" srcset="/img/loading.gif" lazyload alt="summary"></p>
 
                 
               </div>
