@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-11T09:49:28.477Z">
+<meta property="article:modified_time" content="2024-08-12T05:08:14.515Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -209,7 +209,7 @@
         
         
         
-          258 分钟
+          262 分钟
         
       </span>
     
@@ -1771,7 +1771,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <blockquote>
 <p>在C++中，为纯虚函数（也称为抽象函数）提供定义实现确实有实际应用，尽管这种做法不常见，但在某些情况下是非常有用的。以下是几个实际应用的场景：</p>
 <h3 id="1-提供默认实现">1. <strong>提供默认实现</strong></h3>
-<p>纯虚函数通常被用作接口，用来强制派生类提供自己的实现。然而，基类可以为纯虚函数提供一个默认实现，供派生类在特定情况下调用。派生类可以选择使用基类的实现，而不是重新定义自己的版本。当有新类继承基类的时候必须实现纯虚函数，如果有自己独特实现可以自己定义，否则可以直接调用父类的纯虚函数。**实际上有实现的纯虚函数已经分裂成了两部分：函数接口和函数默认实现。函数接口一定可以被继承，而默认实现来说，当子类需要的时候可以也继承，但必须自己亲手调用，而不是必定继承。**但是非纯的虚函数，实现和接口都是必定继承的</p>
+<p>纯虚函数通常被用作接口，用来强制派生类提供自己的实现。然而，基类可以为纯虚函数提供一个默认实现，供派生类在特定情况下调用。派生类可以选择使用基类的实现，而不是重新定义自己的版本。当有新类继承基类的时候必须实现纯虚函数，如果有自己独特实现可以自己定义，否则可以直接调用父类的纯虚函数。<strong>实际上有实现的纯虚函数已经分裂成了两部分：函数接口和函数默认实现。函数接口一定可以被继承，而默认实现来说，当子类需要的时候可以也继承，但必须自己亲手调用，而不是必定继承</strong>。但是非纯的虚函数，实现和接口都是必定继承的</p>
    <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> </span>= <span class="hljs-number">0</span>; <span class="hljs-comment">// 纯虚函数</span><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Base::foo</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 默认实现</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Default implementation in Base class.&quot;</span> &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        Base::<span class="hljs-built_in">foo</span>(); <span class="hljs-comment">// 调用基类中的实现</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <h3 id="2-实现部分逻辑，并强制派生类完成剩余部分">2. <strong>实现部分逻辑，并强制派生类完成剩余部分</strong></h3>
 <p>基类可以实现纯虚函数中的部分逻辑，而将剩余部分留给派生类实现。这样可以确保派生类遵循某种框架或约定，同时仍然强制它们提供具体的实现。</p>
@@ -1905,6 +1905,20 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <h3 id="The-“Class”-Strategy-Pattern">The “Class” Strategy Pattern</h3>
 <p>It’s more flexible and familiar to someone.</p>
 <p><img src="35.png" srcset="/img/loading.gif" lazyload alt="summary"></p>
+<h2 id="Item-36-Never-redefine-an-inherited-non-virtual-function">Item 36: Never redefine an inherited non-virtual function</h2>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">mf</span><span class="hljs-params">()</span></span>;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">D</span>: <span class="hljs-keyword">public</span> B&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">mf</span><span class="hljs-params">()</span></span>;<br>&#125;;<br><br>D x;<br><br>B* pb=&amp;x;<br>D* pd=&amp;x;<br><br>pb-&gt;<span class="hljs-built_in">mf</span>();<br>pd-&gt;<span class="hljs-built_in">mf</span>();<br><br></code></pre></td></tr></table></figure>
+<p>pb and pd behave differently, even though they are pointing to the same object;</p>
+<blockquote>
+<p>在C++中，如果子类重写了父类的非虚函数，调用该函数时的行为取决于对象的静态类型（即声明类型）而不是对象的动态类型（即实际类型）。这意味着，当用不同类型的指针或引用（如父类指针或子类指针）指向同一个子类对象时，调用的非虚函数是根据指针或引用的静态类型决定的。非虚函数是静态绑定的，在编译时就已经确定了调用哪个函数。只有虚函数才会将具体函数的调用推迟到运行时</p>
+<p>举个例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">nonVirtualFunction</span><span class="hljs-params">()</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Base&#x27;s non-virtual function&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">nonVirtualFunction</span><span class="hljs-params">()</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived&#x27;s non-virtual function&quot;</span> &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived d;<br>    Base* basePtr = &amp;d;<br>    Derived* derivedPtr = &amp;d;<br><br>    basePtr-&gt;<span class="hljs-built_in">nonVirtualFunction</span>();   <span class="hljs-comment">// 调用 Base::nonVirtualFunction()</span><br>    derivedPtr-&gt;<span class="hljs-built_in">nonVirtualFunction</span>(); <span class="hljs-comment">// 调用 Derived::nonVirtualFunction()</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，虽然 <code>basePtr</code> 和 <code>derivedPtr</code> 都指向同一个 <code>Derived</code> 对象，但由于 <code>nonVirtualFunction</code> 不是虚函数，实际调用的函数取决于指针的静态类型：</p>
+<ul>
+<li><code>basePtr-&gt;nonVirtualFunction()</code> 会调用 <code>Base</code> 类中的 <code>nonVirtualFunction</code>。</li>
+<li><code>derivedPtr-&gt;nonVirtualFunction()</code> 会调用 <code>Derived</code> 类中的 <code>nonVirtualFunction</code>。</li>
+</ul>
+<p>这正是由于非虚函数的静态绑定所导致的。在编译时，编译器会根据指针或引用的类型决定要调用哪个函数，因此即使两个指针指向的是同一个对象，调用的函数也可能不同。因此必须避免重写父类的非虚函数，不然会导致混乱</p>
+</blockquote>
 
                 
               </div>
