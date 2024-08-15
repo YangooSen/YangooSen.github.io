@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-12T05:08:14.515Z">
+<meta property="article:modified_time" content="2024-08-15T04:48:40.366Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -198,7 +198,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          31k 字
+          32k 字
         
       </span>
     
@@ -209,7 +209,7 @@
         
         
         
-          262 分钟
+          268 分钟
         
       </span>
     
@@ -1918,6 +1918,26 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <li><code>derivedPtr-&gt;nonVirtualFunction()</code> 会调用 <code>Derived</code> 类中的 <code>nonVirtualFunction</code>。</li>
 </ul>
 <p>这正是由于非虚函数的静态绑定所导致的。在编译时，编译器会根据指针或引用的类型决定要调用哪个函数，因此即使两个指针指向的是同一个对象，调用的函数也可能不同。因此必须避免重写父类的非虚函数，不然会导致混乱</p>
+</blockquote>
+<h2 id="Item-37-Never-redefine-a-function’s-inherited-default-parameter-value">Item 37:  Never redefine a function’s inherited default parameter value</h2>
+<p>Virtual functions are dynamic bound, but default parameter values are statically bound.</p>
+<blockquote>
+<p>在C++中，如果你在派生类中调用基类的虚函数，并且该虚函数有默认参数值，默认参数值是静态绑定的。这意味着默认参数值是在编译时确定的，并且基类版本的默认参数会在调用时使用，而不会考虑派生类中是否重新定义了该虚函数或提供了不同的默认参数值。</p>
+<p>具体来说，如果基类的虚函数有默认参数，而你在派生类中没有覆盖该函数，并且你在派生类的对象上调用该函数，使用的是基类的默认参数值，而不是派生类的。即使派生类覆盖了该函数，调用派生类版本的函数时，仍然会使用基类中定义的默认参数值。</p>
+<p>这是因为默认参数值是在函数声明时静态决定的，并不是虚函数表（vtable）的一部分。虚函数表只负责在运行时动态绑定具体调用哪个函数版本，而不负责动态绑定默认参数。</p>
+<p>以下是一个例子来说明这一点：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">int</span> x = <span class="hljs-number">10</span>)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Base: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(<span class="hljs-type">int</span> x = <span class="hljs-number">20</span>)</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived d;<br>    Base* basePtr = &amp;d;<br><br>    basePtr-&gt;<span class="hljs-built_in">func</span>(); <span class="hljs-comment">// 调用的是 Derived::func，但使用的是 Base 中的默认参数</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>basePtr-&gt;func();</code> 调用了 <code>Derived::func()</code>，但是使用的是 <code>Base</code> 中的默认参数 <code>10</code>，输出为：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Derived</span>: <span class="hljs-number">10</span><br></code></pre></td></tr></table></figure>
+<p>而如果你在 <code>Derived</code> 类的对象上直接调用 <code>func()</code>，那么你需要显式传递参数，或者手动覆盖默认参数，因为默认参数是在基类中定义的。</p>
+</blockquote>
+<h2 id="Item-38-Model-“has-a”-or-“is-implemented-in-terms-of”-through-composition">Item 38: Model “has-a” or “is-implemented-in-terms-of” through composition</h2>
+<blockquote>
+<p>在C++中，“is-implemented-in-terms-of” 通过组合（composition）来实现，通常意味着一个类使用另一个类的实例来实现其功能，而不是通过继承。换句话说，类A使用类B的一个或多个对象作为其成员变量，从而借助这些对象来完成某些工作。这样的设计强调类之间的**“has-a&quot;<strong>关系，而非</strong>&quot;is-a”**关系。</p>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Engine</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-comment">// 启动引擎的代码</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Car</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    Engine engine;  <span class="hljs-comment">// Car类通过组合包含一个Engine对象</span><br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span> </span>&#123;<br>        engine.<span class="hljs-built_in">start</span>();  <span class="hljs-comment">// Car类利用Engine对象的功能来实现其启动功能</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>Car</code>类通过组合包含了一个<code>Engine</code>对象，并通过<code>Engine</code>对象来实现汽车启动的功能。这就是通过组合实现的“is-implemented-in-terms-of”的一种表现形式。</p>
+<p>这种设计的好处在于，它鼓励模块化和封装，使得代码更加易于维护和扩展。同时，相比继承，组合使类之间的耦合性更低。</p>
 </blockquote>
 
                 
