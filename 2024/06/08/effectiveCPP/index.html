@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-15T04:48:40.366Z">
+<meta property="article:modified_time" content="2024-08-16T04:51:22.015Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -198,7 +198,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          32k 字
+          34k 字
         
       </span>
     
@@ -209,7 +209,7 @@
         
         
         
-          268 分钟
+          280 分钟
         
       </span>
     
@@ -1938,6 +1938,76 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Engine</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-comment">// 启动引擎的代码</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Car</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    Engine engine;  <span class="hljs-comment">// Car类通过组合包含一个Engine对象</span><br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">start</span><span class="hljs-params">()</span> </span>&#123;<br>        engine.<span class="hljs-built_in">start</span>();  <span class="hljs-comment">// Car类利用Engine对象的功能来实现其启动功能</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <p>在这个例子中，<code>Car</code>类通过组合包含了一个<code>Engine</code>对象，并通过<code>Engine</code>对象来实现汽车启动的功能。这就是通过组合实现的“is-implemented-in-terms-of”的一种表现形式。</p>
 <p>这种设计的好处在于，它鼓励模块化和封装，使得代码更加易于维护和扩展。同时，相比继承，组合使类之间的耦合性更低。</p>
+</blockquote>
+<h2 id="Item-39-Use-private-inheritance-judiciously">Item 39: Use private inheritance judiciously</h2>
+<blockquote>
+<p>在 C++ 中，<code>private</code> 继承是一种访问控制形式，它影响了从基类继承的成员在派生类中的可访问性和可见性。以下是 <code>private</code> 继承的一些主要特性：</p>
+<ol>
+<li>
+<p><strong>基类的公有和保护成员</strong>：</p>
+<ul>
+<li>当使用 <code>private</code> 继承时，基类的所有 <code>public</code> 和 <code>protected</code> 成员在派生类中都变为 <code>private</code>。这意味着这些成员只能在派生类的内部访问，不能通过派生类的对象或从派生类派生的类访问。</li>
+</ul>
+</li>
+<li>
+<p><strong>基类的私有成员</strong>：</p>
+<ul>
+<li>基类的 <code>private</code> 成员仍然是私有的，派生类无法直接访问这些成员，但可以通过基类的公有或受保护的成员函数间接访问。</li>
+</ul>
+</li>
+<li>
+<p><strong>不改变基类的访问性</strong>：</p>
+<ul>
+<li><code>private</code> 继承不会改变基类的访问权限，也就是说，基类的 <code>private</code> 成员仍然是私有的，无法被派生类直接访问。</li>
+</ul>
+</li>
+<li>
+<p><strong>继承类型不影响派生类的访问级别</strong>：</p>
+<ul>
+<li>无论是 <code>private</code> 继承还是 <code>public</code> 继承，派生类自身的成员访问级别不会受到影响，只是继承自基类的成员访问级别会根据继承类型而改变。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>is-a</code> 关系的破坏</strong>：</p>
+<ul>
+<li><code>private</code> 继承不提供一个 <code>is-a</code> 关系。这意味着派生类对象不能被看作是基类对象，因为基类的接口对外部是不可见的。因此，不能使用基类的指针或引用来指向派生类对象。</li>
+</ul>
+</li>
+<li>
+<p><strong>用作实现工具</strong>：</p>
+<ul>
+<li><code>private</code> 继承通常用于实现细节的封装，以便派生类能够使用基类的功能，而不让这些功能暴露给派生类的用户。</li>
+</ul>
+</li>
+</ol>
+<p>以下是一个示例代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">publicMethod</span><span class="hljs-params">()</span> </span>&#123;&#125;<br><span class="hljs-keyword">protected</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">protectedMethod</span><span class="hljs-params">()</span> </span>&#123;&#125;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">privateMethod</span><span class="hljs-params">()</span> </span>&#123;&#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">private</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">derivedMethod</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-built_in">publicMethod</span>();       <span class="hljs-comment">// 可以访问，但对 Derived 的用户是不可见的</span><br>        <span class="hljs-built_in">protectedMethod</span>();    <span class="hljs-comment">// 可以访问，但对 Derived 的用户是不可见的</span><br>        <span class="hljs-comment">// privateMethod();   // 错误，无法访问</span><br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived d;<br>    <span class="hljs-comment">// d.publicMethod();    // 错误，无法访问</span><br>    <span class="hljs-comment">// d.protectedMethod(); // 错误，无法访问</span><br>    d.<span class="hljs-built_in">derivedMethod</span>();       <span class="hljs-comment">// 可以访问</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>Base</code> 类的 <code>publicMethod</code> 和 <code>protectedMethod</code> 在 <code>Derived</code> 类中都变成了私有的，所以它们不能通过 <code>Derived</code> 类的对象在 <code>main</code> 函数中访问。</p>
+</blockquote>
+<p>Private inheritance means is-implement-in-terms-of, there is not any conceptual relation. You doprivate inheritance because you are interested in taking advantage of some of the features available in base class.</p>
+<blockquote>
+<p>is-implement-in-terms-of 在item38上面有解释</p>
+</blockquote>
+<p><strong>Use composition whenever you can, and use private inheritance whenever you must. When must you? Primarily when protect members or virtual functions enter the picture.</strong></p>
+<blockquote>
+<p>是的，在C++中，即使一个类是空的，它也会占用一定的内存空间。具体来说，空类通常会占用一个字节的空间。</p>
+<p>原因是C++中，每个对象都需要一个唯一的地址，以便在内存中能够区分不同的对象。如果空类不占用任何空间，那么多个空类对象将无法有不同的地址。因此，编译器通常为每个空类对象分配一个字节的空间，以保证每个对象有唯一的地址。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Empty</span> &#123;&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Empty e1, e2;<br>    std::cout &lt;&lt; <span class="hljs-built_in">sizeof</span>(e1) &lt;&lt; std::endl; <span class="hljs-comment">// 输出通常为1</span><br>    std::cout &lt;&lt; &amp;e1 &lt;&lt; std::endl;        <span class="hljs-comment">// 输出e1的地址</span><br>    std::cout &lt;&lt; &amp;e2 &lt;&lt; std::endl;        <span class="hljs-comment">// 输出e2的地址，不同于e1的地址</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个示例中，<code>sizeof(e1)</code>的值通常为1，表明空类对象占用了一个字节的空间。这是为了确保不同对象有不同的地址。</p>
+</blockquote>
+<blockquote>
+<p>Empty Base Optimization (EBO) 是C++中的一种编译器优化技术，用于减少内存占用。当一个类继承自一个空基类时，通过EBO，编译器可以消除该空基类的内存开销，从而不额外占用空间。只有私有继承能做到EBO，composition不能实现EBO。实际上STL中有很多空类，他们只是有一些typedef，而没有实际内容。EBO的存在使得STL这样的实现节省了空间</p>
+<h3 id="背景">背景</h3>
+<p>如你之前提到的，空类通常占用1个字节的空间，以确保对象有唯一的地址。然而，当一个类继承自一个或多个空基类时，这些空基类的内存开销可能被优化掉，以便节省内存。这种优化主要用于减少内存的浪费，尤其是在设计复杂的继承体系或使用模板编程时。</p>
+<h3 id="EBO-的工作原理">EBO 的工作原理</h3>
+<p>当一个类继承自一个空基类时，如果编译器能够确定该空基类在内存布局中不需要占用空间，它就会将派生类和基类的数据成员“合并”，使得空基类不额外占用内存。这通常是通过让空基类与第一个非空的数据成员共享相同的地址来实现的。</p>
+<h3 id="示例-3">示例</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Empty</span> &#123;&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Empty &#123;<br>    <span class="hljs-type">int</span> x;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Size of Empty: &quot;</span> &lt;&lt; <span class="hljs-built_in">sizeof</span>(Empty) &lt;&lt; std::endl;       <span class="hljs-comment">// 通常为1</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Size of Derived: &quot;</span> &lt;&lt; <span class="hljs-built_in">sizeof</span>(Derived) &lt;&lt; std::endl;   <span class="hljs-comment">// 通常为4</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个示例中，如果没有EBO，<code>Derived</code>类的大小将是<code>sizeof(int) + sizeof(Empty)</code>，即4 + 1 = 5个字节。但在大多数实现了EBO的编译器中，<code>Derived</code>类的大小将只是4个字节，因为空基类<code>Empty</code>不会占用额外的空间。</p>
+<h3 id="何时使用">何时使用</h3>
+<p>EBO主要在模板编程、标准库容器以及其他需要继承空类的场景中使用，特别是当多个空类继承时，可以显著减少内存开销。标准库中的<code>std::pair</code>和<code>std::tuple</code>类模板就是常见的应用场景，它们经常使用EBO来优化内存布局。</p>
+<h3 id="注意事项-3">注意事项</h3>
+<p>虽然EBO在大多数现代C++编译器中是支持的，但它并不是C++标准的一部分，也就是说编译器并不强制要求实现EBO。这意味着在某些特定编译器或编译设置下，EBO可能不会生效。</p>
 </blockquote>
 
                 
