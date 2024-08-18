@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-17T12:15:53.698Z">
+<meta property="article:modified_time" content="2024-08-18T04:54:53.939Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -198,7 +198,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          35k 字
+          36k 字
         
       </span>
     
@@ -209,7 +209,7 @@
         
         
         
-          294 分钟
+          299 分钟
         
       </span>
     
@@ -2078,6 +2078,23 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>总的来说，虚拟继承是C++中处理复杂多重继承结构的一种强大工具，但它增加了内存布局和调用的复杂性，所以在使用时要权衡利弊。当使用虚拟继承的时候尽量避免在基类中声明数据</p>
 </blockquote>
 <p>It’s more practical when virtual base classes have no data.</p>
+<h1>7.Templates and Generic Programming</h1>
+<h2 id="Item-41-Understand-implicit-interfaces-and-compile-time-Polymorphism">Item 41: Understand implicit interfaces and compile-time Polymorphism</h2>
+<blockquote>
+<p>C++ 的模板确实提供了隐式接口和编译时多态的功能，这是模板元编程的核心概念之一。以下是对这两个概念的简要解释：</p>
+<h3 id="1-隐式接口-Implicit-Interface">1. 隐式接口 (Implicit Interface)</h3>
+<p>在 C++ 模板中，模板类或模板函数的接口是隐式的。也就是说，当你定义一个模板时，并不需要显式地声明模板参数必须具备的接口特性。相反，当你在实例化模板时，编译器会根据模板参数的使用情况，隐式地要求这些参数满足某些接口条件。</p>
+<p>例如，考虑以下模板函数：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">print</span><span class="hljs-params">(<span class="hljs-type">const</span> T&amp; value)</span> </span>&#123;<br>    std::cout &lt;&lt; value &lt;&lt; std::endl;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>这个 <code>print</code> 函数模板并没有明确要求 <code>T</code> 类型具备任何特定的接口（如 <code>&lt;&lt;</code> 操作符），但在实际使用时，编译器会检查 <code>T</code> 是否可以使用 <code>&lt;&lt;</code> 操作符与 <code>std::ostream</code> 进行交互。如果 <code>T</code> 不支持这种操作，编译时就会报错。这就是模板的隐式接口。</p>
+<h3 id="2-编译时多态-Compile-time-Polymorphism">2. 编译时多态 (Compile-time Polymorphism)</h3>
+<p>C++ 模板通过编译时多态来实现灵活的代码复用。与传统的运行时多态（如虚函数机制）不同，编译时多态是在编译期间确定的，它不依赖于对象的类型，而是依赖于模板参数的类型。</p>
+<p>编译时多态的核心在于，模板代码会在编译时根据不同的模板参数实例化为不同的代码。每个实例化的模板实际上就是生成了特定于该参数类型的代码版本。由于这个过程发生在编译期，因此可以避免运行时的开销。</p>
+<p>例如，下面是一个简单的模板类：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Box</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">set</span><span class="hljs-params">(<span class="hljs-type">const</span> T&amp; value)</span> </span>&#123; data = value; &#125;<br>    <span class="hljs-function">T <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> data; &#125;<br><br><span class="hljs-keyword">private</span>:<br>    T data;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>当你使用 <code>Box&lt;int&gt;</code> 和 <code>Box&lt;double&gt;</code> 时，编译器会分别为 <code>int</code> 和 <code>double</code> 类型生成不同的 <code>Box</code> 类代码，从而实现编译时多态。</p>
+<p>综上所述，C++ 模板提供了强大的隐式接口和编译时多态机制，使得代码更加灵活和高效，同时也赋予了程序员极大的表达能力。</p>
+</blockquote>
 
                 
               </div>
