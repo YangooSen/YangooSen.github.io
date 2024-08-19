@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-18T04:54:53.939Z">
+<meta property="article:modified_time" content="2024-08-19T11:26:26.120Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -198,7 +198,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          36k 字
+          37k 字
         
       </span>
     
@@ -209,7 +209,7 @@
         
         
         
-          299 分钟
+          311 分钟
         
       </span>
     
@@ -2094,6 +2094,68 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Box</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">set</span><span class="hljs-params">(<span class="hljs-type">const</span> T&amp; value)</span> </span>&#123; data = value; &#125;<br>    <span class="hljs-function">T <span class="hljs-title">get</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123; <span class="hljs-keyword">return</span> data; &#125;<br><br><span class="hljs-keyword">private</span>:<br>    T data;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <p>当你使用 <code>Box&lt;int&gt;</code> 和 <code>Box&lt;double&gt;</code> 时，编译器会分别为 <code>int</code> 和 <code>double</code> 类型生成不同的 <code>Box</code> 类代码，从而实现编译时多态。</p>
 <p>综上所述，C++ 模板提供了强大的隐式接口和编译时多态机制，使得代码更加灵活和高效，同时也赋予了程序员极大的表达能力。</p>
+</blockquote>
+<h2 id="Item-42-Understand-the-two-meanings-of-typename">Item 42: Understand the two meanings of typename</h2>
+<blockquote>
+<p>在C++模板编程中，理解 <code>dependent names</code> 和 <code>non-dependent names</code> 是非常重要的，它们决定了模板的解析方式。以下是对这两个概念的解释：</p>
+<h3 id="1-Dependent-Names（依赖名）">1. <strong>Dependent Names（依赖名）</strong></h3>
+<p><code>Dependent names</code> 是指那些在模板中依赖于模板参数的名称。它们的解析要等到模板被实例化的时候（即模板参数的具体类型被确定的时候）才进行。这种依赖性可以分为以下几类，嵌套依赖名默认被认为是变量而不是类型，除非声明typename：</p>
+<ul>
+<li>
+<p><strong>Type-dependent names</strong>：依赖于模板参数的类型。例如，如果你有一个类型参数 <code>T</code>，那么 <code>T::type</code> 或 <code>T::value_type</code> 就是 <code>dependent names</code>，因为它们取决于 <code>T</code> 的具体类型。</p>
+</li>
+<li>
+<p><strong>Value-dependent names</strong>：依赖于模板参数的值。例如，如果你有一个非类型模板参数 <code>N</code>，那么表达式 <code>N+1</code> 或 <code>array[N]</code> 就是 <code>dependent names</code>，因为它们取决于 <code>N</code> 的值。</p>
+</li>
+</ul>
+<p><strong>示例：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    <span class="hljs-keyword">typename</span> T::type x; <span class="hljs-comment">// T::type 是一个 dependent name</span><br>    x = t.<span class="hljs-built_in">getValue</span>();   <span class="hljs-comment">// getValue() 是一个 dependent name，因为它依赖于 T 的类型</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="2-Non-dependent-Names（非依赖名）">2. <strong>Non-dependent Names（非依赖名）</strong></h3>
+<p><code>Non-dependent names</code> 是那些不依赖于模板参数的名称。它们在模板定义时立即被解析，不管模板参数是什么。</p>
+<p><strong>示例：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    <span class="hljs-type">int</span> x = <span class="hljs-number">10</span>;    <span class="hljs-comment">// x 是 non-dependent name</span><br>    std::cout &lt;&lt; x &lt;&lt; std::endl; <span class="hljs-comment">// std::cout 和 std::endl 是 non-dependent names</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="3-相关问题：解析顺序">3. <strong>相关问题：解析顺序</strong></h3>
+<p>由于 <code>dependent names</code> 的解析被推迟到模板实例化阶段，C++编译器在模板定义时无法确定这些名称的实际含义。这就导致了在某些情况下，需要使用 <code>typename</code> 关键字来显式地指明某个名称是一个类型。</p>
+<p><strong>示例：</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    <span class="hljs-keyword">typename</span> T::type x; <span class="hljs-comment">// typename 告诉编译器 T::type 是一个类型</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>如果你没有使用 <code>typename</code>，编译器可能会认为 <code>T::type</code> 是一个变量或静态成员，而不是类型，导致编译错误。</p>
+<h3 id="总结-7">总结</h3>
+<ul>
+<li><code>Dependent names</code> 依赖于模板参数，它们的解析被推迟到模板实例化阶段。</li>
+<li><code>Non-dependent names</code> 不依赖于模板参数，它们在模板定义时立即被解析。</li>
+</ul>
+<p>了解这两者的区别有助于更好地编写和调试C++模板代码。</p>
+</blockquote>
+<blockquote>
+<p>可以通过定义一个结构体（或类），在其中包含一个名为 <code>type</code> 的变量或静态成员来演示 <code>T::type</code> 作为变量或静态成员的情况。以下是一个示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-comment">// 定义了一个结构体 A，其中包含一个静态成员变量 type</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">A</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">int</span> type;<br>&#125;;<br><br><span class="hljs-comment">// 初始化静态成员变量</span><br><span class="hljs-type">int</span> A::type = <span class="hljs-number">42</span>;<br><br><span class="hljs-comment">// 一个简单的模板函数，尝试使用 T::type</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;T::type = &quot;</span> &lt;&lt; T::type &lt;&lt; std::endl; <span class="hljs-comment">// 这里 T::type 是一个变量</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    A a;<br>    <span class="hljs-built_in">foo</span>(a); <span class="hljs-comment">// 输出: T::type = 42</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="解释">解释</h3>
+<p>在这个例子中：</p>
+<ul>
+<li><code>struct A</code> 包含一个静态成员变量 <code>type</code>，类型为 <code>int</code>。</li>
+<li>模板函数 <code>foo</code> 使用了 <code>T::type</code>。在这个上下文中，<code>T::type</code> 是一个变量，而不是类型。</li>
+<li>当我们调用 <code>foo(a)</code> 时，由于 <code>T</code> 被推导为 <code>A</code>，<code>T::type</code> 解析为 <code>A::type</code>，即一个静态成员变量。</li>
+</ul>
+<p>由于 <code>type</code> 在这个例子中是一个静态成员变量，而不是类型，因此我们不需要使用 <code>typename</code> 关键字来声明它。编译器在模板定义时能够立即解析 <code>T::type</code> 为一个变量，而不是延迟到实例化时。</p>
+<h3 id="对比">对比</h3>
+<p>如果 <code>type</code> 是一个类型而不是变量（如 <code>typedef</code> 或 <code>using</code>），则必须使用 <code>typename</code> 来显式地告诉编译器 <code>T::type</code> 是一个类型。否则，编译器会认为 <code>T::type</code> 是一个变量或静态成员，这可能导致编译错误。</p>
+<h3 id="额外示例：type-为类型的情况">额外示例：type 为类型的情况</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">B</span> &#123;<br>    <span class="hljs-keyword">using</span> type = <span class="hljs-type">int</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    <span class="hljs-keyword">typename</span> T::type x = <span class="hljs-number">10</span>; <span class="hljs-comment">// 这里 T::type 是一个类型，所以需要 typename</span><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;x = &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    B b;<br>    <span class="hljs-built_in">foo</span>(b); <span class="hljs-comment">// 输出: x = 10</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个示例中，<code>B::type</code> 是一个类型别名，因此需要使用 <code>typename</code> 来指明 <code>T::type</code> 是一个类型。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，成员初始化列表中对 <code>dependent type</code> 的使用确实是一个特殊情况，其中不需要使用 <code>typename</code> 关键字。这是因为在成员初始化列表中，编译器已经能够确定 <code>T::type</code> 是一个类型，即使它是依赖于模板参数的。</p>
+<h3 id="示例：成员初始化列表中的例外情况">示例：成员初始化列表中的例外情况</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Wrapper</span> &#123;<br>    <span class="hljs-keyword">typename</span> T::type value;<br><br>    <span class="hljs-built_in">Wrapper</span>(<span class="hljs-keyword">typename</span> T::type val) : <span class="hljs-built_in">value</span>(val) &#123;&#125;  <span class="hljs-comment">// 在成员初始化列表中不需要使用 typename</span><br>&#125;;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Example</span> &#123;<br>    <span class="hljs-keyword">using</span> type = <span class="hljs-type">int</span>;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Example ex;<br>    <span class="hljs-function">Wrapper&lt;Example&gt; <span class="hljs-title">w</span><span class="hljs-params">(<span class="hljs-number">10</span>)</span></span>;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;w.value = &quot;</span> &lt;&lt; w.value &lt;&lt; std::endl; <span class="hljs-comment">// 输出: w.value = 10</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="解释-2">解释</h3>
+<p>在这个例子中：</p>
+<ol>
+<li><code>Wrapper</code> 是一个模板结构体，接受一个模板参数 <code>T</code>。其中的 <code>value</code> 成员的类型是 <code>typename T::type</code>，这明确了 <code>T::type</code> 是一个类型。</li>
+<li><code>Wrapper</code> 的构造函数在成员初始化列表中对 <code>value</code> 进行初始化时，使用了 <code>T::type</code> 作为类型。在这种情况下，即使 <code>T::type</code> 是一个依赖类型，编译器也能够推断出它是类型，因此不需要使用 <code>typename</code>。</li>
+<li><code>Example</code> 结构体定义了一个类型别名 <code>type</code>，是 <code>int</code> 类型。当 <code>Wrapper&lt;Example&gt;</code> 实例化时，<code>T::type</code> 即 <code>Example::type</code> 被解析为 <code>int</code>，并用于构造函数的参数和成员初始化列表中。</li>
+</ol>
+<h3 id="总结-8">总结</h3>
+<p>在成员初始化列表中，C++ 编译器能够自动推断 <code>T::type</code> 是一个类型，即使它是依赖于模板参数的。在这种情况下，不需要显式使用 <code>typename</code> 关键字。这是 C++ 标准中的一个特例，因为在成员初始化列表中，编译器有足够的信息来解析 <code>dependent type</code>，而不需要额外的指示。</p>
 </blockquote>
 
                 
