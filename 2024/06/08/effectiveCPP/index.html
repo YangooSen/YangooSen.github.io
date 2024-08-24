@@ -32,8 +32,9 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/iterator_traits.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-23T05:15:05.410Z">
+<meta property="article:modified_time" content="2024-08-24T08:33:45.194Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -198,7 +199,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          43k 字
+          47k 字
         
       </span>
     
@@ -209,7 +210,7 @@
         
         
         
-          359 分钟
+          394 分钟
         
       </span>
     
@@ -2386,6 +2387,222 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>因此，使用这种方式时，<code>showData</code> 函数会随着 <code>MyClass</code> 类模板的每个实例化类型自动生成适当的版本，此时就可以在自动生成的函数版本上使用隐式类型转换</p>
 </blockquote>
 <p>When writing a class template that offer functions relalted to the template that support implicit type conversions on all parameters, <strong>define those functions as friends inside the class template.</strong></p>
+<h2 id="Item-47-Use-traits-classes-for-information-about-types">Item 47: Use traits classes for information about types</h2>
+<blockquote>
+<p>STL（Standard Template Library）中的迭代器（Iterator）是一种用于遍历和操作容器中元素的工具。迭代器可以被看作是指向容器中元素的指针，它们支持类似指针的操作，如解引用（<code>*</code>）、递增（<code>++</code>）等。</p>
+<p>STL中提供了五种不同类型的迭代器，它们分别支持不同级别的操作：</p>
+<ol>
+<li>
+<p><strong>输入迭代器（Input Iterator）</strong></p>
+<ul>
+<li><strong>特点</strong>：只读迭代器，用于从容器中读取元素。</li>
+<li><strong>功能</strong>：只支持单向遍历（前向遍历），即只能从起始位置向前移动，不能后退。可以进行递增（<code>++</code>）操作以及解引用（<code>*</code>）操作，但解引用只能进行读取操作，不能修改。</li>
+<li><strong>用途</strong>：适用于只需读取容器中元素且不需要修改元素的场景，例如读取文件数据或从输入流中读取数据。</li>
+</ul>
+</li>
+<li>
+<p><strong>输出迭代器（Output Iterator）</strong></p>
+<ul>
+<li><strong>特点</strong>：只写迭代器，用于向容器中写入元素。</li>
+<li><strong>功能</strong>：与输入迭代器相反，输出迭代器只支持写操作。只允许对迭代器进行递增（<code>++</code>）操作和解引用（<code>*</code>）操作，解引用只能用于赋值操作，不能读取容器中已有的数据。</li>
+<li><strong>用途</strong>：适用于向容器中写入数据的场景，如输出流操作或对容器元素进行修改。</li>
+</ul>
+</li>
+<li>
+<p><strong>前向迭代器（Forward Iterator）</strong></p>
+<ul>
+<li><strong>特点</strong>：既可读也可写的迭代器，支持单向遍历。</li>
+<li><strong>功能</strong>：支持输入和输出迭代器的所有操作，可以进行递增（<code>++</code>）操作和解引用（<code>*</code>）操作，并且能够多次遍历容器（即可以重复遍历）。</li>
+<li><strong>用途</strong>：适用于需要读写容器中元素且只需前向遍历的场景，如链表等。</li>
+</ul>
+</li>
+<li>
+<p><strong>双向迭代器（Bidirectional Iterator）</strong></p>
+<ul>
+<li><strong>特点</strong>：可读可写，支持双向遍历的迭代器。</li>
+<li><strong>功能</strong>：除了前向迭代器的所有功能外，还支持递减（<code>--</code>）操作，即可以向前和向后遍历容器。</li>
+<li><strong>用途</strong>：适用于需要前后遍历容器的场景，如双向链表、集合等。</li>
+</ul>
+</li>
+<li>
+<p><strong>随机访问迭代器（Random Access Iterator）</strong></p>
+<ul>
+<li><strong>特点</strong>：最强大的一种迭代器，支持常数时间的任意位置访问。</li>
+<li><strong>功能</strong>：支持所有双向迭代器的功能外，还可以通过加减整数（<code>+</code>、<code>-</code>）进行跳跃访问，并支持迭代器之间的比较（<code>&lt;</code>、<code>&gt;</code>、<code>&lt;=</code>、<code>&gt;=</code>）、加减（<code>+=</code>、<code>-=</code>）等操作。</li>
+<li><strong>用途</strong>：适用于需要高效随机访问元素的场景，如数组、向量（<code>vector</code>）等顺序容器。</li>
+</ul>
+</li>
+</ol>
+<p>这五种迭代器按照功能由弱到强依次排列。输入迭代器和输出迭代器最基础，随机访问迭代器功能最强大。每种迭代器的功能是逐步增强的，能满足不同复杂度的需求。</p>
+</blockquote>
+<blockquote>
+<p><strong>Traits Class</strong> 是C++模板编程中的一种技巧，用于提取或推断模板参数的属性或特征，以便在编译时做出决策。Traits Class通过定义模板类（或结构体），并通过模板特化或偏特化，为不同类型提供不同的属性信息或行为。</p>
+<h3 id="主要作用">主要作用</h3>
+<ol>
+<li>
+<p><strong>类型信息提取</strong>：Traits Class可以从类型中提取信息，如类型是否为指针、类型的常量性、类型的基础类型等。</p>
+</li>
+<li>
+<p><strong>类型转换</strong>：Traits Class可以用于类型转换，例如在模板中判断某个类型是指针时，可以提取指向的基础类型。</p>
+</li>
+<li>
+<p><strong>编译期分支</strong>：通过Traits Class可以在编译时根据类型特性进行分支选择，从而实现针对不同类型的优化或特定处理。</p>
+</li>
+</ol>
+<h3 id="典型例子">典型例子</h3>
+<ol>
+<li>
+<p><strong>类型判断与修饰：<code>std::is_same</code> 和 <code>std::remove_const</code></strong></p>
+<ul>
+<li>
+<p><code>std::is_same</code>：判断两个类型是否相同。</p>
+</li>
+<li>
+<p><code>std::remove_const</code>：去除类型的<code>const</code>修饰符。</p>
+</li>
+</ul>
+<p>这些类型是通过模板特化实现的。例如，<code>std::is_same</code>模板的部分实现可能如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T, <span class="hljs-keyword">typename</span> U&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_same</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">false</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_same</span>&lt;T, T&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">true</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>使用时：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::cout &lt;&lt; std::is_same&lt;<span class="hljs-type">int</span>, <span class="hljs-type">int</span>&gt;::value;  <span class="hljs-comment">// 输出 1 (true)</span><br>std::cout &lt;&lt; std::is_same&lt;<span class="hljs-type">int</span>, <span class="hljs-type">float</span>&gt;::value; <span class="hljs-comment">// 输出 0 (false)</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>提取基础类型：<code>std::remove_pointer</code></strong></p>
+<p>如果需要提取一个指针类型的基础类型，可以使用<code>std::remove_pointer</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">remove_pointer</span> &#123;<br>    <span class="hljs-keyword">using</span> type = T;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">remove_pointer</span>&lt;T*&gt; &#123;<br>    <span class="hljs-keyword">using</span> type = T;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>使用时：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">using</span> T = std::remove_pointer&lt;<span class="hljs-type">int</span>*&gt;::type;  <span class="hljs-comment">// T 为 int</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>数字类型判断：<code>std::is_integral</code></strong></p>
+<p>判断一个类型是否为整数类型，可以用<code>std::is_integral</code>：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">false</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral</span>&lt;<span class="hljs-type">int</span>&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">true</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_integral</span>&lt;<span class="hljs-type">short</span>&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">true</span>;<br>&#125;;<br><span class="hljs-comment">// 其他整数类型类似</span><br></code></pre></td></tr></table></figure>
+<p>使用时：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::cout &lt;&lt; std::is_integral&lt;<span class="hljs-type">int</span>&gt;::value;  <span class="hljs-comment">// 输出 1 (true)</span><br>std::cout &lt;&lt; std::is_integral&lt;<span class="hljs-type">float</span>&gt;::value; <span class="hljs-comment">// 输出 0 (false)</span><br></code></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="自定义-Traits-Class">自定义 Traits Class</h3>
+<p>用户可以定义自己的Traits Class来提取或判断类型的某些特性。假设我们有一个Traits Class <code>is_pointer_like</code>，用来判断一个类型是否像指针类型（包括实际的指针和智能指针）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_pointer_like</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">false</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_pointer_like</span>&lt;T*&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">true</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_pointer_like</span>&lt;std::shared_ptr&lt;T&gt;&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">true</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>使用时：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::cout &lt;&lt; is_pointer_like&lt;<span class="hljs-type">int</span>*&gt;::value; <span class="hljs-comment">// 输出 1 (true)</span><br>std::cout &lt;&lt; is_pointer_like&lt;std::shared_ptr&lt;<span class="hljs-type">int</span>&gt;&gt;::value; <span class="hljs-comment">// 输出 1 (true)</span><br>std::cout &lt;&lt; is_pointer_like&lt;<span class="hljs-type">int</span>&gt;::value; <span class="hljs-comment">// 输出 0 (false)</span><br></code></pre></td></tr></table></figure>
+<h3 id="总结-12">总结</h3>
+<p>Traits Class是C++模板元编程中的核心技术，通过模板的特化、偏特化来提取、判断和操作类型信息，使得模板能够根据类型特性在编译时进行优化和调整。C++标准库中包含了大量的Traits Class，如<code>std::is_same</code>、<code>std::remove_const</code>、<code>std::is_integral</code>等，它们极大地增强了模板编程的灵活性和可维护性。</p>
+</blockquote>
+<blockquote>
+<p>在C++中，STL中的各种迭代器都通过特定的 <strong>traits class</strong> 来提供类型信息。这些traits class通常会用来定义迭代器的类别、迭代器所指向的元素类型等。这些traits class使得算法和容器能够在编译时根据迭代器的类型进行适当的操作和优化。</p>
+<p>iterator_traits是一个单独的类，算法实现时将迭代器具体类型传送给iterator_traits类，萃取类就能返回迭代器的各种具体信息</p>
+<p>主要的迭代器相关的traits class包括：</p>
+<ol>
+<li><strong><code>iterator_traits</code></strong>：主要用于提取迭代器的类型信息。</li>
+<li><strong>迭代器类别（Iterator Category）</strong>：用来标识迭代器的类型（如输入迭代器、输出迭代器、前向迭代器、双向迭代器、随机访问迭代器）。</li>
+</ol>
+<h3 id="iterator-traits-的实现"><code>iterator_traits</code> 的实现</h3>
+<p><code>iterator_traits</code> 是一个标准的traits class，用于提取迭代器类型的相关信息，如迭代器的类别（<code>iterator_category</code>）、指向的元素类型（<code>value_type</code>）、指向的元素的指针类型（<code>pointer</code>）、指向的元素的引用类型（<code>reference</code>）、以及用于计算距离的类型（<code>difference_type</code>）。</p>
+<p>它通常是通过模板特化实现的，主要包括通用版本和指针类型的特化。</p>
+<h4 id="通用版本">通用版本</h4>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">iterator_traits</span> &#123;<br>    <span class="hljs-keyword">using</span> iterator_category = <span class="hljs-keyword">typename</span> Iterator::iterator_category;<br>    <span class="hljs-keyword">using</span> value_type        = <span class="hljs-keyword">typename</span> Iterator::value_type;<br>    <span class="hljs-keyword">using</span> difference_type   = <span class="hljs-keyword">typename</span> Iterator::difference_type;<br>    <span class="hljs-keyword">using</span> pointer           = <span class="hljs-keyword">typename</span> Iterator::pointer;<br>    <span class="hljs-keyword">using</span> reference         = <span class="hljs-keyword">typename</span> Iterator::reference;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>在通用版本中，<code>iterator_traits</code>假定传入的类型是一个自定义的迭代器类型，这个类型定义了自己的类型成员，如<code>iterator_category</code>等。因此，通过<code>typename Iterator::iterator_category</code>来获取这些信息。</p>
+<h4 id="指针类型的特化">指针类型的特化</h4>
+<p>指针本身也可以作为迭代器使用，所以<code>iterator_traits</code>需要为指针类型做特化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">iterator_traits</span>&lt;T*&gt; &#123;<br>    <span class="hljs-keyword">using</span> iterator_category = std::random_access_iterator_tag;<br>    <span class="hljs-keyword">using</span> value_type        = T;<br>    <span class="hljs-keyword">using</span> difference_type   = std::<span class="hljs-type">ptrdiff_t</span>;<br>    <span class="hljs-keyword">using</span> pointer           = T*;<br>    <span class="hljs-keyword">using</span> reference         = T&amp;;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>这里，<code>T*</code>被认为是一个随机访问迭代器（<code>std::random_access_iterator_tag</code>），指向的元素类型为<code>T</code>。</p>
+<h4 id="常量指针类型的特化">常量指针类型的特化</h4>
+<p>类似地，对于常量指针类型<code>const T*</code>也有特化：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">iterator_traits</span>&lt;<span class="hljs-type">const</span> T*&gt; &#123;<br>    <span class="hljs-keyword">using</span> iterator_category = std::random_access_iterator_tag;<br>    <span class="hljs-keyword">using</span> value_type        = T;<br>    <span class="hljs-keyword">using</span> difference_type   = std::<span class="hljs-type">ptrdiff_t</span>;<br>    <span class="hljs-keyword">using</span> pointer           = <span class="hljs-type">const</span> T*;<br>    <span class="hljs-keyword">using</span> reference         = <span class="hljs-type">const</span> T&amp;;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<h3 id="迭代器类别（Iterator-Category）">迭代器类别（Iterator Category）</h3>
+<p>C++标准库定义了五种主要的迭代器类别，每种类别对应一个结构体标签：</p>
+<ul>
+<li><code>std::input_iterator_tag</code></li>
+<li><code>std::output_iterator_tag</code></li>
+<li><code>std::forward_iterator_tag</code></li>
+<li><code>std::bidirectional_iterator_tag</code></li>
+<li><code>std::random_access_iterator_tag</code></li>
+</ul>
+<p>这些标签通常用于模板特化和重载中，以根据迭代器类别选择正确的算法或操作，因为继承使得能用在 forward_iterator_tag 的地方也能用 bidirectional_iterator_tag，编译阶段匹配最合适的函数来调用的时候就可以更加精细地匹配，例如下面的 advance_impl，编译器就能找到最匹配的实现。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">input_iterator_tag</span> &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">output_iterator_tag</span> &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">forward_iterator_tag</span> : <span class="hljs-keyword">public</span> input_iterator_tag &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">bidirectional_iterator_tag</span> : <span class="hljs-keyword">public</span> forward_iterator_tag &#123;&#125;;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">random_access_iterator_tag</span> : <span class="hljs-keyword">public</span> bidirectional_iterator_tag &#123;&#125;;<br></code></pre></td></tr></table></figure>
+<h3 id="iterator-traits-的使用示例"><code>iterator_traits</code> 的使用示例</h3>
+<p>在编写泛型算法时，可以通过<code>iterator_traits</code>来获取迭代器的类别，并根据类别执行不同的操作。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::difference_type n)</span> </span>&#123;<br>    <span class="hljs-keyword">using</span> category = <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::iterator_category; <span class="hljs-comment">//将具体的迭代器传送给 iterator_traits 这样能够返回具体信息</span><br>    <span class="hljs-built_in">advance_impl</span>(it, n, <span class="hljs-built_in">category</span>());<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance_impl</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::difference_type n, std::random_access_iterator_tag)</span> </span>&#123;<br>    it += n;  <span class="hljs-comment">// 对于随机访问迭代器，可以直接进行指针运算</span><br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance_impl</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::difference_type n, std::input_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">while</span> (n &gt; <span class="hljs-number">0</span>) &#123;<br>        ++it;<br>        --n;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>advance</code>函数根据迭代器的类别来选择最合适的实现。例如，如果迭代器是随机访问迭代器，则直接进行指针加法；如果是输入迭代器，则使用循环递增迭代器。</p>
+<h3 id="总结-13">总结</h3>
+<p><code>iterator_traits</code>是C++标准库中一个非常重要的traits class，通过它可以抽象化处理各种迭代器类型，从而编写出适用于不同容器和迭代器的泛型算法。通过特化，可以让<code>iterator_traits</code>支持更多类型（如普通指针），进一步提高算法的通用性和效率。</p>
+</blockquote>
+<blockquote>
+<p><code>deque</code>（双端队列）是C++ STL中的一种容器，支持在容器的两端高效地插入和删除元素。<code>deque</code> 的实现利用了迭代器和 <code>traits class</code> 来管理和操作其元素。通过 <code>traits class</code>，<code>deque</code> 实现能够适应不同类型的迭代器，确保各种操作的正确性和高效性。</p>
+<p>为了说明 <code>traits class</code> 在 <code>deque</code> 实现中的工作原理，我们可以关注以下几个方面：</p>
+<ol>
+<li>
+<p><strong>迭代器的类型定义和 <code>iterator_traits</code> 的使用</strong>：</p>
+<ul>
+<li><code>deque</code> 自己定义了一种迭代器类型，该迭代器与 <code>deque</code> 的内存布局紧密相关。</li>
+<li><code>deque</code> 迭代器依赖 <code>iterator_traits</code> 来获取各种类型信息（例如迭代器类别、元素类型、指针类型、引用类型等）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>iterator_category</code> 的作用</strong>：</p>
+<ul>
+<li>通过 <code>iterator_category</code> 来标识 <code>deque</code> 迭代器的类型，从而影响算法和操作的选择。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>traits class</code> 在 <code>deque</code> 操作中的应用</strong>：</p>
+<ul>
+<li><code>deque</code> 中的许多操作，如 <code>advance</code>、<code>distance</code>、<code>copy</code> 等，都依赖 <code>traits class</code> 来优化或确保对不同类型迭代器的正确操作。</li>
+</ul>
+</li>
+</ol>
+<h3 id="deque-的迭代器实现"><code>deque</code> 的迭代器实现</h3>
+<p><code>deque</code> 使用一种随机访问迭代器，这种迭代器类似于普通指针，支持常数时间的任意位置访问。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//自己的实现中要提供 iterator_traits 需要的各种信息</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T, <span class="hljs-keyword">typename</span> Ref, <span class="hljs-keyword">typename</span> Ptr&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">deque_iterator</span> &#123;<br>    <span class="hljs-keyword">using</span> iterator_category = std::random_access_iterator_tag;<br>    <span class="hljs-keyword">using</span> value_type        = T;<br>    <span class="hljs-keyword">using</span> difference_type   = std::<span class="hljs-type">ptrdiff_t</span>;<br>    <span class="hljs-keyword">using</span> pointer           = Ptr;<br>    <span class="hljs-keyword">using</span> reference         = Ref;<br><br>    <span class="hljs-comment">// 迭代器成员变量，如当前元素的指针、控制块指针等</span><br>    <span class="hljs-comment">// ...</span><br><br>    <span class="hljs-comment">// 迭代器操作，例如 ++, --, +, -, * 解引用等</span><br>    <span class="hljs-comment">// ...</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong><code>iterator_category</code></strong>：声明了这是一个随机访问迭代器。</li>
+<li><strong><code>value_type</code></strong>：表示迭代器所指向的元素类型。</li>
+<li><strong><code>difference_type</code></strong>：用于表示两个迭代器之间的距离。</li>
+<li><strong><code>pointer</code> 和 <code>reference</code></strong>：分别表示指针类型和引用类型。</li>
+</ul>
+<h3 id="iterator-traits-的使用"><code>iterator_traits</code> 的使用</h3>
+<p>在泛型算法中，我们通常使用 <code>iterator_traits</code> 来提取迭代器的类型信息。假设我们有一个泛型函数 <code>distance</code>，用来计算两个迭代器之间的距离：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::<span class="hljs-function">difference_type</span><br><span class="hljs-function"><span class="hljs-title">distance</span><span class="hljs-params">(Iterator first, Iterator last)</span> </span>&#123;<br>    <span class="hljs-keyword">using</span> category = <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::iterator_category;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">distance_impl</span>(first, last, <span class="hljs-built_in">category</span>());<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> RandomAccessIterator&gt;<br><span class="hljs-keyword">typename</span> std::iterator_traits&lt;RandomAccessIterator&gt;::<span class="hljs-function">difference_type</span><br><span class="hljs-function"><span class="hljs-title">distance_impl</span><span class="hljs-params">(RandomAccessIterator first, RandomAccessIterator last, std::random_access_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> last - first;  <span class="hljs-comment">// 对于随机访问迭代器，直接使用指针算术</span><br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIterator&gt;<br><span class="hljs-keyword">typename</span> std::iterator_traits&lt;InputIterator&gt;::<span class="hljs-function">difference_type</span><br><span class="hljs-function"><span class="hljs-title">distance_impl</span><span class="hljs-params">(InputIterator first, InputIterator last, std::input_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">typename</span> std::iterator_traits&lt;InputIterator&gt;::difference_type n = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (first != last) &#123;<br>        ++first;<br>        ++n;<br>    &#125;<br>    <span class="hljs-keyword">return</span> n;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>distance</code> 函数根据迭代器的类型（通过 <code>iterator_traits</code> 提取 <code>iterator_category</code>）选择合适的实现方式。对于 <code>deque</code> 迭代器，由于它是随机访问迭代器，<code>distance</code> 会选择第一个 <code>distance_impl</code>，直接使用指针算术进行高效的距离计算。</p>
+<h3 id="deque-的迭代器与-traits-class-的结合"><code>deque</code> 的迭代器与 <code>traits class</code> 的结合</h3>
+<p>在 <code>deque</code> 的实现中，许多操作都需要与迭代器类型交互。<code>traits class</code> 提供了一种统一的方式来提取这些类型信息，从而简化了代码的实现，并确保泛型算法能够正确处理不同类型的迭代器。</p>
+<p>例如，当我们在 <code>deque</code> 中进行元素拷贝时，可能会使用类似于 <code>std::copy</code> 的算法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIterator, <span class="hljs-keyword">typename</span> OutputIterator&gt;<br><span class="hljs-function">OutputIterator <span class="hljs-title">copy</span><span class="hljs-params">(InputIterator first, InputIterator last, OutputIterator result)</span> </span>&#123;<br>    <span class="hljs-keyword">using</span> category = <span class="hljs-keyword">typename</span> std::iterator_traits&lt;InputIterator&gt;::iterator_category;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">copy_impl</span>(first, last, result, <span class="hljs-built_in">category</span>());<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> RandomAccessIterator, <span class="hljs-keyword">typename</span> OutputIterator&gt;<br><span class="hljs-function">OutputIterator <span class="hljs-title">copy_impl</span><span class="hljs-params">(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, std::random_access_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">auto</span> n = last - first;  <span class="hljs-comment">// 高效的距离计算</span><br>    <span class="hljs-keyword">while</span> (n-- &gt; <span class="hljs-number">0</span>) &#123;<br>        *result = *first;<br>        ++first;<br>        ++result;<br>    &#125;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIterator, <span class="hljs-keyword">typename</span> OutputIterator&gt;<br><span class="hljs-function">OutputIterator <span class="hljs-title">copy_impl</span><span class="hljs-params">(InputIterator first, InputIterator last, OutputIterator result, std::input_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">while</span> (first != last) &#123;<br>        *result = *first;<br>        ++first;<br>        ++result;<br>    &#125;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>copy</code> 函数根据迭代器类别选择最合适的实现方式。对于 <code>deque</code> 的迭代器，<code>copy</code> 函数将使用针对随机访问迭代器的实现方式，这样可以利用指针算术实现高效拷贝。</p>
+<h3 id="总结-14">总结</h3>
+<p>在 <code>deque</code> 的实现中，<code>traits class</code>，特别是 <code>iterator_traits</code>，起到了关键作用。通过 <code>iterator_traits</code>，<code>deque</code> 能够在编译时获取迭代器的相关类型信息，并根据这些信息选择最合适的算法和操作方式。这种设计使得 <code>deque</code> 和其他 STL 容器能够支持多种不同类型的迭代器，并且确保操作的正确性和高效性。</p>
+</blockquote>
+<p><img src="iterator_traits.png" srcset="/img/loading.gif" lazyload alt="iterator_traits"></p>
+<blockquote>
+<p>是的，理论上在算法实现中，可以直接使用迭代器本身提供的类型，而不依赖于 <code>iterator_traits</code>。但是，<code>iterator_traits</code> 的引入有其重要的意义和优势，尤其是在泛型编程中。</p>
+<h3 id="直接使用迭代器提供的类型">直接使用迭代器提供的类型</h3>
+<p>如果迭代器本身已经定义了相关的类型（如 <code>value_type</code>、<code>iterator_category</code> 等），你可以直接在算法中使用这些类型。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-keyword">typename</span> Iterator::difference_type <span class="hljs-title">distance</span><span class="hljs-params">(Iterator first, Iterator last)</span> </span>&#123;<br>    <span class="hljs-keyword">typename</span> Iterator::difference_type n = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (first != last) &#123;<br>        ++first;<br>        ++n;<br>    &#125;<br>    <span class="hljs-keyword">return</span> n;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="这样做的局限性">这样做的局限性</h3>
+<ol>
+<li>
+<p><strong>通用性不足</strong>：某些类型，比如原生指针（<code>T*</code>），并不定义这些类型成员。如果你直接使用迭代器的类型，而不是通过 <code>iterator_traits</code>，这些指针类型将无法正常工作。例如，<code>int*</code> 没有 <code>difference_type</code> 或 <code>iterator_category</code> 等成员类型：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> arr[] = &#123;<span class="hljs-number">1</span>, <span class="hljs-number">2</span>, <span class="hljs-number">3</span>&#125;;<br><span class="hljs-type">int</span>* first = arr;<br><span class="hljs-type">int</span>* last = arr + <span class="hljs-number">3</span>;<br><span class="hljs-keyword">auto</span> dist = <span class="hljs-built_in">distance</span>(first, last);  <span class="hljs-comment">// 如果 distance 直接使用 Iterator::difference_type，会编译失败</span><br></code></pre></td></tr></table></figure>
+<p>使用 <code>iterator_traits</code>，可以通过模板特化为指针类型定义这些成员，从而解决这个问题。</p>
+</li>
+<li>
+<p><strong>一致性和代码维护</strong>：<code>iterator_traits</code> 提供了一种一致的方式来访问迭代器的类型信息。它统一了不同类型迭代器（包括标准库迭代器、指针、用户自定义迭代器等）的接口，使得编写泛型算法更简单、更一致。</p>
+</li>
+<li>
+<p><strong>元编程能力</strong>：<code>iterator_traits</code> 可以通过模板特化为特定类型提供不同的实现，从而增强了C++元编程的能力。这意味着你可以为不同类型的迭代器提供特化版本，进行额外的优化或定制，而不必修改算法的主要逻辑。</p>
+</li>
+<li>
+<p><strong>兼容性与扩展性</strong>：标准库及用户定义的迭代器都遵循 <code>iterator_traits</code> 的接口标准，使得新的迭代器类型能够无缝集成到现有的算法中，而不需要更改这些算法。</p>
+</li>
+</ol>
+<h3 id="通过-iterator-traits-的实现">通过 <code>iterator_traits</code> 的实现</h3>
+<p>通过使用 <code>iterator_traits</code>，你可以确保算法能处理更广泛的迭代器类型，提供更好的通用性和扩展性：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::<span class="hljs-function">difference_type <span class="hljs-title">distance</span><span class="hljs-params">(Iterator first, Iterator last)</span> </span>&#123;<br>    <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::difference_type n = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (first != last) &#123;<br>        ++first;<br>        ++n;<br>    &#125;<br>    <span class="hljs-keyword">return</span> n;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，即使 <code>Iterator</code> 是指针，<code>iterator_traits</code> 也会提供正确的 <code>difference_type</code> 和其他类型信息。</p>
+<h3 id="总结-15">总结</h3>
+<p>虽然在某些简单场景下，直接使用迭代器提供的类型可能足够，但使用 <code>iterator_traits</code> 带来了更强的通用性、一致性和灵活性。<code>iterator_traits</code> 是泛型编程中的重要工具，能够帮助你编写更健壮、更通用的算法，从而更好地处理不同类型的迭代器。</p>
+</blockquote>
 
                 
               </div>
