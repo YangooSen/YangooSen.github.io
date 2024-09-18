@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/iterator_traits.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-08-24T08:33:45.194Z">
+<meta property="article:modified_time" content="2024-09-18T03:13:22.461Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -199,7 +199,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          47k 字
+          51k 字
         
       </span>
     
@@ -210,7 +210,7 @@
         
         
         
-          394 分钟
+          430 分钟
         
       </span>
     
@@ -2602,6 +2602,244 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>在这个例子中，即使 <code>Iterator</code> 是指针，<code>iterator_traits</code> 也会提供正确的 <code>difference_type</code> 和其他类型信息。</p>
 <h3 id="总结-15">总结</h3>
 <p>虽然在某些简单场景下，直接使用迭代器提供的类型可能足够，但使用 <code>iterator_traits</code> 带来了更强的通用性、一致性和灵活性。<code>iterator_traits</code> 是泛型编程中的重要工具，能够帮助你编写更健壮、更通用的算法，从而更好地处理不同类型的迭代器。</p>
+</blockquote>
+<h1>8.Customizing new and delete</h1>
+<h2 id="Item-49-Understand-the-behavior-of-the-new-handler">Item 49: Understand the behavior of the new-handler</h2>
+<blockquote>
+<p>在 C++ 的多线程环境中，堆（heap）和 <code>new-handler</code> 作为全局资源的确可能会引发一些问题，尤其是它们的非线程安全特性。</p>
+<h3 id="1-堆-Heap-管理问题：">1. 堆 (Heap) 管理问题：</h3>
+<p>C++ 动态内存分配使用堆，在多线程环境中，多个线程可能同时请求内存分配和释放。如果内存分配器未加锁保护，则可能会导致竞争条件，最终引发内存损坏、程序崩溃或未定义行为。</p>
+<h4 id="解决方案：">解决方案：</h4>
+<ul>
+<li><strong>使用线程安全的内存分配器</strong>：现代的 C++ 标准库实现大多数都提供了线程安全的内存分配器，这会自动在多线程环境中管理堆操作。</li>
+<li><strong>自定义内存分配器</strong>：在需要优化多线程环境下的内存管理时，可以实现自己的线程安全内存分配器。</li>
+<li><strong>锁保护</strong>：在特定情况下，手动使用锁（如 <code>std::mutex</code>）保护内存分配和释放操作。</li>
+</ul>
+<h3 id="2-new-handler-问题：">2. <code>new-handler</code> 问题：</h3>
+<p><code>new-handler</code> 是一个全局函数指针，当 <code>new</code> 操作无法分配内存时会调用这个处理程序。由于 <code>new-handler</code> 是全局资源，在多线程环境中，如果多个线程同时尝试设置或修改 <code>new-handler</code>，可能会导致未定义行为。</p>
+<h4 id="解决方案：-2">解决方案：</h4>
+<ul>
+<li><strong>避免频繁修改 <code>new-handler</code></strong>：在多线程程序中，尽量避免频繁修改全局的 <code>new-handler</code>。一般只需在程序初始化时设置一次。</li>
+<li><strong>锁保护</strong>：如果确实需要在运行过程中修改 <code>new-handler</code>，可以使用锁（如 <code>std::mutex</code>）来保护修改操作，确保线程安全。</li>
+</ul>
+<h3 id="总结-16">总结</h3>
+<p>C++ 标准库已经在很大程度上解决了多线程环境下的内存管理问题，但对于一些特定的场景，如自定义内存分配器或频繁修改 <code>new-handler</code>，仍需开发者自己确保线程安全。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，<code>operator new</code> 和 <code>operator delete</code> 确实是针对单个对象的内存分配和释放操作，而 <code>operator new[]</code> 和 <code>operator delete[]</code> 是专门用于数组对象的内存分配和释放。虽然它们看似相似，但它们实际上是不同的函数，承担不同的职责。</p>
+<h3 id="区别如下：">区别如下：</h3>
+<ol>
+<li>
+<p><strong><code>operator new</code> 和 <code>operator delete</code></strong>：</p>
+<ul>
+<li>负责单个对象的内存分配和释放。</li>
+<li>当你使用 <code>new</code> 来创建一个对象时，会调用 <code>operator new</code> 来分配足够的内存。</li>
+<li>对象的析构函数被调用后，<code>operator delete</code> 负责释放这块内存。</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span>* p = <span class="hljs-keyword">new</span> <span class="hljs-type">int</span>;     <span class="hljs-comment">// 使用 operator new 分配内存</span><br><span class="hljs-keyword">delete</span> p;             <span class="hljs-comment">// 使用 operator delete 释放内存</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong><code>operator new[]</code> 和 <code>operator delete[]</code></strong>：</p>
+<ul>
+<li>负责数组对象的内存分配和释放。</li>
+<li>当你使用 <code>new[]</code> 创建一个对象数组时，会调用 <code>operator new[]</code> 来分配足够的内存。</li>
+<li>当调用 <code>delete[]</code> 时，会调用 <code>operator delete[]</code> 来释放内存。</li>
+</ul>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span>* arr = <span class="hljs-keyword">new</span> <span class="hljs-type">int</span>[<span class="hljs-number">10</span>];  <span class="hljs-comment">// 使用 operator new[] 分配内存</span><br><span class="hljs-keyword">delete</span>[] arr;            <span class="hljs-comment">// 使用 operator delete[] 释放内存</span><br></code></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="重要注意点：">重要注意点：</h3>
+<ul>
+<li><code>operator new</code> 和 <code>operator new[]</code> 是两个不同的函数。它们在标准库中可以被重载，但它们的行为和用途不同。</li>
+<li>同样，<code>operator delete</code> 和 <code>operator delete[]</code> 也不同，它们分别用于释放单个对象和数组对象的内存。</li>
+<li>如果你混用 <code>new</code> 和 <code>delete[]</code>（或者 <code>new[]</code> 和 <code>delete</code>），会导致未定义行为，可能会引发程序崩溃或内存泄漏。</li>
+</ul>
+<p>因此，必须匹配使用 <code>new</code> 与 <code>delete</code>，<code>new[]</code> 与 <code>delete[]</code>，否则会导致严重的内存管理问题。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 标准模板库（STL）中，所有容器的内存分配都是通过一个名为 <code>allocator</code> 的对象来管理的。<code>allocator</code> 是 C++ 中的一种内存分配器，允许容器灵活地控制内存的分配和释放。</p>
+<h3 id="allocator-的作用："><code>allocator</code> 的作用：</h3>
+<ul>
+<li><strong>内存分配和释放</strong>：<code>allocator</code> 负责从自由存储区（通常是堆）分配内存给容器，同时在容器析构时释放这部分内存。</li>
+<li><strong>对象构造与析构</strong>：<code>allocator</code> 不仅仅分配内存，还负责在分配的内存上构造对象和析构对象，这确保了对象的正确初始化和销毁。</li>
+</ul>
+<h3 id="STL-容器如何使用-allocator：">STL 容器如何使用 <code>allocator</code>：</h3>
+<ol>
+<li>
+<p><strong>默认的 <code>allocator</code></strong>：</p>
+<ul>
+<li>所有的 STL 容器默认使用 <code>std::allocator&lt;T&gt;</code> 来进行内存管理。例如，<code>std::vector&lt;int&gt;</code> 使用的是 <code>std::allocator&lt;int&gt;</code>，这也是最常用的内存分配器，它直接使用 <code>new</code> 和 <code>delete</code> 来分配和释放内存。</li>
+</ul>
+</li>
+<li>
+<p><strong>自定义 <code>allocator</code></strong>：</p>
+<ul>
+<li>STL 容器支持用户自定义 <code>allocator</code>。这使得开发者可以实现自己的内存分配策略，而不是依赖默认的 <code>std::allocator</code>。比如，如果你有一种优化的内存池，可以通过自定义 <code>allocator</code> 来提升内存管理的效率。</li>
+</ul>
+</li>
+</ol>
+<h3 id="allocator-的基本接口："><code>allocator</code> 的基本接口：</h3>
+<p><code>allocator</code> 提供了一些必要的函数来实现内存管理。以下是 <code>std::allocator</code> 的一些关键函数：</p>
+<ul>
+<li><code>allocate()</code>：分配一块原始的未初始化内存。</li>
+<li><code>deallocate()</code>：释放由 <code>allocate()</code> 分配的内存。</li>
+<li><code>construct()</code>：在已分配的内存上构造对象。</li>
+<li><code>destroy()</code>：调用对象的析构函数，销毁对象。</li>
+</ul>
+<h3 id="示例：">示例：</h3>
+<p>以下是一个简单的例子，展示了 <code>std::allocator</code> 的基本用法：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;memory&gt;</span>  <span class="hljs-comment">// 引入 std::allocator</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::allocator&lt;<span class="hljs-type">int</span>&gt; alloc;   <span class="hljs-comment">// 创建一个 allocator 对象</span><br>    <span class="hljs-type">int</span>* p = alloc.<span class="hljs-built_in">allocate</span>(<span class="hljs-number">5</span>);  <span class="hljs-comment">// 分配内存给 5 个 int 对象</span><br><br>    <span class="hljs-comment">// 在分配的内存上构造对象</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; ++i) &#123;<br>        alloc.<span class="hljs-built_in">construct</span>(p + i, i + <span class="hljs-number">1</span>);<br>    &#125;<br><br>    <span class="hljs-comment">// 输出构造的对象</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; ++i) &#123;<br>        std::cout &lt;&lt; p[i] &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    &#125;<br>    std::cout &lt;&lt; std::endl;<br><br>    <span class="hljs-comment">// 销毁对象并释放内存</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-number">5</span>; ++i) &#123;<br>        alloc.<span class="hljs-built_in">destroy</span>(p + i);<br>    &#125;<br>    alloc.<span class="hljs-built_in">deallocate</span>(p, <span class="hljs-number">5</span>);<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="STL-容器中的-allocator：">STL 容器中的 <code>allocator</code>：</h3>
+<p>几乎所有的 STL 容器都支持 <code>allocator</code>，如：</p>
+<ul>
+<li><code>std::vector</code></li>
+<li><code>std::list</code></li>
+<li><code>std::map</code></li>
+<li><code>std::set</code></li>
+<li><code>std::deque</code></li>
+</ul>
+<p>每个容器内部都会有一个 <code>allocator</code> 对象，管理其元素的内存分配和释放工作。</p>
+<p>总结来说，<code>allocator</code> 是 STL 容器内存管理的重要组成部分，默认的 <code>std::allocator</code> 提供了合理的内存分配方式，但用户可以根据需要自定义 <code>allocator</code> 来优化内存使用。</p>
+</blockquote>
+<blockquote>
+<p>在C++中，当使用<code>operator new</code>进行内存分配时，如果无法分配到足够的内存，默认情况下会抛出一个<code>std::bad_alloc</code>异常。然而，C++允许开发者通过<code>set_new_handler</code>函数来自定义内存分配失败时的处理方式。</p>
+<h3 id="具体行为">具体行为</h3>
+<ol>
+<li>
+<p><strong>默认情况下的行为</strong>:</p>
+<ul>
+<li>当<code>operator new</code>无法分配到足够的内存时，它会抛出一个<code>std::bad_alloc</code>异常。这通常表示系统内存不足，无法满足程序的内存请求。</li>
+<li>抛出<code>std::bad_alloc</code>后，程序可以捕获该异常并决定如何处理，例如释放一些资源，减少内存消耗，或者通知用户。</li>
+</ul>
+</li>
+<li>
+<p><strong>使用<code>set_new_handler</code>的情况</strong>:<br>
+C++允许程序员通过<code>std::set_new_handler</code>函数指定一个自定义的处理函数，当<code>operator new</code>无法分配到内存时会调用这个函数，而不是立即抛出<code>std::bad_alloc</code>。</p>
+<ul>
+<li>
+<p><code>set_new_handler</code>的签名如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span> <span class="hljs-params">(*new_handler)</span><span class="hljs-params">()</span></span>; <span class="hljs-comment">//返回值为void,参数列表是()的函数指针 </span><br><span class="hljs-function">std::new_handler <span class="hljs-title">set_new_handler</span><span class="hljs-params">(std::new_handler new_p)</span> <span class="hljs-keyword">noexcept</span></span>;<br></code></pre></td></tr></table></figure>
+<p>这里的<code>new_p</code>是一个指向无返回值、无参数的函数指针。</p>
+</li>
+<li>
+<p>如果调用了<code>set_new_handler</code>来设置自定义的处理函数，当内存分配失败时，<code>operator new</code>会调用这个处理函数。处理函数可以尝试进行一些操作，例如：</p>
+<ul>
+<li>释放内存或其他资源。</li>
+<li>记录日志或提供错误提示。</li>
+<li>甚至可以通过某种策略降低程序的内存需求。</li>
+</ul>
+</li>
+<li>
+<p><strong>重要的一点</strong>是，如果<code>new_handler</code>函数不能解决问题，即仍然没有足够的内存，则它可以通过两种方式处理：</p>
+<ol>
+<li><strong>抛出异常</strong>: 例如再次抛出<code>std::bad_alloc</code>，此时将停止内存分配操作并传递给上层。</li>
+<li><strong>终止程序</strong>: 如果情况无法挽回，处理函数可以调用<code>std::terminate()</code>来终止程序。</li>
+</ol>
+</li>
+<li>
+<p><strong>如果<code>new_handler</code>成功处理了内存问题，<code>operator new</code>将会再次尝试分配内存。这个过程可以反复多次，只要<code>new_handler</code>被成功调用且未终止程序。</strong></p>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="代码示例-2">代码示例</h3>
+<p>以下是一个使用<code>set_new_handler</code>的简单例子：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;new&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">my_new_handler</span><span class="hljs-params">()</span> </span>&#123;<br>    std::cerr &lt;&lt; <span class="hljs-string">&quot;Memory allocation failed, trying to free resources...&quot;</span> &lt;&lt; std::endl;<br>    <span class="hljs-comment">// 尝试释放一些资源，例如删除缓存等</span><br>    <span class="hljs-comment">// 如果无法解决问题，抛出异常或终止程序</span><br>    <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">bad_alloc</span>();  <span class="hljs-comment">// 这里重新抛出异常</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::<span class="hljs-built_in">set_new_handler</span>(my_new_handler);  <span class="hljs-comment">// 设置自定义的处理函数</span><br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 尝试分配大量内存</span><br>        <span class="hljs-type">int</span>* p = <span class="hljs-keyword">new</span> <span class="hljs-type">int</span>[<span class="hljs-number">100000000000</span>];<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::bad_alloc&amp; e) &#123;<br>        std::cerr &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，当内存分配失败时，<code>my_new_handler</code>会被调用，试图进行一些处理。如果问题无法解决，它会抛出<code>std::bad_alloc</code>，并在程序中捕获该异常。</p>
+<h3 id="总结-17">总结</h3>
+<ul>
+<li>默认情况下，<code>operator new</code>在内存分配失败时会抛出<code>std::bad_alloc</code>异常。</li>
+<li>使用<code>set_new_handler</code>可以自定义内存分配失败时的处理逻辑，提供机会释放资源或采取其他恢复措施。</li>
+<li>如果自定义的<code>new_handler</code>无法处理内存不足的问题，可以抛出<code>std::bad_alloc</code>异常或者终止程序。</li>
+</ul>
+</blockquote>
+<p>A well-designed new-handler function must do one of the following:</p>
+<ul>
+<li>Make more memory available</li>
+<li>Install a different new-handler</li>
+<li>Deinstall the new-handler</li>
+<li>Throw an exception</li>
+<li>Not return (<code>abort</code> or <code>exit</code>)</li>
+</ul>
+<blockquote>
+<p>在C++中，可以针对<strong>全局</strong>设置<code>set_new_handler</code>，即当程序中任何地方调用<code>operator new</code>进行内存分配时，都会使用已设置的处理程序。然而，C++并没有直接为<strong>特定的类</strong>提供内建机制来指定<code>set_new_handler</code>。不过，开发者可以通过一些编程技巧，在类级别实现自定义的内存分配失败处理机制。</p>
+<p>可以通过为特定的类重载<code>operator new</code>，并在该重载函数中调用特定的<code>new_handler</code>，从而实现针对某个类的自定义内存分配失败处理。</p>
+<h3 id="针对特定类实现set-new-handler">针对特定类实现<code>set_new_handler</code></h3>
+<p>要实现针对某个类的<code>set_new_handler</code>功能，我们可以在类中进行如下步骤：</p>
+<ol>
+<li><strong>重载<code>operator new</code></strong>: 为特定类重载<code>operator new</code>，从而控制该类的内存分配过程。</li>
+<li><strong>管理类自己的<code>new_handler</code></strong>: 在类中提供静态函数来设置和获取类特有的<code>new_handler</code>。</li>
+<li><strong>调用类特定的<code>new_handler</code></strong>: 在重载的<code>operator new</code>中，调用类的<code>new_handler</code>以处理内存分配失败的情况。</li>
+</ol>
+<h3 id="代码示例-3">代码示例</h3>
+<p>以下是一个针对特定类实现自定义<code>new_handler</code>的示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;new&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 类级别的new_handler</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> std::new_handler <span class="hljs-title">set_new_handler</span><span class="hljs-params">(std::new_handler p)</span> <span class="hljs-keyword">noexcept</span> </span>&#123;<br>        std::new_handler oldHandler = currentHandler;<br>        currentHandler = p;<br>        <span class="hljs-keyword">return</span> oldHandler;<br>    &#125;<br><br>    <span class="hljs-comment">// 重载operator new</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span>* <span class="hljs-keyword">operator</span> <span class="hljs-title">new</span><span class="hljs-params">(std::<span class="hljs-type">size_t</span> size)</span> </span>&#123;<br>        std::new_handler globalHandler = std::<span class="hljs-built_in">set_new_handler</span>(currentHandler);  <span class="hljs-comment">// 使用类的handler</span><br>        <span class="hljs-type">void</span>* memory;<br>        <span class="hljs-keyword">try</span> &#123;<br>            memory = ::<span class="hljs-keyword">operator</span> <span class="hljs-built_in">new</span>(size);  <span class="hljs-comment">// 尝试分配内存</span><br>        &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::bad_alloc&amp;) &#123;<br>            std::<span class="hljs-built_in">set_new_handler</span>(globalHandler);  <span class="hljs-comment">// 还原全局new_handler</span><br>            <span class="hljs-keyword">throw</span>;  <span class="hljs-comment">// 如果内存分配失败，重新抛出异常</span><br>        &#125;<br>        std::<span class="hljs-built_in">set_new_handler</span>(globalHandler);  <span class="hljs-comment">// 还原全局new_handler</span><br>        <span class="hljs-keyword">return</span> memory;<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> std::new_handler currentHandler;  <span class="hljs-comment">// 静态变量保存当前的new_handler</span><br>&#125;;<br><br><span class="hljs-comment">// 定义静态成员</span><br>std::new_handler MyClass::currentHandler = <span class="hljs-literal">nullptr</span>;<br><br><span class="hljs-comment">// 自定义的处理函数</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">my_class_new_handler</span><span class="hljs-params">()</span> </span>&#123;<br>    std::cerr &lt;&lt; <span class="hljs-string">&quot;MyClass: Memory allocation failed, trying to recover...&quot;</span> &lt;&lt; std::endl;<br>    <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">bad_alloc</span>();  <span class="hljs-comment">// 这里抛出异常，也可以采取其他措施</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 设置MyClass的new_handler</span><br>    MyClass::<span class="hljs-built_in">set_new_handler</span>(my_class_new_handler);<br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 尝试为MyClass分配大量内存</span><br>        MyClass* obj = <span class="hljs-keyword">new</span> MyClass[<span class="hljs-number">100000000000</span>];<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::bad_alloc&amp; e) &#123;<br>        std::cerr &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="代码解析">代码解析</h3>
+<ul>
+<li><strong><code>static std::new_handler currentHandler</code></strong>: 这是一个静态成员变量，保存特定于类的<code>new_handler</code>，用于处理该类的内存分配失败。</li>
+<li><strong><code>set_new_handler</code>函数</strong>: 允许为特定类设置<code>new_handler</code>，类似于全局的<code>std::set_new_handler</code>，但只对该类生效。</li>
+<li><strong>重载的<code>operator new</code></strong>: 当使用<code>new</code>操作符为该类分配内存时，首先设置类特有的<code>new_handler</code>，然后尝试分配内存。如果分配失败，调用类的<code>new_handler</code>，最终恢复全局的<code>new_handler</code>。</li>
+<li><strong><code>my_class_new_handler</code></strong>: 这是自定义的内存分配失败处理函数。当<code>MyClass</code>的内存分配失败时，这个函数会被调用，并抛出<code>std::bad_alloc</code>。</li>
+</ul>
+<h3 id="总结-18">总结</h3>
+<p>虽然C++标准库并没有直接为每个类提供<code>set_new_handler</code>的功能，但通过重载<code>operator new</code>并结合类静态成员，可以实现类级别的<code>new_handler</code>。这样，特定的类可以有自己的内存分配失败处理策略，而不影响全局的<code>new_handler</code>。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，<strong>mixin-style 基类</strong>（混入类）是一种设计模式，通常用于通过组合多个类的行为来增加功能，而不是通过传统的继承层次结构。Mixin 类通常是轻量级的，不独立使用，通常只包含特定的功能或方法，可以与其他类组合使用。基类在实际使用中可以作为模板存在，这样更加灵活</p>
+<h3 id="主要特点：">主要特点：</h3>
+<ol>
+<li><strong>组合而非继承</strong>：mixin 类通常是通过多重继承添加到其他类中的，这与传统的继承模式不同，它更注重类的“横向”扩展（功能组合）而非“纵向”继承（类型层次）。</li>
+<li><strong>无状态或轻状态</strong>：mixin 类通常没有大量的成员变量（或者根本没有），它们专注于提供行为和功能，而不是管理状态。</li>
+<li><strong>灵活性</strong>：使用 mixin 可以灵活地将功能混入任何类中，而不需要为每个功能创建复杂的继承关系。</li>
+</ol>
+<h3 id="示例代码：">示例代码：</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-comment">// 定义一个 mixin-style 的基类，提供日志功能</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">LoggerMixin</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">log</span><span class="hljs-params">(<span class="hljs-type">const</span> std::string&amp; message)</span> <span class="hljs-type">const</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Log: &quot;</span> &lt;&lt; message &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-comment">// 定义另一个 mixin-style 的基类，提供序列化功能</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">SerializerMixin</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function">std::string <span class="hljs-title">serialize</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Serialized object&quot;</span>;<br>    &#125;<br>&#125;;<br><br><span class="hljs-comment">// 实际的业务类，通过继承多个 mixin 基类来增加功能</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> : <span class="hljs-keyword">public</span> LoggerMixin, <span class="hljs-keyword">public</span> SerializerMixin &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">doSomething</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-built_in">log</span>(<span class="hljs-string">&quot;Doing something...&quot;</span>);<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    MyClass obj;<br>    obj.<span class="hljs-built_in">doSomething</span>();<br>    std::cout &lt;&lt; obj.<span class="hljs-built_in">serialize</span>() &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="解释：">解释：</h3>
+<ul>
+<li><code>LoggerMixin</code> 提供了一个简单的日志功能。</li>
+<li><code>SerializerMixin</code> 提供了序列化功能。</li>
+<li><code>MyClass</code> 通过继承这两个 mixin-style 基类获得了日志和序列化的功能。</li>
+</ul>
+<p>这样做的好处是，<code>MyClass</code> 可以通过组合多个 mixin 基类灵活地获得不同的功能，而不需要定义一个庞大的继承层次。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，<strong>CRTP（Curiously Recurring Template Pattern）</strong> 是一种使用模板的编程技巧，常用于实现静态多态性。它允许派生类在编译时将自己作为模板参数传递给基类，从而在基类中实现与派生类相关的功能。CRTP 主要用于提升性能，减少动态多态性（如虚函数）带来的运行时开销。可以理解成 Do It For Me</p>
+<h3 id="CRTP-的基本结构">CRTP 的基本结构</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Derived&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">interface</span><span class="hljs-params">()</span> </span>&#123;<br>        <span class="hljs-built_in">static_cast</span>&lt;Derived*&gt;(<span class="hljs-keyword">this</span>)-&gt;<span class="hljs-built_in">implementation</span>();<br>    &#125;<br><br>    <span class="hljs-comment">// 默认的实现方法</span><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">implementation</span><span class="hljs-params">()</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Base implementation\n&quot;</span>;<br>    &#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base&lt;Derived&gt; &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">implementation</span><span class="hljs-params">()</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived implementation\n&quot;</span>;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived d;<br>    d.<span class="hljs-built_in">interface</span>();  <span class="hljs-comment">// 输出: Derived implementation</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="CRTP-的工作原理">CRTP 的工作原理</h3>
+<ul>
+<li><code>Base</code> 类是一个模板类，它接受一个模板参数 <code>Derived</code>。</li>
+<li>在 <code>Base</code> 类中，调用了 <code>static_cast&lt;Derived*&gt;(this)-&gt;implementation()</code>，这会将当前对象转换为 <code>Derived</code> 类型，并调用 <code>Derived</code> 类的 <code>implementation</code> 方法。</li>
+<li><code>Derived</code> 类继承了 <code>Base&lt;Derived&gt;</code>，并实现了自己的 <code>implementation</code> 方法。</li>
+</ul>
+<p>通过这种方式，<code>Base</code> 类在编译时可以根据派生类的实现进行多态调用，而不需要使用虚函数，从而避免了运行时的开销。</p>
+<h3 id="CRTP-的优点">CRTP 的优点</h3>
+<ol>
+<li><strong>静态多态性</strong>：通过模板的方式实现编译时的多态性，避免了动态多态性带来的性能开销。</li>
+<li><strong>灵活性</strong>：可以在基类中定义通用接口，而派生类可以根据需要重载或实现自己的功能。</li>
+<li><strong>性能优化</strong>：由于是在编译时决定的多态性，CRTP 能避免虚函数带来的开销。</li>
+</ol>
+<h3 id="CRTP-的典型应用">CRTP 的典型应用</h3>
+<ol>
+<li><strong>静态接口实现</strong>：在基类中定义接口，并通过 CRTP 要求派生类实现该接口。</li>
+<li><strong>对象计数器</strong>：可以通过 CRTP 实现每个派生类的对象计数器。</li>
+<li><strong>表达式模板</strong>：在数值计算库中，用于避免不必要的临时对象创建。</li>
+</ol>
+<p>CRTP 是 C++ 模板元编程中的重要技巧之一，在需要静态多态性的场景中非常有用。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，<code>new (std::nothrow)</code> 是一种内存分配的方式，用于防止在内存分配失败时抛出异常。通常，<code>new</code> 运算符在内存分配失败时会抛出 <code>std::bad_alloc</code> 异常，而使用 <code>std::nothrow</code> 可以避免这种情况，而是返回一个空指针 <code>nullptr</code>。</p>
+<h3 id="示例代码-3">示例代码</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;new&gt;</span>  <span class="hljs-comment">// 引入 std::nothrow</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span>* p = <span class="hljs-built_in">new</span> (std::nothrow) <span class="hljs-type">int</span>[<span class="hljs-number">1000000000000</span>];  <span class="hljs-comment">// 试图分配大量内存</span><br><br>    <span class="hljs-keyword">if</span> (!p) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;内存分配失败！&quot;</span> &lt;&lt; std::endl;<br>    &#125; <span class="hljs-keyword">else</span> &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;内存分配成功！&quot;</span> &lt;&lt; std::endl;<br>        <span class="hljs-keyword">delete</span>[] p;  <span class="hljs-comment">// 不要忘记释放内存</span><br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="解释-3">解释</h3>
+<ul>
+<li><code>new (std::nothrow) int[1000000000000];</code>：尝试分配一个非常大的内存块。如果分配失败，<code>new</code> 不会抛出异常，而是返回 <code>nullptr</code>。</li>
+<li><code>if (!p)</code>：检查指针是否为 <code>nullptr</code>，以确定内存是否分配成功。</li>
+<li>如果成功分配了内存，不要忘记用 <code>delete[]</code> 来释放分配的数组。</li>
+</ul>
+<p>这种方式适合那些希望通过检查返回值而不是处理异常来应对内存分配失败的场景。异常仅仅是 operator new 不返回，构造函数还是能返回的。在任何情况下，用户都永远不会需要这种new</p>
 </blockquote>
 
                 
