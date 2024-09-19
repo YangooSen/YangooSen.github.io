@@ -34,7 +34,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/iterator_traits.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-09-18T03:13:22.461Z">
+<meta property="article:modified_time" content="2024-09-19T08:20:44.170Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -199,7 +199,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          51k 字
+          58k 字
         
       </span>
     
@@ -210,7 +210,7 @@
         
         
         
-          430 分钟
+          483 分钟
         
       </span>
     
@@ -372,6 +372,179 @@ C++ 标准委员会（ISO/IEC JTC 1/SC 22/WG 21）将继续推动 C++ 的发展�
 <p>in cases where the above syntax cant’t be used, you put the initial value at the point of definition:</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">double</span> num;<br>    <span class="hljs-comment">//... </span><br>&#125;;<br><br><span class="hljs-type">const</span> <span class="hljs-type">double</span> foo::num=<span class="hljs-number">1.35</span>;<br><br></code></pre></td></tr></table></figure>
 <p>This is all need almost all the time. The only exception is <strong>when you need the value of a class constant during compilation of the class</strong>, such as in the declaration of the array (where compilers insist on knowing the size of the array during compilation). Then the accepted way to compensate for compilers that fobid the in-class specification of initial value for static integral class constants is to use what is known as <code>the enum hack</code></p>
+<blockquote>
+<p>C++ 中的枚举类型（<code>enum</code>）是一种用户定义的数据类型，用于将一组整数常量命名为易读的符号。它可以帮助代码更加简洁易读，同时避免直接使用魔法数字（magic numbers）。枚举主要分为两种：<strong>传统枚举（C风格枚举）</strong> 和 <strong>类枚举（C++11 引入的）</strong>。</p>
+<h3 id="1-传统枚举（C风格枚举）">1. 传统枚举（C风格枚举）</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">enum</span> <span class="hljs-title class_">Color</span> &#123; RED, GREEN, BLUE &#125;;<br></code></pre></td></tr></table></figure>
+<h4 id="特点：">特点：</h4>
+<ul>
+<li>默认情况下，枚举中的第一个枚举量值为 0，后续枚举量的值在前一个枚举值的基础上递增 1。
+<ul>
+<li>在上面的例子中，<code>RED=0</code>, <code>GREEN=1</code>, <code>BLUE=2</code>。</li>
+</ul>
+</li>
+<li>可以为枚举量显式指定值：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">enum</span> <span class="hljs-title class_">Color</span> &#123; RED = <span class="hljs-number">2</span>, GREEN = <span class="hljs-number">4</span>, BLUE = <span class="hljs-number">8</span> &#125;;<br></code></pre></td></tr></table></figure>
+<ul>
+<li>此时，<code>RED=2</code>, <code>GREEN=4</code>, <code>BLUE=8</code>。</li>
+</ul>
+</li>
+<li>枚举类型的变量可以用作整数，并且可以与整数进行比较和运算：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Color color = RED;<br><span class="hljs-keyword">if</span> (color == <span class="hljs-number">0</span>) &#123;<br>    <span class="hljs-comment">// 等同于 color == RED</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="限制：">限制：</h4>
+<ul>
+<li>枚举量是全局的，命名空间较为混乱。如果在不同的枚举中使用了相同的枚举量名（如 <code>RED</code>），可能会产生冲突。</li>
+<li>它们可以被隐式转换为整数类型，可能会引发类型不安全的问题。</li>
+</ul>
+<h3 id="2-类枚举（C-11-引入的枚举类）">2. 类枚举（C++11 引入的枚举类）</h3>
+<p>为了克服传统枚举类型的缺点，C++11 引入了 <strong>类枚举</strong>（<code>enum class</code>）。类枚举增强了类型安全性和可读性，防止隐式转换为整数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">enum class</span> <span class="hljs-title class_">Color</span> &#123; RED, GREEN, BLUE &#125;;<br></code></pre></td></tr></table></figure>
+<h4 id="特点：-2">特点：</h4>
+<ul>
+<li><strong>作用域控制</strong>：枚举量不能隐式转换为整数，且只能通过枚举的作用域访问。这意味着不能直接访问 <code>RED</code>，必须使用 <code>Color::RED</code>。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">Color color = Color::RED;<br></code></pre></td></tr></table></figure>
+</li>
+<li><strong>类型安全</strong>：类枚举不能隐式转换为整数，需要显式转换。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> redValue = <span class="hljs-built_in">static_cast</span>&lt;<span class="hljs-type">int</span>&gt;(Color::RED);<br></code></pre></td></tr></table></figure>
+</li>
+<li><strong>枚举底层类型</strong>：可以显式指定枚举的底层类型（默认是 <code>int</code>），这在需要使用特定大小的枚举类型时非常有用。<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">enum class</span> <span class="hljs-title class_">Color</span> : <span class="hljs-type">char</span> &#123; RED, GREEN, BLUE &#125;; <span class="hljs-comment">// 使用 char 作为底层类型</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="3-枚举的常见使用场景">3. 枚举的常见使用场景</h3>
+<ul>
+<li>
+<p><strong>状态机</strong>：例如，表示一个系统的不同状态。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">enum class</span> <span class="hljs-title class_">State</span> &#123; INIT, RUNNING, STOPPED &#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>标识符</strong>：例如，用于表示不同的颜色、方向或日常物体。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">enum class</span> <span class="hljs-title class_">Direction</span> &#123; NORTH, SOUTH, EAST, WEST &#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>位标志（Flag）</strong>：可以将枚举与位操作结合使用来表示标志集。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">enum</span> <span class="hljs-title class_">Flags</span> &#123; FLAG_A = <span class="hljs-number">1</span>, FLAG_B = <span class="hljs-number">2</span>, FLAG_C = <span class="hljs-number">4</span> &#125;;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="4-总结">4. 总结</h3>
+<ul>
+<li><strong>传统枚举</strong>：更简单，但缺乏类型安全性，枚举量可以隐式转换为整数，容易引发命名冲突。</li>
+<li><strong>类枚举</strong>：引入了作用域和类型安全，防止了隐式转换，但需要使用显式作用域和类型转换，适合更复杂的场景。</li>
+</ul>
+<p>类枚举是更推荐的做法，尤其是在大项目中，这种枚举能大幅提高代码的安全性和可维护性。</p>
+</blockquote>
+<blockquote>
+<p>在C++中，当你在类内声明并初始化一个<code>static const int</code>这样的静态常量（如<code>myConst</code>），如果你不在类外对其进行定义，编译器并不会为这个常量分配内存，而是将它作为一个常量表达式，直接在编译时内联到代码中使用。这意味着：</p>
+<ul>
+<li>
+<p><strong>没有定义</strong>（即没有类外的定义）：编译器在使用<code>myConst</code>时会直接将其值（如<code>10</code>）内联到代码中，而不会为其单独分配内存。</p>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> myConst = <span class="hljs-number">10</span>;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> x = MyClass::myConst;  <span class="hljs-comment">// 编译器会直接将10放入x</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这种情况下，<code>myConst</code>并没有被分配单独的内存，编译器只会在需要使用它的地方插入字面值。</p>
+</li>
+<li>
+<p><strong>需要定义的情况</strong>：如果你尝试获取<code>myConst</code>的地址，例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span>* ptr = &amp;MyClass::myConst;<br></code></pre></td></tr></table></figure>
+<p>这时编译器需要为<code>myConst</code>分配内存，因为你要求获取它的地址。这种情况下，你就必须在类外提供一个定义：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> MyClass::myConst;  <span class="hljs-comment">// 类外定义</span><br></code></pre></td></tr></table></figure>
+<p>这样，编译器会为<code>myConst</code>分配内存空间，以便你能够获取其地址。</p>
+</li>
+</ul>
+<h3 id="总结：">总结：</h3>
+<ul>
+<li>如果只是使用<code>myConst</code>的值而不需要获取它的地址，那么在类内声明并初始化即可，编译器会内联其值而不分配内存。</li>
+<li>如果你需要获取<code>myConst</code>的地址，必须在类外定义它，这时它才会被分配内存。</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>这段代码不能通过C++编译器。原因在于，你在类的内部定义了一个静态常量 <code>num</code>，但在类的成员中使用这个静态常量时，编译器要求这个常量必须是一个编译时常量（<code>constexpr</code>），而且 <code>num</code> 的定义缺少分号。要修复代码，你可以做如下修改：</p>
+<ol>
+<li>将 <code>num</code> 定义为 <code>constexpr</code> 或在类外定义。</li>
+<li>添加缺失的分号。</li>
+</ol>
+<p>修正后的代码如下：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> num = <span class="hljs-number">5</span>; <span class="hljs-comment">// Use constexpr for compile-time constant</span><br>    <span class="hljs-type">int</span> score[num];               <span class="hljs-comment">// Use constexpr variable</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>或者你可以使用以下方式将 <code>num</code> 在类外定义（这适用于静态常量的非 <code>constexpr</code> 定义）：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span> &#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> num = <span class="hljs-number">5</span>;   <span class="hljs-comment">// Declare static constant</span><br>    <span class="hljs-type">int</span> score[num];             <span class="hljs-comment">// Use static constant</span><br>&#125;;<br><br><span class="hljs-comment">// Define the static constant outside the class definition</span><br><span class="hljs-type">const</span> <span class="hljs-type">int</span> foo::num;<br></code></pre></td></tr></table></figure>
+<p>但通常来说，推荐使用 <code>constexpr</code> 来定义编译时常量，这样代码更简洁且更符合现代 C++ 的标准。</p>
+</blockquote>
+<blockquote>
+<p>在C++中，“enum hack” 是一种用于解决 C++ 早期版本中没有 <code>constexpr</code>、<code>static_assert</code> 等功能的场景中的技巧。它通过使用 <code>enum</code> 定义来实现一种类似于常量表达式的效果，尤其是用于类成员中的常量。尽管这种技巧在现代 C++ 标准中已经不再那么必要，但在早期版本中它被广泛使用。</p>
+<h3 id="1-enum-hack-的基本原理：">1. <code>enum hack</code> 的基本原理：</h3>
+<p><code>enum</code> 类型是编译期常量，它的值可以用于许多上下文中，因此可以用于定义常量而无需使用宏。C++ 中的 <code>enum</code> 值在编译时是已知的，因此可以将其用作替代 <code>const</code> 或其他编译时常量的方式。</p>
+<h3 id="2-传统场景：">2. 传统场景：</h3>
+<p>在 C++98/03 标准中，如果你想在类中定义一个静态的整数常量，常用的方式是：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> value = <span class="hljs-number">10</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>但是，在某些情况下，例如用作数组的大小时，不能直接使用 <code>static const</code> 成员。因此，引入了 <code>enum hack</code>，通过 <code>enum</code> 来实现编译时常量：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">enum</span> &#123; value = <span class="hljs-number">10</span> &#125;;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>这样做的原因是，枚举常量的值在编译时就已确定，因此可以在需要编译时常量的地方（如数组大小）使用。</p>
+<h3 id="3-enum-hack-使用场景：">3. <code>enum hack</code> 使用场景：</h3>
+<ul>
+<li>
+<p><strong>定义常量：</strong> 在类中定义编译时整数常量，如上面例子所示。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">enum</span> &#123; MAX_SIZE = <span class="hljs-number">100</span> &#125;;<br>&#125;;<br><br><span class="hljs-type">int</span> arr[MyClass::MAX_SIZE];  <span class="hljs-comment">// 使用枚举常量作为数组大小</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>模板元编程：</strong> 在模板编程中，可以利用 <code>enum hack</code> 进行<strong>编译时</strong>分支或递归调用。例如，定义递归计算阶乘：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-type">int</span> N&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Factorial</span> &#123;<br>    <span class="hljs-keyword">enum</span> &#123; value = N * Factorial&lt;N - <span class="hljs-number">1</span>&gt;::value &#125;;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Factorial</span>&lt;<span class="hljs-number">0</span>&gt; &#123;<br>    <span class="hljs-keyword">enum</span> &#123; value = <span class="hljs-number">1</span> &#125;;<br>&#125;;<br><br><span class="hljs-type">int</span> fact5 = Factorial&lt;<span class="hljs-number">5</span>&gt;::value;  <span class="hljs-comment">// 计算5的阶乘</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="4-为什么叫-“hack”？">4. 为什么叫 “hack”？</h3>
+<p>它被称为 “hack” 是因为这是一种为了解决 C++ 早期标准中的局限性而采取的特殊手段，实际上并不是一种优雅的解决方案。在现代 C++ 中（C++11及以后），我们有了 <code>constexpr</code> 和 <code>static_assert</code> 等工具，可以在编译期轻松处理常量和编译期检查。因此，这种技巧在现代 C++ 中已不再推荐使用，除非你必须编写与旧版 C++ 兼容的代码。</p>
+<p>例如，在 C++11 之后，可以使用 <code>constexpr</code> 更加优雅地实现：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> value = <span class="hljs-number">10</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p><code>constexpr</code> 是更好的选择，因为它可以用来处理任意类型的编译期常量，而不仅限于整数值。</p>
+<h3 id="5-结论：">5. 结论：</h3>
+<p><code>enum hack</code> 是 C++98/03 中的一种技巧，用于定义编译时常量，尤其是在类成员中定义整数常量。在现代 C++ 中，它的作用已经被 <code>constexpr</code> 等特性所取代，但了解它仍然有助于理解早期 C++ 代码中的一些常见模式，以及如何解决在编译时计算中的一些问题。</p>
+</blockquote>
+<blockquote>
+<p>在 C++98/03 中，<code>static const</code> 整型成员虽然是编译时常量，但在某些情况下（例如用作数组大小）不能直接使用。原因主要涉及到<strong>编译期常量表达式</strong>的限制，以及与 C++ 对象模型的细节有关。</p>
+<h3 id="1-编译期常量-vs-链接时常量">1. 编译期常量 vs. 链接时常量</h3>
+<p>当你在 C++98/03 中定义一个 <code>static const</code> 成员变量时，它的声明通常是放在类的声明内部，而它的定义需要在类外提供。这导致它在某些情况下并不能被编译器立即当作编译期常量处理。</p>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> value = <span class="hljs-number">10</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>虽然 <code>value</code> 是 <code>static const</code>，但它属于类的静态成员，需要在类外部进行定义：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">const</span> <span class="hljs-type">int</span> MyClass::value;<br></code></pre></td></tr></table></figure>
+<p>这个静态成员的定义在链接阶段才确定（在类文件中声明，在别的文件中定义，需要到链接阶段），并不是在编译阶段直接可用。这意味着在某些需要<strong>编译期常量</strong>的上下文中（如数组大小），编译器不能立即用它来替代常量表达式，因为它要等到链接时才能最终确定。</p>
+<p>因此，如果你尝试在数组大小中使用它：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> arr[MyClass::value];  <span class="hljs-comment">// 在 C++98/03 中，这会导致编译错误</span><br></code></pre></td></tr></table></figure>
+<p>这时编译器会提示错误，因为数组的大小必须是一个编译时可确定的常量，而 <code>static const int</code> 可能在编译阶段并没有立即确定。</p>
+<p><strong>但是在C++11之后就能通过编译了</strong></p>
+<h3 id="2-为什么-enum-hack-可以解决这个问题？">2. 为什么 <code>enum hack</code> 可以解决这个问题？</h3>
+<p><code>enum</code> 常量是完全编译时确定的，并且它们的值在类定义时就已经固定，不需要单独的定义或在链接时确定。因此，在数组大小等需要编译时常量的地方，<code>enum</code> 可以正常使用。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">enum</span> &#123; value = <span class="hljs-number">10</span> &#125;;<br>&#125;;<br><br><span class="hljs-type">int</span> arr[MyClass::value];  <span class="hljs-comment">// 这是可以的，因为枚举值在编译时已知</span><br></code></pre></td></tr></table></figure>
+<p><code>enum</code> 的值是直接内嵌在编译期的，因此在使用时编译器可以直接将它替换为数值。</p>
+<h3 id="3-现代-C-中的改进">3. 现代 C++ 中的改进</h3>
+<p>在 C++11 及以后的标准中，引入了 <code>constexpr</code>，它明确表示一个变量或表达式可以在编译时求值。因此，<code>constexpr</code> 是解决这个问题的更优雅方法。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> value = <span class="hljs-number">10</span>;<br>&#125;;<br><br><span class="hljs-type">int</span> arr[MyClass::value];  <span class="hljs-comment">// 在 C++11 中，这样是可以的</span><br></code></pre></td></tr></table></figure>
+<p><code>constexpr</code> 保证了 <code>value</code> 是编译时常量，可以直接用于要求编译期常量的场景中，如数组大小。</p>
+<h3 id="总结">总结</h3>
+<p>在 C++98/03 中，<code>static const</code> 成员变量虽然表示常量，但由于它是类的静态成员，需要在链接时定义，所以不能在所有需要编译期常量的地方使用（如数组大小）。<code>enum hack</code> 通过利用枚举的编译期常量特性，解决了这个问题。而在现代 C++ 中，引入了 <code>constexpr</code>，提供了一种更自然和简洁的方式来定义编译时常量。</p>
+</blockquote>
+<blockquote>
+<p>std::vector 使用<strong>堆内存</strong>来存储其元素，允许在运行时动态调整大小。<br>
+静态数组 <strong>使用栈内存，大小在编译时确定</strong>，内存自动分配和释放，但栈内存有限，不适合动态大小需求。</p>
+</blockquote>
+<blockquote>
+<p>在 C++98/03 标准中，<code>static const int</code> 变量的值在编译时是已知的，但这并不总是足够使它成为数组大小的合法常量。以下是一些原因，解释了为什么 <code>static const int</code> 变量在某些情况下不能作为数组的大小：</p>
+<h3 id="1-编译期常量的要求">1. <strong>编译期常量的要求</strong></h3>
+<p>C++ 标准规定，数组的大小必须是编译期常量（compile-time constant）。编译期常量是指在编译阶段就可以确定的常量。对于 <code>static const</code> 成员变量，这个要求可能无法满足，因为：</p>
+<ul>
+<li>
+<p><strong>静态成员变量的定义</strong>：在 C++98/03 中，<code>static const</code> 成员变量的值在类定义内部给定，<strong>但在实际程序中</strong>，可能需要在类外定义其值。编译器在编译数组大小时，可能不能完全确定这个 <code>static const</code> 变量的值，因为它可能需要等到链接阶段才能确定变量的实际值（例如，如果它涉及到其他文件或外部链接的内容）。</p>
+</li>
+<li>
+<p><strong>限制和兼容性</strong>：C++98/03 对数组大小的要求更加严格。虽然 <code>static const int</code> 变量的值在编译时是常量，但编译器可能无法确定它是否满足所有的编译期常量要求，尤其是在涉及到链接时。如果在多个源文件中有多个定义或者某些编译器的实现对 <code>static const</code> 的处理方式不同，这可能导致数组大小的编译期常量判断失败。</p>
+</li>
+</ul>
+<h3 id="2-enum-hack-的优势">2. <strong><code>enum hack</code> 的优势</strong></h3>
+<p><code>enum</code> 常量被视为<strong>编译期常量</strong>，因为它们的值在编译阶段就已完全确定，并且没有任何额外的定义步骤。这使得 <code>enum</code> 常量可以用作数组大小，而不会引发编译器错误：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">enum</span> &#123; value = <span class="hljs-number">10</span> &#125;;<br>&#125;;<br><br><span class="hljs-type">int</span> arr[MyClass::value];  <span class="hljs-comment">// 使用 `enum` 常量作为数组大小</span><br></code></pre></td></tr></table></figure>
+<p><code>enum</code> 常量的值直接内嵌在编译期，因此它可以被直接用作数组大小等需要编译期常量的上下文。</p>
+<h3 id="3-现代-C-中的改进-2">3. <strong>现代 C++ 中的改进</strong></h3>
+<p>在 C++11 及以后版本中，<code>constexpr</code> 关键字提供了一种更现代的方式来定义编译期常量。<code>constexpr</code> 变量可以直接用作数组大小，并且没有 <code>static const</code> 的额外限制：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-keyword">constexpr</span> <span class="hljs-type">int</span> value = <span class="hljs-number">10</span>;<br>&#125;;<br><br><span class="hljs-type">int</span> arr[MyClass::value];  <span class="hljs-comment">// 使用 `constexpr` 常量作为数组大小</span><br></code></pre></td></tr></table></figure>
+<p><code>constexpr</code> 变量的值在编译时完全确定，这避免了 C++98/03 中 <code>static const</code> 变量可能遇到的限制。</p>
+<h3 id="总结-2">总结</h3>
+<p>在 C++98/03 中，<code>static const int</code> 变量的值在编译时虽然是已知的，但由于编译器对编译期常量的严格要求和静态成员的定义限制，可能无法保证其作为数组大小的合法性。而 <code>enum</code> 常量和现代 C++ 中的 <code>constexpr</code> 提供了更可靠的解决方案，用于满足编译期常量的要求。</p>
+</blockquote>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">foo</span>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-keyword">enum</span> &#123;NumTurns=<span class="hljs-number">5</span>&#125;;<br>    <span class="hljs-type">int</span> scores[NumTurns];<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>Another common misuse of the #define directive is using it to implement macro that look like functions.</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> CALL_WITH_MAX(a,b) f((a)&gt;(b)?(a):(b))</span><br></code></pre></td></tr></table></figure>
@@ -1256,7 +1429,7 @@ return 0;<br>
 <p><strong>微小开销</strong>：理论上，在每次迭代中重新定义变量可能会带来一点点开销，但由于编译器的优化，这种开销通常是微乎其微的。只有在极其苛刻的性能需求下，才可能需要考虑这种微小的差异。</p>
 </li>
 </ul>
-<h3 id="总结">总结</h3>
+<h3 id="总结-3">总结</h3>
 <p>在大多数情况下，两种方法的性能差异是可以忽略的。更重要的是代码的可读性和维护性。<strong>建议在实际编写代码时，更倾向于使用作用域最小的变量定义方式，即在循环内部定义只在循环中使用的变量，只在循环内部使用的变量，尽量在循环内部定义，这样使得代码更加清晰，也更加容易维护</strong></p>
 </blockquote>
 <h2 id="Item-27-Minimize-casting">Item 27: Minimize casting</h2>
@@ -1334,7 +1507,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> i = <span class="hljs-number">42</span>;<br><span class="hljs-type">void</span>* ptr = &amp;i;<br><span class="hljs-type">int</span>* intPtr = <span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">int</span>*&gt;(ptr);<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3 id="总结-2">总结</h3>
+<h3 id="总结-4">总结</h3>
 <p>这四种类型转换各自有特定的应用场景和使用方法。正确使用这些类型转换可以提高代码的可读性和安全性，同时避免不必要的类型错误和运行时错误。</p>
 </blockquote>
 <blockquote>
@@ -1364,7 +1537,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <li><strong>示例</strong>：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> i = <span class="hljs-number">42</span>;<br><span class="hljs-type">void</span>* ptr = &amp;i;<br><span class="hljs-type">int</span>* intPtr = <span class="hljs-built_in">reinterpret_cast</span>&lt;<span class="hljs-type">int</span>*&gt;(ptr);  <span class="hljs-comment">// 不生成额外的代码</span><br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3 id="总结-3">总结</h3>
+<h3 id="总结-5">总结</h3>
 <ul>
 <li><code>static_cast</code>：编译时类型检查和转换，可能生成代码（特别是基本类型之间的转换）。</li>
 <li><code>dynamic_cast</code>：运行时类型检查，通常会生成额外的代码。</li>
@@ -1648,7 +1821,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;MyClass.h&quot;</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">MyClass::myMethod</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 方法实现代码</span><br>&#125;<br></code></pre></td></tr></table></figure>
 </li>
 </ul>
-<h3 id="总结-4">总结</h3>
+<h3 id="总结-6">总结</h3>
 <ul>
 <li><strong>声明</strong>：告诉编译器名字的存在及其类型或签名。</li>
 <li><strong>定义</strong>：为声明的实体提供存储空间或完整信息，此时编译器分配存储空间。</li>
@@ -1733,7 +1906,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">using</span> Base::func; <span class="hljs-comment">// 引入 Base 类中的所有重载版本的 func</span><br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(std::string x)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Derived func(std::string): &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <p>现在，你可以在 <code>Derived</code> 中使用所有的重载函数：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Derived d;<br>    d.<span class="hljs-built_in">func</span>(<span class="hljs-string">&quot;Hello&quot;</span>); <span class="hljs-comment">// 调用 Derived::func(std::string)</span><br>    d.<span class="hljs-built_in">func</span>(<span class="hljs-number">10</span>);      <span class="hljs-comment">// 调用 Base::func(int)</span><br>    d.<span class="hljs-built_in">func</span>(<span class="hljs-number">3.14</span>);    <span class="hljs-comment">// 调用 Base::func(double)</span><br>&#125;<br></code></pre></td></tr></table></figure>
-<h3 id="总结-5">总结</h3>
+<h3 id="总结-7">总结</h3>
 <p>“Inherit the overloads” 的意思是子类可以继承基类中所有重载的函数。通过在子类中使用 <code>using</code> 关键字，可以确保基类中的所有重载版本在子类中依然可用，从而避免隐藏效应。</p>
 </blockquote>
 <blockquote>
@@ -1764,7 +1937,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>在模板和泛型编程中，<code>std::forward</code> 通常与转发函数一起使用，以保留参数的左值/右值属性：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;utility&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">process</span><span class="hljs-params">(T&amp;&amp; x)</span> </span>&#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Processing: &quot;</span> &lt;&lt; x &lt;&lt; std::endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;</span><br><span class="hljs-function"><span class="hljs-keyword">inline</span> <span class="hljs-type">void</span> <span class="hljs-title">forward_to_process</span><span class="hljs-params">(T&amp;&amp; x)</span> </span>&#123;<br>    <span class="hljs-built_in">process</span>(std::forward&lt;T&gt;(x));  <span class="hljs-comment">// Forwarding the argument while preserving its value category</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> a = <span class="hljs-number">10</span>;<br>    forward_to_process(a);  <span class="hljs-comment">// Lvalue is forwarded as Lvalue</span><br>    forward_to_process(<span class="hljs-number">20</span>); <span class="hljs-comment">// Rvalue is forwarded as Rvalue</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个例子中，<code>forward_to_process</code> 是一个内联转发函数，它使用 <code>std::forward</code> 将参数转发给 <code>process</code> 函数，同时保留了参数的左右值属性。</p>
-<h3 id="总结-6">总结</h3>
+<h3 id="总结-8">总结</h3>
 <p>Inline forwarding functions 是一种内联的转发函数，它可以通过直接调用另一个函数来减少函数调用的开销。这种技术在模板编程和泛型编程中非常有用，特别是在需要保持参数类型和左右值属性的情况下。</p>
 </blockquote>
 <h2 id="Item-34-Differentiate-between-inheritance-of-interface-and-inheritance-of-implementation">Item 34: Differentiate between inheritance of interface and inheritance of implementation</h2>
@@ -2119,7 +2292,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p><strong>示例：</strong></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">(T t)</span> </span>&#123;<br>    <span class="hljs-keyword">typename</span> T::type x; <span class="hljs-comment">// typename 告诉编译器 T::type 是一个类型</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <p>如果你没有使用 <code>typename</code>，编译器可能会认为 <code>T::type</code> 是一个变量或静态成员，而不是类型，导致编译错误。</p>
-<h3 id="总结-7">总结</h3>
+<h3 id="总结-9">总结</h3>
 <ul>
 <li><code>Dependent names</code> 依赖于模板参数，它们的解析被推迟到模板实例化阶段。</li>
 <li><code>Non-dependent names</code> 不依赖于模板参数，它们在模板定义时立即被解析。</li>
@@ -2154,7 +2327,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <li><code>Wrapper</code> 的构造函数在成员初始化列表中对 <code>value</code> 进行初始化时，使用了 <code>T::type</code> 作为类型。在这种情况下，即使 <code>T::type</code> 是一个依赖类型，编译器也能够推断出它是类型，因此不需要使用 <code>typename</code>。</li>
 <li><code>Example</code> 结构体定义了一个类型别名 <code>type</code>，是 <code>int</code> 类型。当 <code>Wrapper&lt;Example&gt;</code> 实例化时，<code>T::type</code> 即 <code>Example::type</code> 被解析为 <code>int</code>，并用于构造函数的参数和成员初始化列表中。</li>
 </ol>
-<h3 id="总结-8">总结</h3>
+<h3 id="总结-10">总结</h3>
 <p>在成员初始化列表中，C++ 编译器能够自动推断 <code>T::type</code> 是一个类型，即使它是依赖于模板参数的。在这种情况下，不需要显式使用 <code>typename</code> 关键字。这是 C++ 标准中的一个特例，因为在成员初始化列表中，编译器有足够的信息来解析 <code>dependent type</code>，而不需要额外的指示。</p>
 </blockquote>
 <h2 id="Item-43-Know-how-to-access-names-in-templatized-base-casses">Item 43: Know how to access names in templatized base casses</h2>
@@ -2208,7 +2381,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 嵌入式系统中往往需要非常高效且低开销的代码。使用非类型模板参数可以避免动态分配和运行时计算，直接在编译时确定。</p>
 <h3 id="4-提高代码可读性和维护性">4. <strong>提高代码可读性和维护性</strong></h3>
 <p>对于某些情况，通过模板参数明确地表达意图可以提高代码的可读性。例如，使用模板参数明确表达矩阵的维度，可以让代码的使用者一目了然，而不是在函数调用时传递一堆参数。</p>
-<h3 id="总结-9">总结</h3>
+<h3 id="总结-11">总结</h3>
 <p>虽然将非类型参数作为成员函数的参数在某些情况下是可行的，但非类型模板参数的优势在于编译时的确定性、类型安全性、优化的潜力以及在某些场景下避免运行时开销。因此，在需要固定结构或固定尺寸时，非类型模板参数是一种强大且优雅的工具。</p>
 </blockquote>
 <blockquote>
@@ -2267,7 +2440,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p><strong>示例：</strong></p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Container</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> U&gt;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">add</span><span class="hljs-params">(U element)</span> </span>&#123;<br>        <span class="hljs-comment">// 实现细节</span><br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <p>在上面的例子中，<code>Container</code>是一个类模板，而<code>add</code>函数是一个成员模板，允许在不同类型的<code>Container</code>实例中添加不同类型的元素。</p>
-<h3 id="总结-10">总结</h3>
+<h3 id="总结-12">总结</h3>
 <p>成员模板是C++中强大且灵活的功能，能够在类的成员函数和嵌套类中引入模板机制，从而实现更加通用和可复用的代码。在编写复杂数据结构和算法时，成员模板是一个非常有用的工具。</p>
 </blockquote>
 <blockquote>
@@ -2317,7 +2490,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p><strong>SFINAE（Substitution Failure Is Not An Error）</strong>：用于条件选择模板实例化的方法，可以与泛化拷贝构造函数结合使用，以限制其适用范围。</p>
 </li>
 </ul>
-<h3 id="总结-11">总结</h3>
+<h3 id="总结-13">总结</h3>
 <p>泛化拷贝构造函数是C++中一个强大的特性，它利用模板机制使得构造函数能够在不同类型的对象之间进行拷贝操作。通过使用泛化拷贝构造函数，可以提高代码的复用性和灵活性，同时也能够处理更多样化的类型和场景。在实际开发中，合理使用泛化拷贝构造函数可以简化代码并减少冗余。</p>
 </blockquote>
 <blockquote>
@@ -2486,7 +2659,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_pointer_like</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">false</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_pointer_like</span>&lt;T*&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">true</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_pointer_like</span>&lt;std::shared_ptr&lt;T&gt;&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">true</span>;<br>&#125;;<br></code></pre></td></tr></table></figure>
 <p>使用时：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp">std::cout &lt;&lt; is_pointer_like&lt;<span class="hljs-type">int</span>*&gt;::value; <span class="hljs-comment">// 输出 1 (true)</span><br>std::cout &lt;&lt; is_pointer_like&lt;std::shared_ptr&lt;<span class="hljs-type">int</span>&gt;&gt;::value; <span class="hljs-comment">// 输出 1 (true)</span><br>std::cout &lt;&lt; is_pointer_like&lt;<span class="hljs-type">int</span>&gt;::value; <span class="hljs-comment">// 输出 0 (false)</span><br></code></pre></td></tr></table></figure>
-<h3 id="总结-12">总结</h3>
+<h3 id="总结-14">总结</h3>
 <p>Traits Class是C++模板元编程中的核心技术，通过模板的特化、偏特化来提取、判断和操作类型信息，使得模板能够根据类型特性在编译时进行优化和调整。C++标准库中包含了大量的Traits Class，如<code>std::is_same</code>、<code>std::remove_const</code>、<code>std::is_integral</code>等，它们极大地增强了模板编程的灵活性和可维护性。</p>
 </blockquote>
 <blockquote>
@@ -2525,7 +2698,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>在编写泛型算法时，可以通过<code>iterator_traits</code>来获取迭代器的类别，并根据类别执行不同的操作。例如：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::difference_type n)</span> </span>&#123;<br>    <span class="hljs-keyword">using</span> category = <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::iterator_category; <span class="hljs-comment">//将具体的迭代器传送给 iterator_traits 这样能够返回具体信息</span><br>    <span class="hljs-built_in">advance_impl</span>(it, n, <span class="hljs-built_in">category</span>());<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance_impl</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::difference_type n, std::random_access_iterator_tag)</span> </span>&#123;<br>    it += n;  <span class="hljs-comment">// 对于随机访问迭代器，可以直接进行指针运算</span><br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">advance_impl</span><span class="hljs-params">(Iterator&amp; it, <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::difference_type n, std::input_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">while</span> (n &gt; <span class="hljs-number">0</span>) &#123;<br>        ++it;<br>        --n;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个例子中，<code>advance</code>函数根据迭代器的类别来选择最合适的实现。例如，如果迭代器是随机访问迭代器，则直接进行指针加法；如果是输入迭代器，则使用循环递增迭代器。</p>
-<h3 id="总结-13">总结</h3>
+<h3 id="总结-15">总结</h3>
 <p><code>iterator_traits</code>是C++标准库中一个非常重要的traits class，通过它可以抽象化处理各种迭代器类型，从而编写出适用于不同容器和迭代器的泛型算法。通过特化，可以让<code>iterator_traits</code>支持更多类型（如普通指针），进一步提高算法的通用性和效率。</p>
 </blockquote>
 <blockquote>
@@ -2570,7 +2743,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>例如，当我们在 <code>deque</code> 中进行元素拷贝时，可能会使用类似于 <code>std::copy</code> 的算法：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIterator, <span class="hljs-keyword">typename</span> OutputIterator&gt;<br><span class="hljs-function">OutputIterator <span class="hljs-title">copy</span><span class="hljs-params">(InputIterator first, InputIterator last, OutputIterator result)</span> </span>&#123;<br>    <span class="hljs-keyword">using</span> category = <span class="hljs-keyword">typename</span> std::iterator_traits&lt;InputIterator&gt;::iterator_category;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">copy_impl</span>(first, last, result, <span class="hljs-built_in">category</span>());<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> RandomAccessIterator, <span class="hljs-keyword">typename</span> OutputIterator&gt;<br><span class="hljs-function">OutputIterator <span class="hljs-title">copy_impl</span><span class="hljs-params">(RandomAccessIterator first, RandomAccessIterator last, OutputIterator result, std::random_access_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">auto</span> n = last - first;  <span class="hljs-comment">// 高效的距离计算</span><br>    <span class="hljs-keyword">while</span> (n-- &gt; <span class="hljs-number">0</span>) &#123;<br>        *result = *first;<br>        ++first;<br>        ++result;<br>    &#125;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> InputIterator, <span class="hljs-keyword">typename</span> OutputIterator&gt;<br><span class="hljs-function">OutputIterator <span class="hljs-title">copy_impl</span><span class="hljs-params">(InputIterator first, InputIterator last, OutputIterator result, std::input_iterator_tag)</span> </span>&#123;<br>    <span class="hljs-keyword">while</span> (first != last) &#123;<br>        *result = *first;<br>        ++first;<br>        ++result;<br>    &#125;<br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个例子中，<code>copy</code> 函数根据迭代器类别选择最合适的实现方式。对于 <code>deque</code> 的迭代器，<code>copy</code> 函数将使用针对随机访问迭代器的实现方式，这样可以利用指针算术实现高效拷贝。</p>
-<h3 id="总结-14">总结</h3>
+<h3 id="总结-16">总结</h3>
 <p>在 <code>deque</code> 的实现中，<code>traits class</code>，特别是 <code>iterator_traits</code>，起到了关键作用。通过 <code>iterator_traits</code>，<code>deque</code> 能够在编译时获取迭代器的相关类型信息，并根据这些信息选择最合适的算法和操作方式。这种设计使得 <code>deque</code> 和其他 STL 容器能够支持多种不同类型的迭代器，并且确保操作的正确性和高效性。</p>
 </blockquote>
 <p><img src="iterator_traits.png" srcset="/img/loading.gif" lazyload alt="iterator_traits"></p>
@@ -2600,8 +2773,114 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <p>通过使用 <code>iterator_traits</code>，你可以确保算法能处理更广泛的迭代器类型，提供更好的通用性和扩展性：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> Iterator&gt;<br><span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::<span class="hljs-function">difference_type <span class="hljs-title">distance</span><span class="hljs-params">(Iterator first, Iterator last)</span> </span>&#123;<br>    <span class="hljs-keyword">typename</span> std::iterator_traits&lt;Iterator&gt;::difference_type n = <span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span> (first != last) &#123;<br>        ++first;<br>        ++n;<br>    &#125;<br>    <span class="hljs-keyword">return</span> n;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个例子中，即使 <code>Iterator</code> 是指针，<code>iterator_traits</code> 也会提供正确的 <code>difference_type</code> 和其他类型信息。</p>
-<h3 id="总结-15">总结</h3>
+<h3 id="总结-17">总结</h3>
 <p>虽然在某些简单场景下，直接使用迭代器提供的类型可能足够，但使用 <code>iterator_traits</code> 带来了更强的通用性、一致性和灵活性。<code>iterator_traits</code> 是泛型编程中的重要工具，能够帮助你编写更健壮、更通用的算法，从而更好地处理不同类型的迭代器。</p>
+</blockquote>
+<h2 id="Item-48-Be-aware-of-template-metaprogramming">Item 48: Be aware of template metaprogramming</h2>
+<blockquote>
+<p>模板元编程（Template Metaprogramming，简称 TMP）是 C++ 中一种高级编程技术，利用模板在编译期执行计算。它主要基于 C++ 的模板机制，允许开发者编写在编译时生成和优化代码的程序。TMP 通过静态多态性、递归和类型推导，能够实现类似于函数编程中的计算过程，但这些计算是在编译阶段完成的。</p>
+<p>以下是模板元编程的几个核心概念和技术点：</p>
+<h3 id="1-模板的基础">1. <strong>模板的基础</strong></h3>
+<p>模板元编程的基础是 C++ 的模板机制，它允许编写参数化的代码。在模板中，类型（类模板）或值（函数模板）可以作为参数传递。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-function">T <span class="hljs-title">add</span><span class="hljs-params">(T a, T b)</span> </span>&#123;<br>    <span class="hljs-keyword">return</span> a + b;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>上面的 <code>add</code> 函数是一个普通的函数模板，它接受任意类型 <code>T</code>，并在运行时执行加法。</p>
+<h3 id="2-编译期计算">2. <strong>编译期计算</strong></h3>
+<p>与普通的函数模板不同，TMP 利用模板在编译期间进行计算。例如，可以利用模板递归进行常量的计算：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-type">int</span> N&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Factorial</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> value = N * Factorial&lt;N - <span class="hljs-number">1</span>&gt;::value;<br>&#125;;<br><br><span class="hljs-comment">// 基本情况，0 的阶乘为 1</span><br><span class="hljs-keyword">template</span> &lt;&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Factorial</span>&lt;<span class="hljs-number">0</span>&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> value = <span class="hljs-number">1</span>;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> result = Factorial&lt;<span class="hljs-number">5</span>&gt;::value;  <span class="hljs-comment">// result = 120</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在上面的例子中，<code>Factorial</code> 是一个递归的模板结构体，它在编译期计算阶乘。编译时，编译器会将 <code>Factorial&lt;5&gt;</code> 展开为一个常量值 <code>120</code>。</p>
+<h3 id="3-类型推导与递归">3. <strong>类型推导与递归</strong></h3>
+<p>TMP 允许你在编译期间推导类型，常见的应用是类型转换、类型计算和类型萃取（traits）。一个典型的例子是编写一个获取类型大小的模板：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">TypeSize</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">int</span> value = <span class="hljs-built_in">sizeof</span>(T);<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> size = TypeSize&lt;<span class="hljs-type">int</span>&gt;::value;  <span class="hljs-comment">// size = 4 (假设 int 是 4 字节)</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>类型递归是 TMP 中的关键技巧，它通过递归推导不同的模板实例来实现更复杂的类型计算。</p>
+<h3 id="4-SFINAE（替换失败不是错误）">4. <strong>SFINAE（替换失败不是错误）</strong></h3>
+<p>SFINAE（Substitution Failure Is Not An Error）是 TMP 中的一个重要原则。当模板的某些参数替换失败时，编译器不会报错，而是会尝试其他模板的替换。这使得 TMP 可以实现一些复杂的编译期条件判断和函数重载选择。</p>
+<p>例如，使用 SFINAE 实现某个类型是否有某个成员函数的判断：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">has_toString</span> &#123;<br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> U&gt;<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-keyword">auto</span> <span class="hljs-title">check</span><span class="hljs-params">(<span class="hljs-type">int</span>)</span> -&gt; <span class="hljs-title">decltype</span><span class="hljs-params">(std::declval&lt;U&gt;().toString(), std::true_type())</span></span>;<br><br>    <span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span>&gt;<br>    <span class="hljs-function"><span class="hljs-type">static</span> std::false_type <span class="hljs-title">check</span><span class="hljs-params">(...)</span></span>;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-keyword">decltype</span>(<span class="hljs-built_in">check</span>&lt;T&gt;(<span class="hljs-number">0</span>))::value;<br>&#125;;<br></code></pre></td></tr></table></figure>
+<p>上面的例子利用 SFINAE 技术，在编译期判断某个类型 <code>T</code> 是否有 <code>toString</code> 成员函数。</p>
+<h3 id="5-类型萃取-Type-Traits">5. <strong>类型萃取 (Type Traits)</strong></h3>
+<p>类型萃取是 TMP 的一个重要应用，用来在编译期分析和操作类型。C++ 标准库提供了一系列类型萃取工具，例如 <code>std::is_integral</code>、<code>std::is_same</code> 等，用于判断类型是否是整数类型或两个类型是否相同。</p>
+<p>自定义一个简单的类型萃取：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_pointer</span> &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">false</span>;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> T&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">is_pointer</span>&lt;T*&gt; &#123;<br>    <span class="hljs-type">static</span> <span class="hljs-type">const</span> <span class="hljs-type">bool</span> value = <span class="hljs-literal">true</span>;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">bool</span> isIntPtr = is_pointer&lt;<span class="hljs-type">int</span>*&gt;::value;  <span class="hljs-comment">// true</span><br>    <span class="hljs-type">bool</span> isInt = is_pointer&lt;<span class="hljs-type">int</span>&gt;::value;      <span class="hljs-comment">// false</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="6-递归与条件表达式">6. <strong>递归与条件表达式</strong></h3>
+<p>在 TMP 中，可以用递归和条件表达式来实现逻辑运算。C++11 引入了 <code>std::conditional</code> 使得条件选择更为方便。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-type">bool</span> Condition, <span class="hljs-keyword">typename</span> TrueType, <span class="hljs-keyword">typename</span> FalseType&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">conditional</span> &#123;<br>    <span class="hljs-keyword">typedef</span> TrueType type;<br>&#125;;<br><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">typename</span> TrueType, <span class="hljs-keyword">typename</span> FalseType&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">conditional</span>&lt;<span class="hljs-literal">false</span>, TrueType, FalseType&gt; &#123;<br>    <span class="hljs-keyword">typedef</span> FalseType type;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">using</span> type = conditional&lt;<span class="hljs-literal">true</span>, <span class="hljs-type">int</span>, <span class="hljs-type">double</span>&gt;::type;  <span class="hljs-comment">// type 是 int</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="7-编译时的性能优化">7. <strong>编译时的性能优化</strong></h3>
+<p>由于 TMP 发生在编译阶段，因此其主要目的是优化运行时性能。例如，编译器可以根据 TMP 的结果生成最优的机器代码，从而减少运行时的计算负担。</p>
+<h3 id="8-局限性与复杂度">8. <strong>局限性与复杂度</strong></h3>
+<p>虽然 TMP 非常强大，但也带来了代码可读性和调试的复杂性。TMP 的错误信息通常非常冗长，且由于所有计算在编译时完成，可能会显著增加编译时间。</p>
+<h3 id="总结-18">总结</h3>
+<p>模板元编程是 C++ 中一个非常强大的编译期编程技术，它可以实现编译期的计算、类型推导和条件编译，还能够进行更早期的错误检测，极大地提高了代码的灵活性和性能。然而，TMP 也带来了较高的复杂度，因此在实际编写 TMP 代码时，需要权衡可读性和性能之间的关系。</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，<code>typeid</code> 是一个用于在运行时获取类型信息的操作符，它属于 C++ 的 RTTI（运行时类型识别）功能。使用 <code>typeid</code> 操作符可以获得某个对象或类型的类型信息，并返回一个 <code>type_info</code> 对象。<code>type_info</code> 是一个标准库中的类，用于表示类型信息。</p>
+<p><code>typeid</code> 的典型用法有以下几种：</p>
+<h3 id="1-对象的类型">1. 对象的类型</h3>
+<p>你可以通过 <code>typeid</code> 来获取一个对象的类型。例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;typeinfo&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;&#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Base b;<br>    Derived d;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Type of b: &quot;</span> &lt;&lt; <span class="hljs-built_in">typeid</span>(b).<span class="hljs-built_in">name</span>() &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Type of d: &quot;</span> &lt;&lt; <span class="hljs-built_in">typeid</span>(d).<span class="hljs-built_in">name</span>() &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>输出可能是：</p>
+<figure class="highlight ada"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ada"><span class="hljs-keyword">Type</span> <span class="hljs-type">of </span>b: <span class="hljs-number">4</span>Base<br><span class="hljs-keyword">Type</span> <span class="hljs-type">of </span>d: <span class="hljs-number">7</span>Derived<br></code></pre></td></tr></table></figure>
+<p>注意，<code>typeid(b).name()</code> 返回的是编译器定义的类型名称，因此不同编译器可能会有不同的结果。某些编译器输出的并不是直接的类名，而是经过某种编码的名称。</p>
+<h3 id="2-使用多态类型">2. 使用多态类型</h3>
+<p><code>typeid</code> 对于多态类型（即具有虚函数的类）尤其有用。它能在运行时识别出对象的真实类型，而不仅仅是指针或引用的静态类型：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;typeinfo&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Base</span>() &#123;&#125;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    Base* pBase = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Derived</span>();<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Type of *pBase: &quot;</span> &lt;&lt; <span class="hljs-built_in">typeid</span>(*pBase).<span class="hljs-built_in">name</span>() &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">delete</span> pBase;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，由于 <code>Base</code> 类有虚函数，<code>typeid(*pBase)</code> 将返回 <code>Derived</code> 类型的信息，而不是 <code>Base</code>。</p>
+<h3 id="3-原始类型">3. 原始类型</h3>
+<p>你还可以使用 <code>typeid</code> 来获取原始类型的类型信息：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;typeinfo&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> i = <span class="hljs-number">42</span>;<br>    <span class="hljs-type">double</span> d = <span class="hljs-number">3.14</span>;<br><br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Type of i: &quot;</span> &lt;&lt; <span class="hljs-built_in">typeid</span>(i).<span class="hljs-built_in">name</span>() &lt;&lt; std::endl;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Type of d: &quot;</span> &lt;&lt; <span class="hljs-built_in">typeid</span>(d).<span class="hljs-built_in">name</span>() &lt;&lt; std::endl;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="注意事项-4">注意事项</h3>
+<ul>
+<li><code>typeid</code> 的使用要求类型必须已知。例如，不能对不完全类型（forward declaration）使用 <code>typeid</code>。</li>
+<li>对于没有虚函数的非多态类，<code>typeid</code> 的结果是编译时已知的，而不会在运行时计算。</li>
+<li>使用 <code>typeid</code> 需要包含头文件 <code>&lt;typeinfo&gt;</code>。</li>
+</ul>
+<p>总结起来，<code>typeid</code> 在 C++ 中用于获取类型信息，尤其在处理多态类型时，它能够帮助识别对象的实际类型。</p>
+</blockquote>
+<blockquote>
+<p>C++ 编译器确实要求所有的源代码都是有效的，即使某些代码永远不会被执行。具体来说，这意味着即使某段代码由于逻辑分支、条件或宏定义等原因不会在程序运行时执行，编译器仍然会对该代码进行语法检查、类型检查等。这种行为是为了确保代码的完整性和一致性，从而避免潜在的错误。</p>
+<h3 id="为什么-C-要求所有源代码有效？">为什么 C++ 要求所有源代码有效？</h3>
+<p>这是因为 C++ 是一个静态类型检查的编译语言，编译器需要在编译阶段检查整个代码库的合法性，才能生成可执行的机器代码。在这个过程中，编译器不会忽略任何部分的代码，即便它们不会在程序运行时执行，原因包括：</p>
+<ol>
+<li>
+<p><strong>类型安全</strong>：编译器在编译时会对每一段代码进行类型检查，以确保没有类型不匹配或非法操作。这种检查帮助程序员在编写代码时及早发现问题，即便这些代码在运行时从未执行过。</p>
+</li>
+<li>
+<p><strong>模板和宏的潜在使用</strong>：C++ 中广泛使用模板和宏，它们的扩展往往取决于编译期的类型推导和条件。如果某些模板函数或宏在某个场景下可能会用到，编译器必须确保它们的定义是有效的。</p>
+</li>
+<li>
+<p><strong>潜在的可执行路径</strong>：即使某段代码当前不会被执行，可能由于未来修改或代码重构，它将来会被激活执行。编译器的检查可以确保代码在这种情况下仍然是合法的。</p>
+</li>
+</ol>
+<h3 id="示例-4">示例</h3>
+<p>假设你有以下代码片段，其中包含一个不会被执行的分支：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">if</span> (<span class="hljs-literal">false</span>) &#123;<br>        <span class="hljs-type">int</span> x = <span class="hljs-string">&quot;this is a string&quot;</span>;  <span class="hljs-comment">// 错误: 不允许将字符串赋值给整数</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>尽管 <code>if (false)</code> 保证了代码永远不会执行，但编译器仍然会对 <code>int x = &quot;this is a string&quot;;</code> 进行类型检查，并报告类型不匹配的错误。这是因为编译器要求源代码中的每个部分都是有效的，即使这些部分在运行时不会执行。</p>
+<h3 id="编译期和运行期的区分">编译期和运行期的区分</h3>
+<p>C++ 编译器执行两种主要的检查：</p>
+<ul>
+<li>
+<p><strong>编译期检查</strong>：编译器在编译代码时会检查语法、类型等错误。即使某些代码不会被执行，只要代码是可达的，编译器都会进行检查。</p>
+</li>
+<li>
+<p><strong>运行期检查</strong>：某些逻辑错误和异常只有在运行时才能捕捉到。然而，编译器并不保证检查这些错误，比如除以零或数组越界。这类错误需要程序在运行时处理。</p>
+</li>
+</ul>
+<h3 id="特例：条件编译">特例：条件编译</h3>
+<p>通过条件编译（如使用预处理指令 <code>#ifdef</code> 或 <code>#ifndef</code>），某些代码可以在编译时被完全忽略：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">ifdef</span> ENABLE_FEATURE</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">feature</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 这个代码块在 ENABLE_FEATURE 未定义时不会被编译</span><br>&#125;<br><span class="hljs-meta">#<span class="hljs-keyword">endif</span></span><br></code></pre></td></tr></table></figure>
+<p>在这种情况下，未定义 <code>ENABLE_FEATURE</code> 时，<code>feature</code> 函数的代码会被预处理器完全排除在编译之外，因此不会被检查。</p>
+<h3 id="总结-19">总结</h3>
+<p>C++ 编译器要求所有源代码在编译时都是有效的，即使某些代码在运行时永远不会执行。这种设计是为了保证代码的完整性，减少潜在的错误，提高类型安全性和代码健壮性。</p>
+</blockquote>
+<blockquote>
+<p>C++中的模板元编程（Template Metaprogramming，TMP）是图灵完备的。模板元编程可以执行任意复杂的计算，并且能够模拟条件语句、循环等编程结构，理论上可以用来实现任何图灵机能做到的计算。图灵完备意味着该编程模型可以模拟图灵机，具备通用的计算能力。</p>
+<p>在C++模板元编程中，编译器会在编译时对模板进行展开与计算，这使得一些计算可以在编译时完成，而不是在运行时。因此，TMP是一种编译期编程技术，其操作对象是类型、常量等，而不是运行时的具体值。</p>
+<p>C++模板元编程的图灵完备性主要体现在：</p>
+<ol>
+<li><strong>递归</strong>：可以通过模板的递归定义实现循环。</li>
+<li><strong>条件判断</strong>：可以通过模板特化（template specialization）实现类似于条件分支的功能。</li>
+<li><strong>自定义数据结构</strong>：通过模板参数列表，可以模拟链表等数据结构。</li>
+</ol>
+<p>由于这些特性，模板元编程具有极大的灵活性和强大的计算能力，但也可能导致编译器过度复杂的错误信息以及较长的编译时间。</p>
 </blockquote>
 <h1>8.Customizing new and delete</h1>
 <h2 id="Item-49-Understand-the-behavior-of-the-new-handler">Item 49: Understand the behavior of the new-handler</h2>
@@ -2622,7 +2901,7 @@ C++中有四种类型的类型转换（cast），分别是：<code>static_cast</
 <li><strong>避免频繁修改 <code>new-handler</code></strong>：在多线程程序中，尽量避免频繁修改全局的 <code>new-handler</code>。一般只需在程序初始化时设置一次。</li>
 <li><strong>锁保护</strong>：如果确实需要在运行过程中修改 <code>new-handler</code>，可以使用锁（如 <code>std::mutex</code>）来保护修改操作，确保线程安全。</li>
 </ul>
-<h3 id="总结-16">总结</h3>
+<h3 id="总结-20">总结</h3>
 <p>C++ 标准库已经在很大程度上解决了多线程环境下的内存管理问题，但对于一些特定的场景，如自定义内存分配器或频繁修改 <code>new-handler</code>，仍需开发者自己确保线程安全。</p>
 </blockquote>
 <blockquote>
@@ -2748,7 +3027,7 @@ C++允许程序员通过<code>std::set_new_handler</code>函数指定一个自�
 <p>以下是一个使用<code>set_new_handler</code>的简单例子：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;new&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">my_new_handler</span><span class="hljs-params">()</span> </span>&#123;<br>    std::cerr &lt;&lt; <span class="hljs-string">&quot;Memory allocation failed, trying to free resources...&quot;</span> &lt;&lt; std::endl;<br>    <span class="hljs-comment">// 尝试释放一些资源，例如删除缓存等</span><br>    <span class="hljs-comment">// 如果无法解决问题，抛出异常或终止程序</span><br>    <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">bad_alloc</span>();  <span class="hljs-comment">// 这里重新抛出异常</span><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    std::<span class="hljs-built_in">set_new_handler</span>(my_new_handler);  <span class="hljs-comment">// 设置自定义的处理函数</span><br><br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 尝试分配大量内存</span><br>        <span class="hljs-type">int</span>* p = <span class="hljs-keyword">new</span> <span class="hljs-type">int</span>[<span class="hljs-number">100000000000</span>];<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::bad_alloc&amp; e) &#123;<br>        std::cerr &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个例子中，当内存分配失败时，<code>my_new_handler</code>会被调用，试图进行一些处理。如果问题无法解决，它会抛出<code>std::bad_alloc</code>，并在程序中捕获该异常。</p>
-<h3 id="总结-17">总结</h3>
+<h3 id="总结-21">总结</h3>
 <ul>
 <li>默认情况下，<code>operator new</code>在内存分配失败时会抛出<code>std::bad_alloc</code>异常。</li>
 <li>使用<code>set_new_handler</code>可以自定义内存分配失败时的处理逻辑，提供机会释放资源或采取其他恢复措施。</li>
@@ -2783,7 +3062,7 @@ C++允许程序员通过<code>std::set_new_handler</code>函数指定一个自�
 <li><strong>重载的<code>operator new</code></strong>: 当使用<code>new</code>操作符为该类分配内存时，首先设置类特有的<code>new_handler</code>，然后尝试分配内存。如果分配失败，调用类的<code>new_handler</code>，最终恢复全局的<code>new_handler</code>。</li>
 <li><strong><code>my_class_new_handler</code></strong>: 这是自定义的内存分配失败处理函数。当<code>MyClass</code>的内存分配失败时，这个函数会被调用，并抛出<code>std::bad_alloc</code>。</li>
 </ul>
-<h3 id="总结-18">总结</h3>
+<h3 id="总结-22">总结</h3>
 <p>虽然C++标准库并没有直接为每个类提供<code>set_new_handler</code>的功能，但通过重载<code>operator new</code>并结合类静态成员，可以实现类级别的<code>new_handler</code>。这样，特定的类可以有自己的内存分配失败处理策略，而不影响全局的<code>new_handler</code>。</p>
 </blockquote>
 <blockquote>
