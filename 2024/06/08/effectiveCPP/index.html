@@ -34,8 +34,10 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/swap2.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/35.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/iterator_traits.png">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/52-1.png">
+<meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/52-2.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-09-22T15:33:33.632Z">
+<meta property="article:modified_time" content="2024-09-23T05:06:29.989Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -200,7 +202,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          64k 字
+          66k 字
         
       </span>
     
@@ -211,7 +213,7 @@
         
         
         
-          536 分钟
+          550 分钟
         
       </span>
     
@@ -3611,6 +3613,7 @@ C++允许程序员通过<code>std::set_new_handler</code>函数指定一个自�
 <blockquote>
 <p>自定 operator new[] 有更多需要考虑的内容，例如难以确定具体有多大空间需要分配，因为子类也能调用基类实现的array new，并且空间中还需要记录数组中元素的数量</p>
 </blockquote>
+<blockquote>
 <p>在 C++ 中，<code>operator delete</code> 函数通常用于释放通过 <code>operator new</code> 分配的内存，并且允许delete null，在自定义实现时需要注意。标准的 <code>operator delete</code> 有多种版本，其中一个可以接受两个参数：指针和大小。这个功能在 C++17 中引入，允许自定义的 <code>delete</code> 操作更灵活，尤其是在某些优化场景中，编译器可以传递内存块的大小。在某些情况下，new申请的大小可能是错的，比如类只需要4B，但new返回了6B，这时delete必须释放6B,用ptr参数，而不是size参数。</p>
 <p>这个函数的签名通常是这样的：</p>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-keyword">operator</span> <span class="hljs-title">delete</span><span class="hljs-params">(<span class="hljs-type">void</span>* ptr, std::<span class="hljs-type">size_t</span> size)</span> <span class="hljs-keyword">noexcept</span></span>;<br></code></pre></td></tr></table></figure>
@@ -3630,6 +3633,94 @@ C++允许程序员通过<code>std::set_new_handler</code>函数指定一个自�
 <h3 id="输出：">输出：</h3>
 <figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">Allocating</span> <span class="hljs-number">1</span> bytes<br><span class="hljs-attribute">Deallocating</span> <span class="hljs-number">1</span> bytes<br></code></pre></td></tr></table></figure>
 <p>在上面的例子中，自定义了 <code>operator new</code> 和 <code>operator delete</code>，并且 <code>delete</code> 操作收到了分配时的大小信息。</p>
+</blockquote>
+<h2 id="Item-52-Write-placement-if-you-write-placement-new">Item 52: Write placement if you write placement new</h2>
+<blockquote>
+<p><strong><code>placement new</code> 是指除了size_t 之外有额外的参数的 operator new，例如使用一个指针作为额外参数是它的典型用法</strong>。其作用是指定对象应该被构造在给定的内存位置上。</p>
+<h3 id="使用-placement-new-的场景">使用 <code>placement new</code> 的场景</h3>
+<p>在容器（如 <code>std::vector</code>）扩容时，通常需要将现有元素复制到新的、更大的内存块中，这时 <code>placement new</code> 就可以派上用场。例如，当 <code>std::vector</code> 的容量不足时，首先会分配一块新的、更大的内存空间，然后使用 <code>placement new</code> 在这块新内存中构造原有元素，最后释放旧内存。</p>
+<h3 id="语法示例">语法示例</h3>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;new&gt;</span>  <span class="hljs-comment">// for std::nothrow</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-comment">// 预分配一块足够的内存</span><br>    <span class="hljs-type">char</span>* buffer = <span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-built_in">sizeof</span>(<span class="hljs-type">int</span>)];<br><br>    <span class="hljs-comment">// 在 buffer 所指的内存位置上构造一个 int 对象，值为42</span><br>    <span class="hljs-type">int</span>* p = <span class="hljs-built_in">new</span> (buffer) <span class="hljs-built_in">int</span>(<span class="hljs-number">42</span>);<br><br>    <span class="hljs-comment">// 输出对象的值</span><br>    std::cout &lt;&lt; *p &lt;&lt; std::endl;<br><br>    <span class="hljs-comment">// 需要手动调用析构函数，因为内存没有通过正常的 new 分配</span><br>    p-&gt;~<span class="hljs-built_in">int</span>();<br><br>    <span class="hljs-comment">// 手动释放之前分配的内存</span><br>    <span class="hljs-keyword">delete</span>[] buffer;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>一般而言人们讨论中提到的 placement new 大多数指的是 vector 中实现的这个特定版本的 placement new，而不是上面提到的更广泛的定义；少部分时候是指上面那个有额外参数的定义。具体指哪个需要联系上下文看具体含义</p>
+<h3 id="注意事项-5">注意事项</h3>
+<ul>
+<li>使用 <code>placement new</code> 构造对象后，需要手动调用析构函数来销毁对象，因为普通的 <code>delete</code> 不会被调用。</li>
+<li>需要手动管理内存的分配与释放，错误处理起来可能比较复杂，容易引发内存泄漏或其他未定义行为。</li>
+</ul>
+<p>这种方式在需要高度优化和控制内存分配的场景中非常有用，比如在容器的实现中使用以避免频繁的内存分配和释放操作。</p>
+</blockquote>
+<blockquote>
+<p>c++中new的具体执行流程是operator new，static_cast 修改内存type，然后调用构造函数。如果你定义了带有额外参数的 <code>operator new</code>即 placement new，那么为了避免潜在的内存泄漏，你也必须定义相应带有相同参数签名的 <code>operator delete</code> 和 普通版本的 operator delete 即不带参数的版本，因为大多数时候 new 没抛出异常，就需要调用普通版本的 delete，这时候也需要处理有额外参数new造成的额外开支。这是因为：</p>
+<ul>
+<li>当使用 <code>new</code> 分配内存时，<code>operator new</code> 被调用来分配内存。</li>
+<li>如果在分配完内存后，构造函数抛出了异常，C++ 会自动调用相应的 <code>operator delete</code> 来释放之前分配的内存。</li>
+</ul>
+<h3 id="详细解释：">详细解释：</h3>
+<ol>
+<li>
+<p><strong>自定义 <code>operator new</code> 和 <code>operator delete</code>：</strong><br>
+你可以为某个类重载 <code>operator new</code> 和 <code>operator delete</code>，并且可以为 <code>operator new</code> 提供额外的参数。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyClass</span> &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-keyword">operator</span> <span class="hljs-title">new</span><span class="hljs-params">(<span class="hljs-type">size_t</span> size, <span class="hljs-type">int</span> extraParam)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Allocating memory with extra parameter: &quot;</span> &lt;&lt; extraParam &lt;&lt; std::endl;<br>        <span class="hljs-keyword">return</span> ::<span class="hljs-keyword">operator</span> <span class="hljs-built_in">new</span>(size);<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-keyword">operator</span> <span class="hljs-title">delete</span><span class="hljs-params">(<span class="hljs-type">void</span>* ptr, <span class="hljs-type">int</span> extraParam)</span> </span>&#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Deallocating memory with extra parameter: &quot;</span> &lt;&lt; extraParam &lt;&lt; std::endl;<br>        ::<span class="hljs-function"><span class="hljs-keyword">operator</span> <span class="hljs-title">delete</span><span class="hljs-params">(ptr)</span></span>;<br>    &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>异常处理中的配对问题：</strong><br>
+当你使用 <code>new</code> 分配对象时，通常会先调用 <code>operator new</code> 来分配内存，然后调用构造函数初始化对象。如果构造函数抛出异常，分配的内存需要通过调用 <code>operator delete</code> 进行释放。对于自定义的 <code>operator new</code>，其调用时传递的参数在异常处理时也需要传递给 <code>operator delete</code>，否则可能会导致内存泄漏。</p>
+<p>例如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">try</span> &#123;<br>    MyClass* obj = <span class="hljs-built_in">new</span> (<span class="hljs-number">42</span>) <span class="hljs-built_in">MyClass</span>();<br>&#125; <span class="hljs-built_in">catch</span> (...) &#123;<br>    <span class="hljs-comment">// 如果构造函数抛出异常，带参数的 operator delete 会被调用来释放内存</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p>这里 <code>42</code> 是传给 <code>operator new</code> 的额外参数，如果构造函数抛出异常，C++ 需要用相同的额外参数（42）调用 <code>operator delete</code> 来释放内存。</p>
+</li>
+<li>
+<p><strong>没有配对的风险：</strong><br>
+<strong>如果你只定义了带有额外参数的 <code>operator new</code>，但没有定义匹配的 <code>operator delete</code>，那么在构造函数抛出异常时，C++ 的runtime system会找不到合适的 <code>operator delete</code> 来释放内存，从而导致内存泄漏</strong>。</p>
+</li>
+</ol>
+<p>因此，在自定义带参数的 <code>operator new</code> 时，务必定义具有相同参数签名的 <code>operator delete</code>和普通版本的 <code>operator delete</code>，以确保异常安全性。</p>
+</blockquote>
+<blockquote>
+<p>在实现类的 placement operator new 的时候要注意不要用名字覆盖全局正常版本的 operator new 或基类声明的 operator new，覆盖见Item 33</p>
+</blockquote>
+<blockquote>
+<p>在 C++ 中，<code>operator new</code> 是用于动态内存分配的操作符。它有多个全局版本，可以根据不同的需求进行内存分配。以下是标准库中提供的几个全局 <code>operator new</code> 版本：</p>
+<h3 id="1-void-operator-new-std-size-t-size">1. <code>void* operator new(std::size_t size);</code></h3>
+<ul>
+<li>这个是最常见的 <code>new</code> 操作符，它分配大小为 <code>size</code> 的内存，并返回一个指向该内存块的指针。如果分配失败，会抛出 <code>std::bad_alloc</code> 异常。</li>
+</ul>
+<h3 id="2-void-operator-new-std-size-t-size-const-std-nothrow-t-noexcept">2. <code>void* operator new(std::size_t size, const std::nothrow_t&amp;) noexcept;</code></h3>
+<ul>
+<li>这是一个不抛出异常的版本。如果内存分配失败，它返回 <code>nullptr</code> 而不是抛出异常。</li>
+</ul>
+<h3 id="3-void-operator-new-std-size-t-size">3. <code>void* operator new[](std::size_t size);</code></h3>
+<ul>
+<li>用于分配数组类型的内存，与第一个版本类似，只不过它用于分配多个元素的连续内存。</li>
+</ul>
+<h3 id="4-void-operator-new-std-size-t-size-const-std-nothrow-t-noexcept">4. <code>void* operator new[](std::size_t size, const std::nothrow_t&amp;) noexcept;</code></h3>
+<ul>
+<li>不抛出异常的数组版本。如果分配失败，返回 <code>nullptr</code>。</li>
+</ul>
+<h3 id="5-Placement-new-void-operator-new-std-size-t-size-void-ptr-noexcept">5. Placement new: <code>void* operator new(std::size_t size, void* ptr) noexcept;</code></h3>
+<ul>
+<li>这个版本的 <code>new</code> 是“定位 new”（Placement new），不会分配新的内存，而是直接在给定的内存地址 <code>ptr</code> 处构造对象。这种用法常见于自定义内存管理。</li>
+</ul>
+<h3 id="6-void-operator-new-std-size-t-size-void-ptr-noexcept">6. <code>void* operator new[](std::size_t size, void* ptr) noexcept;</code></h3>
+<ul>
+<li>这是定位 new 的数组版本，用于在指定地址 <code>ptr</code> 上构造数组对象。</li>
+</ul>
+<h3 id="7-Aligned-allocation-C-17-引入的对齐分配版本">7. Aligned allocation (C++17 引入的对齐分配版本):</h3>
+<ul>
+<li><code>void* operator new(std::size_t size, std::align_val_t alignment);</code></li>
+<li><code>void* operator new(std::size_t size, std::align_val_t alignment, const std::nothrow_t&amp;) noexcept;</code></li>
+<li><code>void* operator new[](std::size_t size, std::align_val_t alignment);</code></li>
+<li><code>void* operator new[](std::size_t size, std::align_val_t alignment, const std::nothrow_t&amp;) noexcept;</code></li>
+</ul>
+<p>这些版本允许指定分配的内存块的对齐方式，以便支持对齐要求较高的数据类型。</p>
+<h3 id="8-自定义-operator-new">8. 自定义 <code>operator new</code></h3>
+<ul>
+<li>程序员还可以自定义 <code>new</code> 操作符，以实现自己的内存管理逻辑。</li>
+</ul>
+<p>这些不同版本的 <code>operator new</code> 提供了灵活的内存分配机制，适应不同的应用场景。当在类内部自定义了任何版本的 operator new，都将会覆盖这些标准形式正常版本的 operator new。一个简单的不覆盖的方式是声明一个StandardNewDeleteForms类，并且实现各个版本的new和相对应的delete，让自定义类继承这个类，并用using 声明</p>
+</blockquote>
+<p><img src="52-1.png" srcset="/img/loading.gif" lazyload alt="实现free和delete"><br>
+<img src="52-2.png" srcset="/img/loading.gif" lazyload alt="自定义类继承"></p>
 
                 
               </div>
