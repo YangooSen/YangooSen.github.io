@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/52-1.png">
 <meta property="og:image" content="http://example.com/2024/06/08/effectiveCPP/52-2.png">
 <meta property="article:published_time" content="2024-06-08T02:02:04.000Z">
-<meta property="article:modified_time" content="2024-09-23T16:20:53.873Z">
+<meta property="article:modified_time" content="2024-09-24T00:44:02.035Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="cpp">
 <meta name="twitter:card" content="summary_large_image">
@@ -202,7 +202,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          66k 字
+          70k 字
         
       </span>
     
@@ -213,7 +213,7 @@
         
         
         
-          550 分钟
+          581 分钟
         
       </span>
     
@@ -3728,6 +3728,263 @@ C++允许程序员通过<code>std::set_new_handler</code>函数指定一个自�
 <li>Don’t become depend on compiler warnings, because different compilers warn about different things. Porting to a new compilers may eliminate warning messages you’ve come to rely on.</li>
 </ul>
 <h2 id="Item-54-Familiarize-yourself-with-the-standard-library-including-TR1">Item 54: Familiarize yourself with the standard library including TR1</h2>
+<blockquote>
+<p>在C++中，输入输出操作通过标准库中的一组预定义的对象来处理。最常用的三个输入输出流对象是：</p>
+<ol>
+<li>
+<p><strong><code>cin</code></strong>（标准输入流）：</p>
+<ul>
+<li><code>cin</code> 是一个标准输入流对象，用于从键盘获取输入。</li>
+<li><code>cin</code> 使用的是输入运算符（<code>&gt;&gt;</code>），会根据用户输入的格式将数据读入变量中。输入时，<code>cin</code> 会忽略空格、换行符和制表符，直到遇到非空白字符开始读取。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-type">int</span> number;<br>    cout &lt;&lt; <span class="hljs-string">&quot;Enter a number: &quot;</span>;<br>    cin &gt;&gt; number;  <span class="hljs-comment">// 从用户输入读取数据</span><br>    cout &lt;&lt; <span class="hljs-string">&quot;You entered: &quot;</span> &lt;&lt; number &lt;&lt; endl;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>cout</code></strong>（标准输出流）：</p>
+<ul>
+<li><code>cout</code> 是一个标准输出流对象，用于向控制台输出数据。</li>
+<li><code>cout</code> 使用的是输出运算符（<code>&lt;&lt;</code>），可以输出各种数据类型并自动格式化。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    cout &lt;&lt; <span class="hljs-string">&quot;Hello, World!&quot;</span> &lt;&lt; endl;  <span class="hljs-comment">// 向控制台输出信息</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>cerr</code></strong>（标准错误流）：</p>
+<ul>
+<li><code>cerr</code> 是标准错误流对象，专门用于输出错误信息。</li>
+<li>与 <code>cout</code> 类似，<code>cerr</code> 也使用输出运算符（<code>&lt;&lt;</code>）来输出数据，但 <code>cerr</code> 的输出通常是未经缓冲的（unbuffered），意味着信息会立即输出到控制台，常用于错误或调试信息的输出。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    cerr &lt;&lt; <span class="hljs-string">&quot;Error: Something went wrong!&quot;</span> &lt;&lt; endl;  <span class="hljs-comment">// 输出错误信息</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>clog</code></strong>（标准日志流）：</p>
+<ul>
+<li><code>clog</code> 也是一个输出流对象，专门用于输出日志信息。</li>
+<li>与 <code>cerr</code> 不同的是，<code>clog</code> 是缓冲的（buffered），这意味着它的输出可能会稍微延迟，直到缓冲区被填满或程序显式刷新输出缓冲。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    clog &lt;&lt; <span class="hljs-string">&quot;Log: This is a log message.&quot;</span> &lt;&lt; endl;  <span class="hljs-comment">// 输出日志信息</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="总结：-2">总结：</h3>
+<ul>
+<li><strong><code>cin</code></strong>：从标准输入设备（通常是键盘）读取输入。</li>
+<li><strong><code>cout</code></strong>：向标准输出设备（通常是屏幕）输出数据。</li>
+<li><strong><code>cerr</code></strong>：向标准错误设备（通常是屏幕）输出错误信息（无缓冲）。</li>
+<li><strong><code>clog</code></strong>：向标准日志设备（通常是屏幕）输出日志信息（有缓冲）。</li>
+</ul>
+<p>这些对象都定义在头文件 <code>&lt;iostream&gt;</code> 中，并且通常与 C++ 标准流 <code>istream</code>、<code>ostream</code>、<code>iostream</code> 的类功能相关。</p>
+</blockquote>
+<blockquote>
+<p>C++ 的异常处理机制（Exception Handling）允许程序在运行时捕获并处理错误或异常情况，而不会导致程序崩溃。C++ 的异常处理系统由关键字 <code>try</code>、<code>throw</code> 和 <code>catch</code> 实现，通过抛出异常和捕获异常来处理程序中的错误。异常处理系统中的异常类型组织成一个层次结构，允许程序员定义和使用标准异常类以及自定义异常类。</p>
+<h3 id="C-异常系统的层次结构">C++ 异常系统的层次结构</h3>
+<p>C++ 提供了一组标准异常类，它们都继承自标准库中的 <code>std::exception</code> 类，形成了一种类层次结构。<code>std::exception</code> 是所有异常类的基类，其他异常类则从它派生出来。以下是 C++ 中常见的标准异常类及其层次结构：</p>
+<h4 id="1-std-exception（基类）">1. <code>std::exception</code>（基类）</h4>
+<ul>
+<li><code>std::exception</code> 是所有 C++ 标准异常的基类，位于头文件 <code>&lt;exception&gt;</code> 中。</li>
+<li>该类定义了一个虚拟成员函数 <code>what()</code>，用于返回异常的描述信息（通常为字符指针 <code>const char*</code>）。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;exception&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">exception</span>();<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::exception&amp; e) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="2-std-bad-alloc（内存分配错误）">2. <code>std::bad_alloc</code>（内存分配错误）</h4>
+<ul>
+<li>继承自 <code>std::exception</code>，用于表示在内存分配失败时抛出的异常（如 <code>new</code> 操作符分配内存失败）。</li>
+<li>头文件 <code>&lt;new&gt;</code> 中定义。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;new&gt;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-type">int</span>* arr = <span class="hljs-keyword">new</span> <span class="hljs-type">int</span>[<span class="hljs-number">100000000000</span>];  <span class="hljs-comment">// 可能分配失败</span><br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::bad_alloc&amp; e) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Memory allocation failed: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="3-std-bad-cast（类型转换失败）">3. <code>std::bad_cast</code>（类型转换失败）</h4>
+<ul>
+<li>继承自 <code>std::exception</code>，用于表示动态类型转换失败（<code>dynamic_cast</code>）时抛出的异常。</li>
+<li>头文件 <code>&lt;typeinfo&gt;</code> 中定义。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;typeinfo&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123; <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> </span>&#123;&#125; &#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Derived</span> : <span class="hljs-keyword">public</span> Base &#123;&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        Base* base = <span class="hljs-keyword">new</span> Base;<br>        Derived* derived = <span class="hljs-built_in">dynamic_cast</span>&lt;Derived*&gt;(base);  <span class="hljs-comment">// 转换失败</span><br>        <span class="hljs-keyword">if</span> (!derived) <span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">bad_cast</span>();<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::bad_cast&amp; e) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Bad cast: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="4-std-bad-typeid（类型信息获取失败）">4. <code>std::bad_typeid</code>（类型信息获取失败）</h4>
+<ul>
+<li>继承自 <code>std::exception</code>，在通过 <code>typeid</code> 操作获取空指针的类型信息时抛出异常。</li>
+<li>头文件 <code>&lt;typeinfo&gt;</code> 中定义。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;typeinfo&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span> &#123; <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">foo</span><span class="hljs-params">()</span> </span>&#123;&#125; &#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        Base* base = <span class="hljs-literal">nullptr</span>;<br>        std::cout &lt;&lt; <span class="hljs-built_in">typeid</span>(*base).<span class="hljs-built_in">name</span>() &lt;&lt; std::endl;  <span class="hljs-comment">// 会抛出 std::bad_typeid 异常</span><br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::bad_typeid&amp; e) &#123;<br>        std::cout &lt;&lt; <span class="hljs-string">&quot;Bad typeid: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="5-std-bad-function-call（无效的函数调用）">5. <code>std::bad_function_call</code>（无效的函数调用）</h4>
+<ul>
+<li>继承自 <code>std::exception</code>，表示无效的函数调用（如调用空 <code>std::function</code> 对象）时抛出的异常。</li>
+<li>头文件 <code>&lt;functional&gt;</code> 中定义。</li>
+</ul>
+<h4 id="6-std-logic-error（逻辑错误异常类）">6. <code>std::logic_error</code>（逻辑错误异常类）</h4>
+<ul>
+<li><code>std::logic_error</code> 是从 <code>std::exception</code> 派生的，用于表示程序逻辑上的错误，这些错误通常由代码中的设计缺陷引起，不应该通过运行时来捕获，而是应该在编写程序时避免。</li>
+<li>这个类主要用于捕获那些在编译时能预测到的错误。</li>
+<li>它的派生类有：
+<ul>
+<li><code>std::invalid_argument</code>：表示函数接收到无效的参数。</li>
+<li><code>std::domain_error</code>：表示数学函数的输入超出了有效范围。</li>
+<li><code>std::length_error</code>：表示尝试创建超出最大长度的对象。</li>
+<li><code>std::out_of_range</code>：表示数组或容器访问超出了有效范围。</li>
+</ul>
+</li>
+</ul>
+<h4 id="7-std-runtime-error（运行时错误异常类）">7. <code>std::runtime_error</code>（运行时错误异常类）</h4>
+<ul>
+<li><code>std::runtime_error</code> 也是从 <code>std::exception</code> 派生的，用于表示程序运行时出现的错误，这些错误是程序无法避免的异常情况（如文件读取失败、数学错误等）。</li>
+<li>它的派生类有：
+<ul>
+<li><code>std::range_error</code>：表示算术运算产生超出有效范围的结果。</li>
+<li><code>std::overflow_error</code>：表示算术运算导致溢出。</li>
+<li><code>std::underflow_error</code>：表示算术运算导致下溢。</li>
+</ul>
+</li>
+</ul>
+<h3 id="C-异常处理的基本流程">C++ 异常处理的基本流程</h3>
+<ol>
+<li>
+<p><strong><code>throw</code></strong> 关键字：</p>
+<ul>
+<li>用于抛出异常，当程序检测到错误时，通过 <code>throw</code> 抛出异常对象。</li>
+<li>可以抛出标准异常对象，也可以抛出用户自定义的异常对象。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">throw</span> std::<span class="hljs-built_in">runtime_error</span>(<span class="hljs-string">&quot;Error occurred&quot;</span>);<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>try</code> 块</strong>：</p>
+<ul>
+<li>用于包裹可能会抛出异常的代码，异常会在 <code>try</code> 块中抛出。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-comment">// 可能抛出异常的代码</span><br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+<li>
+<p><strong><code>catch</code> 块</strong>：</p>
+<ul>
+<li>用于捕获异常，<code>catch</code> 块后紧跟一个参数，表示捕获的异常类型。</li>
+<li>一个 <code>try</code> 块可以有多个 <code>catch</code> 块，每个 <code>catch</code> 块捕获不同类型的异常。</li>
+<li>示例：<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">try</span> &#123;<br>    <span class="hljs-comment">// 可能抛出异常的代码</span><br>&#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> std::exception&amp; e) &#123;<br>    std::cout &lt;&lt; <span class="hljs-string">&quot;Caught exception: &quot;</span> &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+</li>
+</ol>
+<h3 id="自定义异常类">自定义异常类</h3>
+<p>C++ 允许程序员定义自己的异常类，可以继承自 <code>std::exception</code> 或其他标准异常类，重写 <code>what()</code> 方法提供更具体的异常描述。</p>
+<p>示例：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;exception&gt;</span></span><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyException</span> : <span class="hljs-keyword">public</span> std::exception &#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">const</span> <span class="hljs-type">char</span>* <span class="hljs-title">what</span><span class="hljs-params">()</span> <span class="hljs-type">const</span> <span class="hljs-keyword">noexcept</span> <span class="hljs-keyword">override</span> </span>&#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-string">&quot;Custom exception occurred&quot;</span>;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span> </span>&#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-built_in">MyException</span>();<br>    &#125; <span class="hljs-built_in">catch</span> (<span class="hljs-type">const</span> MyException&amp; e) &#123;<br>        std::cout &lt;&lt; e.<span class="hljs-built_in">what</span>() &lt;&lt; std::endl;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="总结-27">总结</h3>
+<p>C++ 的异常处理系统层次结构以 <code>std::exception</code> 为基类，派生出各种标准异常类，如 <code>std::runtime_error</code> 和 <code>std::logic_error</code>，这些类进一步派生出更多具体的异常类型。开发者可以捕获这些异常，或定义自定义异常来处理特定的错误情况。</p>
+</blockquote>
+<blockquote>
+<p><strong>TR1</strong> 是一个技术规范，它定义了一系列特性和库接口，但它本身并不提供具体的实现。TR1 的具体实现是由不同的编译器和标准库供应商提供的，类似于 C++ 标准库的其他部分。</p>
+<h3 id="TR1-的实现与依赖">TR1 的实现与依赖</h3>
+<p>不同编译器和库供应商（如 GCC、Clang、Microsoft Visual C++ 等）通常会根据 TR1 规范提供具体的实现。这些实现可能存在于标准库的不同命名空间中，也可能通过额外的库来提供支持。在某些编译器中，TR1 的特性需要通过特定的标志或库链接来使用。</p>
+<h4 id="不同编译器的-TR1-实现">不同编译器的 TR1 实现</h4>
+<ol>
+<li>
+<p><strong>GCC（GNU Compiler Collection）</strong><br>
+GCC 提供了对 TR1 的支持，通常通过 <code>libstdc++</code> 标准库实现。在 GCC 中，TR1 的功能可以在 <code>&lt;tr1/...&gt;</code> 头文件中找到，TR1 的内容通常位于 <code>std::tr1</code> 命名空间中。比如：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;tr1/memory&gt;</span></span><br>std::<span class="hljs-function">tr1::shared_ptr&lt;<span class="hljs-type">int</span>&gt; <span class="hljs-title">p</span><span class="hljs-params">(<span class="hljs-keyword">new</span> <span class="hljs-type">int</span>(<span class="hljs-number">10</span>))</span></span>;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>Clang</strong><br>
+Clang 与 GCC 一样，使用 <code>libstdc++</code> 或 <code>libc++</code> 提供 TR1 支持。<code>libc++</code> 作为一个独立的标准库实现，也提供了与 TR1 兼容的功能，默认支持 C++11 和更新版本。</p>
+</li>
+<li>
+<p><strong>Microsoft Visual C++ (MSVC)</strong><br>
+在 Visual Studio 中，TR1 特性曾经被包含在 <code>tr1</code> 命名空间中。早期的 Visual C++ 版本通过 <code>std::tr1</code> 提供 TR1 特性。但自从 C++11 发布后，MSVC 逐渐将 TR1 特性移入标准库的 <code>std</code> 命名空间，并淘汰了对 <code>std::tr1</code> 的支持。例如，在 Visual Studio 2010 及之前的版本中，你可以看到 TR1 的支持，而在更新的版本中则直接使用 C++11 特性。</p>
+</li>
+<li>
+<p><strong>其他编译器和库</strong><br>
+一些嵌入式编译器或专用平台的编译器也可能实现了 TR1 特性，不过这些实现可能并不完整，或者需要依赖第三方库（如 Boost）来提供部分功能。</p>
+</li>
+</ol>
+<h3 id="依赖-TR1-实现的库">依赖 TR1 实现的库</h3>
+<p>在 TR1 规范发布之前和之后，很多开发者使用第三方库来提供这些功能。最著名的就是 <strong>Boost 库</strong>，它是一个广泛使用的 C++ 第三方库，许多 TR1 特性最初就是从 Boost 库中提取和标准化的。</p>
+<ul>
+<li><strong>Boost 和 TR1</strong><br>
+Boost 提供了很多与 TR1 类似的功能，比如 <code>boost::shared_ptr</code>、<code>boost::tuple</code> 和 <code>boost::function</code> 等，这些组件后来成为 TR1 和 C++11 标准库的一部分。因此，很多在使用 TR1 特性时，也会考虑使用 Boost 库，尤其是在编译器对 TR1 支持不完整或不一致的情况下。</li>
+</ul>
+<h3 id="总结-28">总结</h3>
+<ul>
+<li><strong>TR1 是标准规范</strong>：它定义了一系列新特性和库组件，但具体实现依赖于不同的编译器和标准库供应商。</li>
+<li><strong>编译器实现 TR1</strong>：不同的编译器可能有不同的实现方式，并且 TR1 的实现通常在命名空间 <code>std::tr1</code> 中，而在 C++11 标准中这些特性被迁移到了 <code>std</code> 命名空间。</li>
+<li><strong>第三方库如 Boost</strong>：在 TR1 和 C++11 发布之前，Boost 库提供了许多类似的功能，开发者可以依赖 Boost 来获得类似于 TR1 的功能。<br>
+总的来说，TR1 作为过渡期的规范起到了连接传统 C++ 和现代 C++ 的桥梁作用，<strong>而在现代编译器中，TR1 的大部分功能已经被整合到 C++11 标准库中，因此更推荐使用标准库的实现</strong></li>
+</ul>
+</blockquote>
+<blockquote>
+<p>在C++中，<code>TR1</code>（Technical Report 1）是C++标准库的一个扩展，它提供了一些新特性和组件，旨在改进标准库的功能和增强对现代编程需求的支持。TR1是由ISO/IEC的一个技术小组开发的，并在C++0x标准（即C++11）之前推出，很多TR1中的功能最终被纳入了C++11标准中。</p>
+<h3 id="TR1中的主要组件">TR1中的主要组件</h3>
+<p>TR1 引入了一些新特性，虽然在C++11及后续标准中它们被直接整合，但在使用早期编译器时，仍有可能看到对TR1的引用。以下是TR1中引入的一些主要组件：</p>
+<ol>
+<li>
+<p><strong>智能指针 (<code>smart pointers</code>)</strong><br>
+TR1 引入了 <code>shared_ptr</code> 和 <code>weak_ptr</code>，用于更好地管理动态内存。</p>
+<ul>
+<li><code>shared_ptr</code>: 引用计数的智能指针，多个指针可以共享同一个对象，当最后一个引用被销毁时，自动释放内存。</li>
+<li><code>weak_ptr</code>: 辅助 <code>shared_ptr</code>，防止循环引用。</li>
+</ul>
+</li>
+<li>
+<p><strong>正则表达式 (<code>regex</code>)</strong><br>
+TR1 中引入了正则表达式的库，允许更高效地匹配字符串模式，C++11正式将它们作为标准的一部分。</p>
+<ul>
+<li><code>std::regex</code>: 用于定义正则表达式的类。</li>
+<li><code>std::smatch</code> 和 <code>std::cmatch</code>: 用于存储匹配结果的容器类。</li>
+</ul>
+</li>
+<li>
+<p><strong>元组 (<code>tuple</code>)</strong><br>
+TR1引入了 <code>std::tuple</code>，允许将多个类型不同的对象组合在一起形成一个元组对象，这在函数返回多个值时特别有用。</p>
+<ul>
+<li><code>std::tuple</code>: 可以存储不同类型的多个值的集合。</li>
+<li><code>std::get</code>: 用于从元组中获取值。</li>
+</ul>
+</li>
+<li>
+<p><strong>哈希表 (<code>hash table</code>)</strong><br>
+TR1 中的哈希表提供了 <code>std::unordered_map</code> 和 <code>std::unordered_set</code>，它们使用哈希算法来进行快速查找。C++11中正式引入了这些容器。</p>
+<ul>
+<li><code>std::unordered_map</code>: 基于哈希表实现的映射容器。</li>
+<li><code>std::unordered_set</code>: 不重复的无序集合。</li>
+</ul>
+</li>
+<li>
+<p><strong>随机数生成 (<code>random number generation</code>)</strong><br>
+TR1引入了一个灵活的随机数生成框架。C++11对其进行了扩展和标准化。</p>
+<ul>
+<li><code>std::random_device</code>: 提供了一个硬件生成的随机数。</li>
+<li><code>std::mt19937</code>: 梅森旋转算法，用于生成伪随机数。</li>
+</ul>
+</li>
+<li>
+<p><strong>数学特殊函数 (<code>mathematical special functions</code>)</strong><br>
+TR1 提供了一些高级的数学函数，比如贝塞尔函数、伽马函数、误差函数等。这些功能对一些科学计算应用特别有用。</p>
+</li>
+<li>
+<p><strong>函数对象 (<code>function objects</code>)</strong><br>
+TR1引入了 <code>std::function</code>，允许存储和调用任意的可调用对象（函数、lambda表达式、函数指针等），使函数更加灵活。</p>
+<ul>
+<li><code>std::function</code>: 用于存储和调用可调用对象。</li>
+<li><code>std::bind</code>: 用于绑定函数参数。</li>
+</ul>
+</li>
+<li>
+<p><strong>类型特征 (<code>type traits</code>)</strong><br>
+TR1 引入了类型特征，用于在编译期检测类型的各种特性（如是否为指针类型、是否为整型等），这在模板元编程中特别有用。</p>
+</li>
+</ol>
+<h3 id="TR1-和-C-11-的关系">TR1 和 C++11 的关系</h3>
+<p>TR1 最初是作为C++标准库的扩展引入的，但它并不是正式的标准。随着C++11的发布，TR1的绝大多数组件被纳入了C++标准库，并得到了进一步改进和扩展。因此，使用现代C++时，开发者通常直接使用C++11中的对应功能，而无需再显式依赖TR1。</p>
+<h3 id="使用TR1的场景">使用TR1的场景</h3>
+<ul>
+<li>在旧版本的编译器（如不支持C++11的编译器）中，TR1可以作为引入上述特性的方式。</li>
+<li>对于使用较老的C++代码库，可能仍然会看到对TR1的引用，尤其是使用了特定库或特性的代码。</li>
+</ul>
+<p>总结来说，TR1在C++演进过程中起到了重要的过渡作用，提供了在正式标准化之前的一些重要功能。不过，随着C++11及后续标准的引入，大多数TR1特性已经成为现代C++的一部分。</p>
+</blockquote>
+<h2 id="Item-55-Familiarize-yourself-with-Boost">Item 55: Familiarize yourself with Boost</h2>
+<p>Boost offers implementations of many TR1 components, but it also offers many other libraries, too.</p>
 
                 
               </div>
