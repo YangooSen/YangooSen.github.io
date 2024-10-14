@@ -24,7 +24,7 @@
 <meta property="og:description" content="与服务器交互的一些命令">
 <meta property="og:locale" content="zh_CN">
 <meta property="article:published_time" content="2024-05-15T07:37:24.000Z">
-<meta property="article:modified_time" content="2024-05-26T03:20:11.909Z">
+<meta property="article:modified_time" content="2024-10-14T14:31:15.896Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary_large_image">
@@ -188,7 +188,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          64 字
+          3k 字
         
       </span>
     
@@ -199,7 +199,7 @@
         
         
         
-          1 分钟
+          26 分钟
         
       </span>
     
@@ -244,6 +244,280 @@
                 <h1>sftp</h1>
 <p>不要用scp，似乎有很多bug且麻烦，<a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/51749905">Linux 命令详解：SFTP</a></p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#连接服务器</span><br>sftp -P remote_port remote_user@remote_host<br><br><span class="hljs-comment">#下载服务器文件</span><br>get /path/remote_file<br><br><span class="hljs-comment">#上传服务器文件</span><br>put local_file<br><br><span class="hljs-comment">#查看服务器目录内容</span><br><span class="hljs-built_in">ls</span><br><br><span class="hljs-comment">#查看本地目录内容</span><br>lls<br><br></code></pre></td></tr></table></figure>
+<h1>linux权限</h1>
+<p>/etc/passwd 文件存储了所有UID和相关信息，但是为了安全每个UID对应的密码被保存在/etc/shadow。/etc/group 文件保存了所有GID和相关信息</p>
+<h2 id="文件权限">文件权限</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#查看文件权限</span><br><span class="hljs-built_in">ls</span> -l <br><br>drwxr-xr-x   1 user  group   4096  Oct 12 12:00  filename<br><br></code></pre></td></tr></table></figure>
+<p>在 <code>ls -l</code> 命令输出中，权限编码显示的是文件或目录的权限，它采用一个 10 个字符的字符串来表示，具体结构如下：</p>
+<figure class="highlight apache"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs apache"><span class="hljs-attribute">drwxr</span>-xr-x   <span class="hljs-number">1</span> user  group   <span class="hljs-number">4096</span>  Oct <span class="hljs-number">12</span> <span class="hljs-number">12</span>:<span class="hljs-number">00</span>  filename<br></code></pre></td></tr></table></figure>
+<ol>
+<li>
+<p><strong>第一个字符（文件类型）</strong>：</p>
+<ul>
+<li><code>-</code>：表示普通文件（regular file）。</li>
+<li><code>d</code>：表示目录（directory）。</li>
+<li><code>l</code>：表示符号链接（symbolic link）。</li>
+<li><code>b</code>：表示块设备文件（block device）。</li>
+<li><code>c</code>：表示字符设备文件（character device）。</li>
+<li><code>p</code>：表示命名管道（FIFO）。</li>
+<li><code>s</code>：表示套接字文件（socket）。</li>
+</ul>
+</li>
+<li>
+<p><strong>后面的 9 个字符（权限位）</strong>：<br>
+这 9 个字符表示文件所有者、所属组以及其他用户的权限，按三个三组来划分，每一组表示不同用户的权限，具体如下：</p>
+<ul>
+<li><strong>第 2 到第 4 个字符</strong>：表示文件所有者（user）的权限。</li>
+<li><strong>第 5 到第 7 个字符</strong>：表示文件所属组（group）的权限。</li>
+<li><strong>第 8 到第 10 个字符</strong>：表示其他用户（others）的权限。</li>
+</ul>
+<p>每组字符的结构如下：</p>
+<ul>
+<li><code>r</code>：表示可读（read）。</li>
+<li><code>w</code>：表示可写（write）。</li>
+<li><code>x</code>：表示可执行（execute）。</li>
+<li><code>-</code>：表示没有该权限。</li>
+</ul>
+</li>
+</ol>
+<blockquote>
+<p>在 Linux 系统中，文件权限中的 <code>x</code> 代表“可执行权限”。具体含义如下：</p>
+<ul>
+<li>
+<p>对于<strong>文件</strong>，<code>x</code> 表示该文件可以作为一个可执行文件运行，即它可以是一个二进制程序、脚本（如 Shell 脚本）、或者其它类型的可执行文件。如果没有这个权限，用户就无法直接运行这个文件。</p>
+</li>
+<li>
+<p>对于<strong>目录</strong>，<code>x</code> 表示该目录可以被进入（进入目录的权限），即用户可以使用 <code>cd</code> 命令进入该目录，并可以访问该目录下的文件和子目录（前提是还要有读取权限 <code>r</code>）。</p>
+</li>
+</ul>
+</blockquote>
+<p>例如：</p>
+   <figure class="highlight ebnf"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs ebnf"><span class="hljs-attribute">drwxr-xr-x</span><br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>第 1 个字符</strong>：<code>d</code> 表示目录。</li>
+<li><strong>第 2 到第 4 个字符</strong>：<code>rwx</code> 表示文件所有者有读、写、执行的权限。</li>
+<li><strong>第 5 到第 7 个字符</strong>：<code>r-x</code> 表示所属组用户有读和执行的权限，但没有写的权限。</li>
+<li><strong>第 8 到第 10 个字符</strong>：<code>r-x</code> 表示其他用户有读和执行的权限，但没有写的权限。</li>
+</ul>
+<blockquote>
+<p><code>ls -l</code> 命令在 Linux 和 Unix 系统中用于列出目录中的文件和子目录的详细信息。以下是该命令输出的信息项：</p>
+<ol>
+<li>
+<p><strong>文件类型和权限</strong>：第一个字符表示文件类型（如普通文件、目录等），后面的字符表示文件的访问权限（读、写、执行）。</p>
+</li>
+<li>
+<p><strong>链接数</strong>：显示链接到该文件的硬链接数。</p>
+</li>
+<li>
+<p><strong>所有者</strong>：文件的所有者用户名。</p>
+</li>
+<li>
+<p><strong>用户组</strong>：文件所属的用户组名称。</p>
+</li>
+<li>
+<p><strong>文件大小</strong>：以字节为单位显示文件的大小。</p>
+</li>
+<li>
+<p><strong>修改日期和时间</strong>：显示文件最后修改的日期和时间。</p>
+</li>
+<li>
+<p><strong>文件名</strong>：文件或目录的名称。</p>
+</li>
+</ol>
+</blockquote>
+<p>文件的默认权限由 umask 控制，可以在命令行中查看，在配置文件中修改后即可修改文件的默认权限。<br>
+<code>umask</code> 控制 Linux 系统中新创建文件和目录的默认权限，它的作用是指定“<strong>应该去掉</strong>”哪些权限，而不是直接设定权限。因此，<code>umask</code> 的输出和权限的关系可以通过“从最大权限中减去 umask 值”来理解。</p>
+<ol>
+<li><strong>权限的基本概念</strong></li>
+</ol>
+<p>Linux 中的文件和目录权限分为三类：</p>
+<ul>
+<li><strong>Owner</strong>（文件所有者的权限）</li>
+<li><strong>Group</strong>（文件所属组的权限）</li>
+<li><strong>Others</strong>（其他用户的权限）</li>
+</ul>
+<p>每一类权限又分为三种操作权限：</p>
+<ul>
+<li><strong>r</strong>（read，读权限，值是<code>4</code>）</li>
+<li><strong>w</strong>（write，写权限，值是<code>2</code>）</li>
+<li><strong>x</strong>（execute，执行权限，值是<code>1</code>）</li>
+</ul>
+<p>因此，权限的组合是使用一个三位八进制数字表示的，转换成二进制(rwx)就是1有对应权限，0没有对应权限，例如：</p>
+<ul>
+<li><code>rwx</code> 对应的值是 <code>7</code>(二进制 111)</li>
+<li><code>rw-</code> 对应的值是 <code>6</code>(二进制 110）</li>
+<li><code>r--</code> 对应的值是 <code>4</code>(二进制 100)</li>
+</ul>
+<p>每个类的权限对应一个八进制数字，</p>
+<ol start="2">
+<li><strong>umask 输出的格式</strong></li>
+</ol>
+<p><code>umask</code> 输出是一个四位或三位的八进制数字，如 <code>0022</code> 或 <code>022</code>。每一位数字代表的含义是：</p>
+<ul>
+<li><strong>第一位（可选的，通常是 0）</strong>：文件的特殊权限（如 SUID、SGID、粘滞位），一般不影响文件权限。</li>
+<li><strong>后三位</strong>：分别对应“所有者”、“组”、“其他人”的权限掩码。</li>
+</ul>
+<p>例如 <code>0022</code> 的意思是：</p>
+<ul>
+<li>第一个 <code>0</code>：没有特殊权限。</li>
+<li>第二个 <code>0</code>：不去掉所有者的任何权限。</li>
+<li>第三个 <code>2</code>：去掉组的写权限。</li>
+<li>第四个 <code>2</code>：去掉其他用户的写权限。</li>
+</ul>
+<ol start="3">
+<li><strong>文件和目录的默认权限</strong></li>
+</ol>
+<p>新文件和目录的默认最大权限是：</p>
+<ul>
+<li><strong>文件</strong>：最大权限是 <code>666</code>，即 <code>rw-rw-rw-</code>，因为新文件通常不会自动设置执行权限。</li>
+<li><strong>目录</strong>：最大权限是 <code>777</code>，即 <code>rwxrwxrwx</code>，因为目录必须具备执行权限才能进入。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">umask</span> 026<br><span class="hljs-built_in">touch</span> <span class="hljs-built_in">test</span><br>-rw-r----- 1<br></code></pre></td></tr></table></figure>
+<p>666-026=640，6表示属主rw-，4表示属组r–，0表示其他用户—</p>
+<h2 id="修改文件权限">修改文件权限</h2>
+<figure class="highlight vim"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs vim">#change <span class="hljs-keyword">mode</span><br>chmod [<span class="hljs-keyword">options</span>] <span class="hljs-keyword">mode</span> <span class="hljs-keyword">file</span><br><br></code></pre></td></tr></table></figure>
+<p>其中mode有两种方法表示：</p>
+<ul>
+<li>八进制数字表示法：例如修改文件权限可以直接 chmod 777 file，这样赋予文件所有人所有权限</li>
+<li>符号表示法，用三个字符表示如何操作权限，前两个字符代表的含义如下
+<ul>
+<li>
+<p><strong>u</strong>：用户（文件所有者）</p>
+</li>
+<li>
+<p><strong>g</strong>：组（文件所有者所属的组）</p>
+</li>
+<li>
+<p><strong>o</strong>：其他人</p>
+</li>
+<li>
+<p><strong>a</strong>：所有人（等同于 u、g、o）</p>
+</li>
+<li>
+<p><code>+</code>：添加权限</p>
+</li>
+<li>
+<p><code>-</code>：移除权限</p>
+</li>
+<li>
+<p><code>=</code>：设定精确权限</p>
+</li>
+</ul>
+</li>
+</ul>
+<p>例子：</p>
+<ul>
+<li><code>chmod u+x file</code>：为文件所有者添加执行权限。</li>
+<li><code>chmod g-w file</code>：移除组用户的写权限。</li>
+<li><code>chmod a=r file</code>：将文件的权限设置为所有用户只读。</li>
+</ul>
+<h2 id="修改所属关系">修改所属关系</h2>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#change Owner</span><br><span class="hljs-built_in">chown</span> [options] owner.[group] file<br><br></code></pre></td></tr></table></figure>
+<p>将指定文件修改为指定的属主和属组</p>
+<h2 id="三个特殊权限">三个特殊权限</h2>
+<p>在 Linux 文件权限中，除了常见的读、写、执行权限 (rwx) 之外，还有三个特殊的权限位，分别是 SUID (Set User ID)、SGID (Set Group ID) 和粘滞位 (Sticky Bit)。这些权限位为用户和进程提供了额外的控制，允许文件或目录执行特殊的行为。以下是详细解释：</p>
+<h3 id="1-SUID-Set-User-ID">1. SUID (Set User ID)</h3>
+<p>SUID 位主要应用于可执行文件，允许一个用户以文件所有者的权限执行该文件，而不仅仅是以当前用户的权限执行。</p>
+<ul>
+<li>
+<p><strong>作用</strong>：当文件设置了 SUID 位时，执行该文件的用户会临时获得文件所有者的权限。例如，如果一个程序的文件拥有者是 <code>root</code>，那么即使普通用户运行该程序，他们也会在执行程序的过程中临时拥有 <code>root</code> 权限。</p>
+</li>
+<li>
+<p><strong>显示方式</strong>：在文件权限中，SUID 位显示在文件所有者的执行权限位(x位，第三位)上。如果设置了 SUID 位并且该文件所有者有执行权限，该位显示为 <code>s</code>；如果没有执行权限，该位显示为 <code>S</code>。</p>
+<p>示例：</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xquery">-rwsr-xr-x  <span class="hljs-number">1</span><span class="hljs-built_in"> root</span><span class="hljs-built_in"> root</span>  /usr/bin/passwd<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>passwd</code> 命令的所有者 <code>root</code> 有 SUID 权限。用户执行 <code>passwd</code> 命令时，临时拥有 <code>root</code> 权限，允许他们修改密码。</p>
+</li>
+<li>
+<p><strong>设置方式</strong>：使用 <code>chmod</code> 命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chmod</span> u+s filename<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="2-SGID-Set-Group-ID">2. SGID (Set Group ID)</h3>
+<p>SGID 位可以应用于可执行文件和目录，其作用在文件和目录上有所不同。</p>
+<ul>
+<li>
+<p><strong>文件上的作用</strong>：如果一个可执行文件设置了 SGID 位，用户在执行该文件时会临时以文件所属组的权限执行。类似于 SUID 位的作用，只不过这是针对组权限。</p>
+</li>
+<li>
+<p><strong>目录上的作用</strong>：<strong>SGID 位在目录上非常有用。设置 SGID 位的目录中的新文件或子目录，会自动继承该目录的组权限，而不是创建文件的用户的默认组。这对于协作项目中的文件共享非常方便。</strong></p>
+</li>
+<li>
+<p><strong>显示方式</strong>：在文件权限中，SGID 位显示在组执行权限位上。如果设置了 SGID 位并且该组有执行权限，该位显示为 <code>s</code>；如果没有执行权限，该位显示为 <code>S</code>。</p>
+<p>示例：</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs pgsql">drwxrwsr-x  <span class="hljs-number">2</span> <span class="hljs-keyword">user</span> <span class="hljs-keyword">group</span>  /<span class="hljs-type">path</span>/<span class="hljs-keyword">to</span>/dir<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>/path/to/dir</code> 目录具有 SGID 位，表示该目录内新创建的文件将自动继承 <code>group</code> 组的权限。</p>
+</li>
+<li>
+<p><strong>设置方式</strong>：使用 <code>chmod</code> 命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chmod</span> g+s filename_or_directory<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>目录设置了SGID之后，强制该目录下创建的所有文件的组权限都是SGID对应的权限，在文件共享中很有用</p>
+<h3 id="3-粘滞位-Sticky-Bit">3. 粘滞位 (Sticky Bit)</h3>
+<p>粘滞位主要用于目录，特别是像 <code>/tmp</code> 这样的公共目录，用于限制对目录中文件的删除操作。</p>
+<ul>
+<li>
+<p><strong>作用</strong>：如果在一个目录上设置了粘滞位，只有文件的所有者、目录的所有者或者超级用户 (<code>root</code>) 可以删除目录中的文件。其他用户即使有写权限，也不能删除他们没有所有权的文件。这对公共访问目录中的文件安全性非常重要。</p>
+</li>
+<li>
+<p><strong>显示方式</strong>：粘滞位显示在其他用户的执行权限位上。如果设置了粘滞位并且其他用户有执行权限，该位显示为 <code>t</code>；如果没有执行权限，该位显示为 <code>T</code>。</p>
+<p>示例：</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs xquery">drwxrwxrwt  <span class="hljs-number">2</span><span class="hljs-built_in"> root</span><span class="hljs-built_in"> root</span>  /tmp<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>/tmp</code> 目录具有粘滞位，表示只有文件的所有者可以删除该目录中的文件，防止其他用户误删或恶意删除。</p>
+</li>
+<li>
+<p><strong>设置方式</strong>：使用 <code>chmod</code> 命令：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">chmod</span> +t directory<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="总结">总结</h3>
+<ul>
+<li><strong>SUID</strong>：允许文件被执行时以文件所有者的权限运行。</li>
+<li><strong>SGID</strong>：允许文件被执行时以文件所属组的权限运行，或目录中的新文件继承目录的组。</li>
+<li><strong>粘滞位</strong>：防止用户删除他们没有所有权的文件，即使他们对目录有写权限。</li>
+</ul>
+<p>这三个额外信息位为 Linux 系统提供了更灵活的权限管理功能，特别是在多人协作的环境中非常有用</p>
+<h2 id="访问控制列表ACL">访问控制列表ACL</h2>
+<p>ACL允许指定<strong>多个用户或组的列表</strong>，以及为其分配权限，控制粒度更细，不只是能以<code>属主``属组``其他</code>来分配权限，而是能给任何某个用户任何某个组来分配权限</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#get file ACL</span><br>getfacl file<br><br><span class="hljs-comment">#set file acl</span><br>setfacl [options] rule file<br><br></code></pre></td></tr></table></figure>
+<h3 id="查看-ACL"><strong>查看 ACL</strong></h3>
+<p>当使用ls -l输出中末尾有一个+加号的时候表明这个文件使用了ACL，使用 <code>getfacl</code> 命令查看文件或目录的 ACL。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">getfacl filename<br></code></pre></td></tr></table></figure>
+<p>示例输出：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># file: filename</span><br><span class="hljs-comment"># owner: user1</span><br><span class="hljs-comment"># group: group1</span><br>user::rw-<br>user:user2:r--<br>group::r--<br>mask::r--<br>other::r--<br></code></pre></td></tr></table></figure>
+<p>这个输出展示了文件 <code>filename</code> 的所有者是 <code>user1</code>，且他有读写权限 (<code>rw-</code>)。文件所属组 <code>group1</code> 和其他用户只有读权限 (<code>r--</code>)，而用户 <code>user2</code> 也被显式赋予了读权限 (<code>r--</code>)。</p>
+<h4 id="设置-ACL"><strong>设置 ACL</strong></h4>
+<p>使用 <code>setfacl</code> 命令来为文件或目录设置 ACL。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">setfacl -m u:user2:rw filename<br>setfacl -m g:root:rwx <span class="hljs-built_in">test</span><br></code></pre></td></tr></table></figure>
+<p>上面的命令将为文件 <code>filename</code> 设置用户 <code>user2</code> 的读写权限。为文件<code>test</code>设置组<code>root</code>组的rwx权限</p>
+<p>常见的选项包括：</p>
+<ul>
+<li>
+<p><code>-m</code>：修改 ACL。</p>
+</li>
+<li>
+<p><code>-x</code>：删除 ACL。</p>
+</li>
+<li>
+<p><code>-b</code>：移除所有 ACL。</p>
+</li>
+<li>
+<p><code>u[ser]:username:permit</code></p>
+</li>
+<li>
+<p><code>g[roup]:groupname:permit</code></p>
+</li>
+<li>
+<p><code>o[ther]:permit</code></p>
+</li>
+</ul>
+<h4 id="设置默认-ACL"><strong>设置默认 ACL</strong></h4>
+<p>对于目录，ACL 还可以定义<strong>默认 ACL</strong>，当<strong>目录</strong>中的新文件或子目录创建时，会继承这些默认的 ACL 权限。使用 <code>d:</code> 前缀指定默认 ACL。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">setfacl -m d:u:user2:rw <span class="hljs-built_in">dirname</span><br></code></pre></td></tr></table></figure>
+<p>这样，当在目录 <code>dirname</code> 中创建新文件时，<code>user2</code> 自动拥有读写权限。</p>
+<h3 id="4-掩码（Mask）">4. <strong>掩码（Mask）</strong></h3>
+<p>掩码控制的是组 ACL 条目和其他用户的最大权限。它定义了所有非所有者 ACL 条目的最大权限。这意味着即使某个用户或组被分配了某些权限，掩码也可以限制这些权限的实际应用</p>
 
                 
               </div>
