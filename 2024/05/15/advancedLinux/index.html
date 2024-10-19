@@ -23,11 +23,13 @@
 <meta property="og:site_name" content="YangooSen">
 <meta property="og:description" content="与服务器交互的一些命令">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/05/15/advancedLinux/systemd.png">
 <meta property="article:published_time" content="2024-05-15T07:37:24.000Z">
-<meta property="article:modified_time" content="2024-10-18T16:54:58.647Z">
+<meta property="article:modified_time" content="2024-10-19T10:43:53.794Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="http://example.com/2024/05/15/advancedLinux/systemd.png">
   
   
   
@@ -188,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.7k 字
+          12k 字
         
       </span>
     
@@ -199,7 +201,7 @@
         
         
         
-          31 分钟
+          101 分钟
         
       </span>
     
@@ -570,6 +572,584 @@
 <ul>
 <li>硬件初始化 (BIOS/UEFI) -&gt; 引导加载程序 (GRUB) -&gt; 加载内核 (vmlinuz) -&gt; 加载初始内存盘 (initramfs) -&gt; 内核初始化 -&gt; Init/Systemd 启动用户空间服务 -&gt; 登录系统。</li>
 </ul>
+<p>![start][start.jpg]</p>
+<p>系统启动后，会自动运行 init daemon 这个 PID=1 的守护进程，他是所有进程的父进程。实现 init daemon 功能的有两种架构</p>
+<ul>
+<li>init 架构，也被称为 System V Init</li>
+<li>systemd 架构</li>
+</ul>
+<h2 id="init架构">init架构</h2>
+<p>SysVinit 是传统的 <code>init</code> 实现方式，遵循 Unix 的 “System V” 风格。它的工作原理主要基于运行级别（runlevel）。</p>
+<p><strong>初始化流程</strong>：系统启动时，内核加载并启动 <code>init</code> 进程。<code>init</code> 读取 <code>/etc/inittab</code> 文件，确定系统应该进入的运行级别（runlevel）。</p>
+<blockquote>
+<p>在自己的系统中没找到/etc/inittab<br>
+<strong>运行级别（Runlevels）</strong>：</p>
+</blockquote>
+<ul>
+<li>运行级别定义了系统应该运行哪些服务，通常包括：</li>
+<li>0：关机</li>
+<li>1：单用户模式</li>
+<li>2：多用户模式（不含网络）</li>
+<li>3：多用户模式（含网络）</li>
+<li>5：图形界面模式</li>
+<li>6：重启</li>
+</ul>
+<p><code>init</code> 根据运行级别的配置启动不同的服务脚本，这些脚本位于 <code>/etc/rc.d/</code> 或 <code>/etc/init.d/</code> 目录中。</p>
+<p><strong>服务管理</strong>：每个服务通过启动脚本管理，这些脚本接受 <code>service</code>的<code>start</code>、<code>stop</code>、<code>restart</code>、<code>status</code> 等命令，以控制服务的运行状态。service后面接的命令是根据文件夹下脚本的名字确定的，如果改了脚本的名字，service后面接的命令也得改</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">service network restart<br></code></pre></td></tr></table></figure>
+<p>在 SysVinit 中，文件的组织结构和配置管理集中在几个关键目录和文件中，特别是 <code>/etc/inittab</code> 文件，以及与服务脚本相关的目录。以下是 SysVinit 使用的主要文件和目录：</p>
+<h3 id="1-etc-inittab">1. <strong><code>/etc/inittab</code></strong></h3>
+<ul>
+<li>这是 SysVinit 最重要的配置文件之一，用来定义系统的默认运行级别和各种初始化行为。</li>
+<li>每一行配置通常包括以下几个字段：
+<ul>
+<li><strong>id</strong>：表示条目的唯一标识符。</li>
+<li><strong>runlevels</strong>：指明条目在哪些运行级别下起作用。</li>
+<li><strong>action</strong>：指定 SysVinit 应该如何处理该条目，如 <code>respawn</code>（重新启动进程）或 <code>wait</code>（启动一次并等待其结束）。</li>
+<li><strong>process</strong>：要执行的进程或命令路径。</li>
+</ul>
+</li>
+<li>示例：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">id</span>:3:initdefault:      <span class="hljs-comment"># 默认运行级别是 3</span><br>si::sysinit:/etc/rc.d/rc.sysinit   <span class="hljs-comment"># 系统初始化脚本</span><br>l3:3:<span class="hljs-built_in">wait</span>:/etc/rc.d/rc 3          <span class="hljs-comment"># 在运行级别 3 中执行的脚本</span><br>ca::ctrlaltdel:/sbin/shutdown -t1 -a -r now  <span class="hljs-comment"># Ctrl+Alt+Del 重启</span><br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="2-etc-rc-d-或-etc-init-d">2. <strong><code>/etc/rc.d/</code> 或 <code>/etc/init.d/</code></strong></h3>
+<ul>
+<li>这两个目录包含系统服务的启动脚本。每个脚本负责启动、停止或重启一个特定的服务。</li>
+<li>脚本文件可以接受以下参数：
+<ul>
+<li><code>start</code>：启动服务。</li>
+<li><code>stop</code>：停止服务。</li>
+<li><code>restart</code>：重启服务。</li>
+<li><code>status</code>：显示服务的当前状态。</li>
+</ul>
+</li>
+<li>示例脚本路径：
+<ul>
+<li><code>/etc/init.d/httpd</code>：用于管理 Apache HTTP 服务器。</li>
+<li><code>/etc/init.d/sshd</code>：用于管理 SSH 守护进程。</li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>自己的系统中 /etc/rc.d 不存在，下面是 init.d 文件夹中的可执行文件<br>
+/etc/init.d:</p>
+<p>acpid             gdm3                         rsync<br>
+alsa-utils        grub-common                  saned<br>
+anacron           <a target="_blank" rel="noopener" href="http://hwclock.sh">hwclock.sh</a>                   speech-dispatcher<br>
+apparmor          irqbalance                   spice-vdagent<br>
+apport            kerneloops                   ssh<br>
+avahi-daemon      <a target="_blank" rel="noopener" href="http://keyboard-setup.sh">keyboard-setup.sh</a>            udev<br>
+bluetooth         kmod                         ufw<br>
+<a target="_blank" rel="noopener" href="http://console-setup.sh">console-setup.sh</a>  mysql                        unattended-upgrades<br>
+cron              openvpn                      uuidd<br>
+cups              plymouth                     whoopsie<br>
+cups-browsed      plymouth-log                 x11-common<br>
+dbus              procps                       xrdp<br>
+docker            pulseaudio-enable-autospawn</p>
+</blockquote>
+<blockquote>
+<p><code>/etc/init.d/ssh</code> 文件是一个脚本，用于管理 SSH（Secure Shell）服务的启动、停止和重启等操作。它通常用于基于 SysVinit 的 Linux 系统，提供对 <code>sshd</code> 服务的控制。脚本的功能包括启动、停止、重新启动和检查 SSH 服务的状态。</p>
+<p>以下是 <code>/etc/init.d/ssh</code> 脚本的典型内容：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-meta">#!/bin/sh</span><br><span class="hljs-comment">### BEGIN INIT INFO</span><br><span class="hljs-comment"># Provides:          ssh</span><br><span class="hljs-comment"># Required-Start:    $remote_fs $syslog</span><br><span class="hljs-comment"># Required-Stop:     $remote_fs $syslog</span><br><span class="hljs-comment"># Default-Start:     2 3 4 5</span><br><span class="hljs-comment"># Default-Stop:      0 1 6</span><br><span class="hljs-comment"># Short-Description: OpenBSD Secure Shell server</span><br><span class="hljs-comment"># Description:       This script starts and stops the OpenSSH server daemon.</span><br><span class="hljs-comment">### END INIT INFO</span><br><br><span class="hljs-comment"># 引入系统函数库（如 start-stop-daemon 命令）</span><br>. /lib/lsb/init-functions<br><br><span class="hljs-comment"># 配置参数</span><br>NAME=sshd<br>DAEMON=/usr/sbin/sshd<br>PIDFILE=/var/run/sshd.pid<br>DESC=<span class="hljs-string">&quot;OpenBSD Secure Shell server&quot;</span><br>SCRIPTNAME=/etc/init.d/ssh<br><br><span class="hljs-comment"># 检查 SSHD 是否存在</span><br><span class="hljs-built_in">test</span> -x <span class="hljs-variable">$DAEMON</span> || <span class="hljs-built_in">exit</span> 0<br><br><span class="hljs-comment"># 加载配置文件</span><br>[ -r /etc/default/ssh ] &amp;&amp; . /etc/default/ssh<br><br><span class="hljs-keyword">case</span> <span class="hljs-string">&quot;<span class="hljs-variable">$1</span>&quot;</span> <span class="hljs-keyword">in</span><br>  start)<br>    log_daemon_msg <span class="hljs-string">&quot;Starting <span class="hljs-variable">$DESC</span>&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$NAME</span>&quot;</span><br>    <span class="hljs-keyword">if</span> start-stop-daemon --start --quiet --pidfile <span class="hljs-variable">$PIDFILE</span> --<span class="hljs-built_in">exec</span> <span class="hljs-variable">$DAEMON</span> --<span class="hljs-built_in">test</span> &gt; /dev/null; <span class="hljs-keyword">then</span><br>      start-stop-daemon --start --quiet --pidfile <span class="hljs-variable">$PIDFILE</span> --<span class="hljs-built_in">exec</span> <span class="hljs-variable">$DAEMON</span> || log_end_msg 1<br>      log_end_msg 0<br>    <span class="hljs-keyword">else</span><br>      log_progress_msg <span class="hljs-string">&quot;already running&quot;</span><br>      log_end_msg 0<br>    <span class="hljs-keyword">fi</span><br>    ;;<br>  <br>  stop)<br>    log_daemon_msg <span class="hljs-string">&quot;Stopping <span class="hljs-variable">$DESC</span>&quot;</span> <span class="hljs-string">&quot;<span class="hljs-variable">$NAME</span>&quot;</span><br>    <span class="hljs-keyword">if</span> start-stop-daemon --stop --quiet --oknodo --pidfile <span class="hljs-variable">$PIDFILE</span>; <span class="hljs-keyword">then</span><br>      log_end_msg 0<br>    <span class="hljs-keyword">else</span><br>      log_end_msg 1<br>    <span class="hljs-keyword">fi</span><br>    ;;<br><br>  restart|force-reload)<br>    <span class="hljs-variable">$0</span> stop<br>    <span class="hljs-variable">$0</span> start<br>    ;;<br><br>  status)<br>    status_of_proc -p <span class="hljs-variable">$PIDFILE</span> <span class="hljs-variable">$DAEMON</span> <span class="hljs-variable">$NAME</span> &amp;&amp; <span class="hljs-built_in">exit</span> 0 || <span class="hljs-built_in">exit</span> $?<br>    ;;<br><br>  *)<br>    <span class="hljs-built_in">echo</span> <span class="hljs-string">&quot;Usage: <span class="hljs-variable">$SCRIPTNAME</span> &#123;start|stop|restart|force-reload|status&#125;&quot;</span> &gt;&amp;2<br>    <span class="hljs-built_in">exit</span> 3<br>    ;;<br><span class="hljs-keyword">esac</span><br><br><span class="hljs-built_in">exit</span> 0<br></code></pre></td></tr></table></figure>
+<h3 id="关键部分说明：">关键部分说明：</h3>
+<ol>
+<li>
+<p><strong>头部注释 (<code>### BEGIN INIT INFO</code>)</strong>：</p>
+<ul>
+<li>包含有关服务的元信息，如服务名称（<code>Provides</code>）、服务启动和停止时的依赖项（<code>Required-Start</code>、<code>Required-Stop</code>）、默认启动和停止的运行级别（<code>Default-Start</code>、<code>Default-Stop</code>）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>test -x $DAEMON || exit 0</code></strong>：</p>
+<ul>
+<li>检查 SSH 守护进程的可执行文件 <code>/usr/sbin/sshd</code> 是否存在并且可执行。如果文件不存在，脚本直接退出。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>case</code> 语句</strong>：</p>
+<ul>
+<li>用于处理不同的命令，如 <code>start</code>、<code>stop</code>、<code>restart</code>、<code>status</code>。每个命令对应不同的操作。</li>
+<li><strong>start</strong>：启动 SSH 守护进程，检查是否已经运行。</li>
+<li><strong>stop</strong>：停止 SSH 守护进程。</li>
+<li><strong>restart</strong> 或 <strong>force-reload</strong>：先停止再启动 SSH 守护进程。</li>
+<li><strong>status</strong>：显示 SSH 守护进程的状态（是否正在运行）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>start-stop-daemon</code> 命令</strong>：</p>
+<ul>
+<li>这是一个用于启动和停止守护进程的工具。它通过 <code>--start</code> 启动服务，<code>--stop</code> 停止服务，并使用 <code>--pidfile</code> 指定进程 ID 文件的位置。</li>
+</ul>
+</li>
+<li>
+<p><strong>日志函数 (<code>log_daemon_msg</code> 和 <code>log_end_msg</code>)</strong>：</p>
+<ul>
+<li>这些函数提供系统日志输出，用于显示服务启动或停止的状态信息。</li>
+</ul>
+</li>
+<li>
+<p><strong>配置文件</strong>：</p>
+<ul>
+<li>如果 <code>/etc/default/ssh</code> 文件存在，脚本会加载它以获得额外的配置选项。</li>
+</ul>
+</li>
+</ol>
+<h3 id="典型操作：">典型操作：</h3>
+<ul>
+<li>
+<p><strong>启动 SSH 服务</strong>：</p>
+<ul>
+<li>执行 <code>service ssh start</code> 或 <code>/etc/init.d/ssh start</code>，脚本会启动 SSH 守护进程。</li>
+</ul>
+</li>
+<li>
+<p><strong>停止 SSH 服务</strong>：</p>
+<ul>
+<li>执行 <code>service ssh stop</code> 或 <code>/etc/init.d/ssh stop</code>，脚本会停止 SSH 守护进程。</li>
+</ul>
+</li>
+<li>
+<p><strong>重启 SSH 服务</strong>：</p>
+<ul>
+<li>执行 <code>service ssh restart</code> 或 <code>/etc/init.d/ssh restart</code>，脚本会重新启动 SSH 守护进程。</li>
+</ul>
+</li>
+<li>
+<p><strong>检查 SSH 服务状态</strong>：</p>
+<ul>
+<li>执行 <code>service ssh status</code> 或 <code>/etc/init.d/ssh status</code>，查看 SSH 守护进程是否正在运行。</li>
+</ul>
+</li>
+</ul>
+<h3 id="小结：">小结：</h3>
+<p><code>/etc/init.d/ssh</code> 是一个标准的 <code>init.d</code> 脚本，遵循 SysVinit 风格，用于启动、停止、重启和检查 SSH 服务的状态。它依赖 <code>start-stop-daemon</code> 工具管理进程，并输出日志信息，帮助系统管理员管理 SSH 服务。</p>
+</blockquote>
+<h3 id="3-etc-rc-d-目录">3. <strong><code>/etc/rc*.d/</code> 目录</strong></h3>
+<ul>
+<li>每个运行级别都有一个相应的 <code>rc</code> 目录，例如 <code>/etc/rc0.d/</code>（关机）或 <code>/etc/rc3.d/</code>（多用户模式）。</li>
+<li>这些目录下的文件是符号链接，链接到 <code>/etc/init.d/</code> 目录中的实际启动脚本。</li>
+<li>文件名以 <code>S</code> 或 <code>K</code> 开头，分别表示服务的启动（Start）或停止（Kill）。数字指定了启动或停止的优先级，数字越小，优先级越高。
+<ul>
+<li>例如：<code>S20httpd</code> 和 <code>K80httpd</code> 表示在运行级别的转换中启动或停止 Apache 服务。</li>
+<li>启动时（进入运行级别 3），系统会运行 /etc/rc3.d/ 目录下所有以 S 开头的文件，以数字顺序依次启动服务。</li>
+<li>关机或切换运行级别时，系统会运行 /etc/rc3.d/ 目录下所有以 K 开头的文件，以数字顺序依次停止服务。</li>
+</ul>
+</li>
+</ul>
+<p>如果想要开启自启某个服务，只需要把对应的脚本拷贝或软链接到/etc/rc*.d/目录下，并重命名为符合规则的文件名，例如联网多用户模式下，就将/etc/rc.d/init.d/network文件拷贝/软链接到/etc/rc.d/rc3.d目录下并重命名为S10network。</p>
+<blockquote>
+<p>/etc/rc3.d:<br>
+total 0<br>
+lrwxrwxrwx 1 root root 27 11月 14  2023 K01speech-dispatcher -&gt; …/init.d/speech-dispatcher<br>
+lrwxrwxrwx 1 root root 15 11月 14  2023 S01acpid -&gt; …/init.d/acpid<br>
+…</p>
+</blockquote>
+<h3 id="4-etc-rc-local">4. <strong><code>/etc/rc.local</code></strong></h3>
+<ul>
+<li>这是一个特殊的脚本，允许系统管理员在系统启动的最后阶段执行自定义命令或启动额外的服务。</li>
+<li>通常用于需要在其他服务都启动后执行的任务。</li>
+<li>示例：<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># /etc/rc.local</span><br><span class="hljs-comment"># 启动完系统后执行的自定义命令</span><br>/usr/bin/my_custom_command<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h3 id="5-etc-rc-sysinit">5. <strong><code>/etc/rc.sysinit</code></strong></h3>
+<ul>
+<li>这是系统启动时运行的第一个脚本，用于初始化系统的基本设置，如挂载文件系统、启动内核模块、启动网络服务等。</li>
+<li>它的执行通常是在系统启动的最早阶段进行的。</li>
+</ul>
+<h3 id="6-var-run-和-var-lock">6. <strong><code>/var/run/</code> 和 <code>/var/lock/</code></strong></h3>
+<ul>
+<li><strong><code>/var/run/</code></strong>：用于存储服务的 PID 文件，记录服务的进程 ID，以便 SysVinit 可以跟踪正在运行的服务。</li>
+<li><strong><code>/var/lock/</code></strong>：用于存储服务的锁文件，以防止同一服务被重复启动。</li>
+</ul>
+<h3 id="7-sbin-init">7. <strong><code>/sbin/init</code></strong></h3>
+<ul>
+<li>这是实际的 <code>init</code> 二进制文件，也是系统启动时由内核调用的第一个用户空间进程。</li>
+<li>该文件直接从内核启动，并通过读取 <code>/etc/inittab</code> 等配置文件来决定系统的初始化流程。</li>
+</ul>
+<h2 id="systemd">systemd</h2>
+<p>systemd 是兼容 init 架构的，保留了init架构的相关内容<br>
+<img src="systemd.png" srcset="/img/loading.gif" lazyload alt="framework"></p>
+<p><code>systemd</code> 是一种用于 Linux 操作系统的系统和服务管理器，它作为进程控制和启动的核心，取代了传统的 <code>SysVinit</code> 和 <code>Upstart</code>。自 2010 年由 Lennart Poettering 开发并首次发布以来，systemd 成为许多 Linux 发行版的默认 init 系统。下面是它的详细介绍：</p>
+<h3 id="1-systemd-的主要功能">1. <strong>systemd 的主要功能</strong></h3>
+<ul>
+<li><strong>服务管理</strong>：systemd 管理 Linux 系统中的服务（即守护进程），包括服务的启动、停止、重启、监控、依赖关系等。</li>
+<li><strong>并行启动</strong>：与传统 init 系统按顺序启动服务不同，systemd 通过分析服务之间的依赖关系，能够并行启动多个服务，从而提高系统的启动速度。</li>
+<li><strong>按需启动</strong>：systemd 可以通过套接字或 D-Bus 等方式实现服务的按需启动，只有当特定的条件满足时，服务才会启动。</li>
+<li><strong>cgroups 管理</strong>：systemd 直接集成了 cgroups（Control Groups）来管理服务的资源使用情况，如 CPU、内存和 I/O。</li>
+<li><strong>日志记录</strong>：systemd-journald 是 systemd 的日志管理组件，它能统一收集和管理来自不同服务和系统的日志信息。</li>
+</ul>
+<h3 id="2-systemd-的组件">2. <strong>systemd 的组件</strong></h3>
+<ul>
+<li><strong>systemctl</strong>：最常用的命令行工具，用于管理 systemd 的服务和单元文件。常用命令包括：
+<ul>
+<li><code>systemctl start</code> 启动服务</li>
+<li><code>systemctl stop</code> 停止服务</li>
+<li><code>systemctl restart</code> 重启服务</li>
+<li><code>systemctl enable</code> 设置服务开机启动</li>
+<li><code>systemctl status</code> 查看服务状态</li>
+</ul>
+</li>
+<li><strong>unit 文件</strong>：systemd 使用 <code>.service</code>、<code>.socket</code>、<code>.target</code> 等类型的单元文件描述各种服务、挂载点、设备等。每个单元文件定义了特定的行为，例如服务的启动方式、依赖关系、资源限制等。</li>
+<li><strong>journalctl</strong>：用于查询和管理 systemd 的日志，通过 <code>journalctl</code> 命令可以方便地查看系统日志。</li>
+<li><strong>timers</strong>：定时任务的管理，类似于传统的 cron，但功能更强大且集成度更高。</li>
+</ul>
+<h3 id="3-systemd-单元类型">3. <strong>systemd 单元类型</strong></h3>
+<p>systemd 中使用单元（unit）来定义系统中各类可管理的实体，每种单元都有对应的文件类型和功能：</p>
+<ul>
+<li><strong>服务单元（.service）</strong>：描述守护进程或一次性任务的启动、停止和运行。</li>
+<li><strong>套接字单元（.socket）</strong>：定义监听的套接字，相关的服务可以根据需要启动。</li>
+<li><strong>设备单元（.device）</strong>：表示由内核生成的设备。</li>
+<li><strong>挂载单元（.mount）</strong>：定义文件系统挂载点及其相关的配置。</li>
+<li><strong>目标单元（.target）</strong>：类似于 SysVinit 的运行级别，表示系统状态或状态组，可以通过 <code>systemctl isolate</code> 切换不同的运行状态。</li>
+<li><strong>定时器单元（.timer）</strong>：描述定时任务，类似于 <code>cron</code>，用于定时启动服务或执行命令。</li>
+</ul>
+<p>linux系统中的绝大多数操作都可以由systemd管理，service单元是最常见的单元类型，几乎所有服务都维护着自己的一份配置文件，例如 sshd.service</p>
+<p><code>service</code> 单元是 <code>systemd</code> 中最常见的单元类型之一，用于定义和管理系统中的服务（守护进程）。每个 <code>service</code> 单元文件描述服务的启动、停止、重启方式，以及服务的行为、依赖关系和运行环境。下面是关于 <code>service</code> 单元的详细介绍：</p>
+<h4 id="1-service-单元文件的位置">1. <strong>service 单元文件的位置</strong></h4>
+<p><code>service</code> 单元文件通常存放在以下目录中：</p>
+<ul>
+<li><code>/etc/systemd/system/</code>：用户自定义的服务配置文件，优先级最高。</li>
+<li><code>/lib/systemd/system/</code> 或 <code>/usr/lib/systemd/system/</code>：由软件包安装的默认服务配置文件。</li>
+<li><code>/run/systemd/system/</code>：运行时生成的服务文件（临时文件）。</li>
+</ul>
+<h4 id="2-service-单元文件的基本结构">2. <strong>service 单元文件的基本结构</strong></h4>
+<p>一个典型的 <code>service</code> 单元文件由几个部分组成，每个部分由方括号包围的节（section）名称标识，下面是自己系统中的sshd.service：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs bash"><br>[Unit]<br>Description=OpenBSD Secure Shell server<br>Documentation=man:sshd(8) man:sshd_config(5)<br>After=network.target auditd.service<br>ConditionPathExists=!/etc/ssh/sshd_not_to_be_run<br><br>[Service]<br>EnvironmentFile=-/etc/default/ssh<br>ExecStartPre=/usr/sbin/sshd -t<br>ExecStart=/usr/sbin/sshd -D <span class="hljs-variable">$SSHD_OPTS</span><br>ExecReload=/usr/sbin/sshd -t<br>ExecReload=/bin/kill -HUP <span class="hljs-variable">$MAINPID</span><br>KillMode=process<br>Restart=on-failure<br>RestartPreventExitStatus=255<br>Type=notify<br>RuntimeDirectory=sshd<br>RuntimeDirectoryMode=0755<br><br>[Install]<br>WantedBy=multi-user.target<br>Alias=sshd.service<br><br></code></pre></td></tr></table></figure>
+<h5 id="1-Unit-节">(1) <code>[Unit]</code> 节</h5>
+<p><code>[Unit]</code> 节描述服务的元数据和依赖关系。常见的字段包括：</p>
+<ul>
+<li><strong>Description</strong>：对服务的简短描述，<code>systemctl status</code> 时会显示。</li>
+<li><strong>After</strong>：定义服务启动顺序，确保指定的目标或其他服务在本服务之前启动。例如，<code>After=network.target</code> 表示在网络服务启动之后再启动该服务。</li>
+</ul>
+<blockquote>
+<p>如果 After 定义的服务没有启动：当前服务会直接启动，不会等待。<br>
+如果 After 定义的服务正在启动或已启动：当前服务会等待，直到这些服务启动完成，然后才启动当前服务。</p>
+</blockquote>
+<ul>
+<li><strong>Before</strong>：与 <code>After</code> 相反，表示本服务需要在指定的服务之前启动。</li>
+<li><strong>Requires</strong> 和 <strong>Wants</strong>：定义依赖关系，<code>Requires</code> 表示强依赖（服务会跟随目标启动和关闭），<code>Wants</code> 表示弱依赖。</li>
+</ul>
+<blockquote>
+<p>虽然 <code>After</code> 指令并不会强制某个服务必须启动，但它在<strong>控制启动顺序</strong>方面仍然非常有用。即使 <code>After</code> 中指定的服务未启动，服务也能启动，但是如果定义的服务确实启动了，那就必须等他启动完才能启动当前服务。以下是一些说明 <code>After</code> 指令作用的要点：</p>
+<ol>
+<li><strong><code>After</code> 控制启动顺序</strong></li>
+</ol>
+<ul>
+<li><strong>控制启动顺序</strong>是 <code>After</code> 的主要功能。它告诉 <code>systemd</code>：<strong>当前服务要在某个或某些服务启动之后才能启动</strong>。</li>
+<li><strong>如果 <code>After</code> 中的服务启动了，<code>systemd</code> 会等待这些服务启动完成后，再启动当前服务</strong>。</li>
+</ul>
+<p>例子：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Unit]</span><br><span class="hljs-attr">After</span>=networking.service<br></code></pre></td></tr></table></figure>
+<ul>
+<li>如果 <code>networking.service</code> 被启动了，当前服务会在 <code>networking.service</code> 启动完成之后启动。</li>
+<li><strong>没有 <code>After</code> 指令的情况下</strong>，当前服务和 <code>networking.service</code> 可能会同时启动，这可能导致依赖网络的服务启动时网络尚未就绪，从而引发启动失败或错误。</li>
+</ul>
+<ol start="2">
+<li><strong>如果 <code>After</code> 中的服务未启动</strong></li>
+</ol>
+<p>如果 <code>After</code> 指定的服务没有启动（例如该服务没有启用，或因为某些原因无法启动），<code>systemd</code> 不会阻止当前服务的启动。</p>
+<ul>
+<li>在这种情况下，<code>After</code> 只是不会生效，因为没有服务需要等待，当前服务可以立即启动。</li>
+<li>这并不意味着 <code>After</code> 没有作用，而是<strong>它只影响启动顺序，而不强制依赖</strong>。</li>
+</ul>
+<ol start="3">
+<li><strong>典型场景：<code>After</code> 的常见用法</strong></li>
+</ol>
+<p><code>After</code> 经常用于指定<strong>服务之间的启动顺序</strong>，而不要求它们相互依赖。例如：</p>
+<ul>
+<li>
+<p><strong>网络服务和应用服务</strong>：</p>
+<ul>
+<li>某些应用服务可能需要网络服务完成启动后才能正常运行。在这种情况下，你可以使用 <code>After=network.service</code> 来确保应用服务在网络就绪后再启动。</li>
+<li>但是，<code>After</code> 不要求网络服务必须成功启动。如果网络服务未启动或启动失败，应用服务依然会尝试启动，但这可能会导致运行时出现问题。</li>
+</ul>
+</li>
+<li>
+<p><strong>日志和数据库服务</strong>：</p>
+<ul>
+<li>如果你有一个依赖数据库的应用程序，你可以使用 <code>After=postgresql.service</code> 来确保应用程序在数据库启动之后启动。</li>
+<li>如果数据库未启动，应用程序会立即启动，而不等待数据库。</li>
+</ul>
+</li>
+</ul>
+<ol start="4">
+<li><strong>如果需要确保服务必须启动，使用 <code>Requires</code> 或 <code>Wants</code></strong></li>
+</ol>
+<p>如果你需要确保某个服务必须在当前服务启动之前启动，并且该服务<strong>未能启动时当前服务也无法启动</strong>，你需要结合使用 <strong><code>Requires</code></strong> 或 <strong><code>Wants</code></strong> 指令。</p>
+<ul>
+<li><strong><code>Requires</code></strong>：表示<strong>强依赖</strong>，如果指定的服务未能启动，当前服务也不会启动。</li>
+<li><strong><code>Wants</code></strong>：表示<strong>弱依赖</strong>，系统会尝试启动这些服务，但如果它们未启动，当前服务仍然可以启动。</li>
+</ul>
+<ol start="5">
+<li><strong>总结：<code>After</code> 的作用</strong></li>
+</ol>
+<ul>
+<li><strong><code>After</code> 并不是没有作用</strong>，它在<strong>服务启动顺序控制</strong>中非常重要。</li>
+<li><code>After</code> 只控制<strong>服务的启动时机</strong>，确保当前服务在指定的服务启动完成后再启动。</li>
+<li>如果需要确保某个服务必须启动并且必须成功启动，请结合使用 <strong><code>Requires</code></strong> 或 <strong><code>Wants</code></strong> 与 <code>After</code>。</li>
+</ul>
+<p>因此，<code>After</code> 主要解决的是服务启动顺序问题，而不直接控制是否启动某个服务。<br>
+简单总结：<br>
+如果 After 定义的服务没有启动：当前服务会直接启动，不会等待。<br>
+如果 After 定义的服务正在启动或已启动：当前服务会等待，直到这些服务启动完成，然后才启动当前服务。</p>
+</blockquote>
+<h5 id="2-Service-节">(2) <code>[Service]</code> 节</h5>
+<p><code>[Service]</code> 节定义服务的主要行为和参数，控制服务的启动、运行、停止方式。常见的字段包括：</p>
+<ul>
+<li><strong>ExecStart</strong>：定义启动服务的命令（必选项），通常是服务的可执行文件路径和启动参数。</li>
+<li><strong>ExecStop</strong>：定义停止服务的命令。可选，如果没有定义，systemd 会通过发送 SIGTERM 信号来停止服务。</li>
+<li><strong>ExecReload</strong>：定义服务重载配置时执行的命令（如 <code>systemctl reload &lt;service&gt;</code>）。</li>
+<li><strong>Restart</strong>：定义服务在退出后是否重启，可选值包括：
+<ul>
+<li><code>no</code>：不重启（默认）。</li>
+<li><code>on-success</code>：成功退出时重启。</li>
+<li><code>on-failure</code>：失败时（非 0 状态码退出）重启。</li>
+<li><code>always</code>：无论退出状态如何都重启。</li>
+</ul>
+</li>
+<li><strong>User</strong> 和 <strong>Group</strong>：定义服务运行的用户和用户组。默认情况下，服务以 <code>root</code> 身份运行，可以通过这两个选项指定非特权用户。</li>
+<li><strong>Environment</strong>：设置服务运行时的环境变量，格式为 <code>VAR=value</code>。</li>
+<li><strong>WorkingDirectory</strong>：指定服务运行的工作目录。</li>
+<li><strong>Type</strong>：定义服务的启动类型，常见值有：
+<ul>
+<li><code>simple</code>：默认类型，服务启动后，<code>ExecStart</code> 中的进程会成为主进程。</li>
+<li><code>forking</code>：服务通过 fork() 创建子进程，主进程会立即退出，后台进程继续运行。</li>
+<li><code>oneshot</code>：用于一次性任务，服务启动后立即退出，不保持常驻。</li>
+<li><code>notify</code>：服务在启动后会向 systemd 发送通知，以表示它已准备就绪。</li>
+<li><code>idle</code>：服务启动会被延迟，直到所有其他任务完成。</li>
+</ul>
+</li>
+<li><strong>TimeoutStartSec</strong>：定义启动服务时的超时时间，超时后 systemd 会认为启动失败。</li>
+<li><strong>RemainAfterExit</strong>：对于 <code>oneshot</code> 类型的服务，设置为 <code>true</code> 可以在服务的 <code>ExecStart</code> 进程结束后将其标记为活跃状态。</li>
+</ul>
+<h5 id="3-Install-节">(3) <code>[Install]</code> 节</h5>
+<p><code>[Install]</code> 节定义服务的安装选项，控制该服务在系统启动时是否启用（即是否开机自启）。常见的字段包括：</p>
+<ul>
+<li><strong>WantedBy</strong>：指定此服务应该在哪个 <code>target</code> 中启用。常见的目标包括：
+<ul>
+<li><code>multi-user.target</code>：对应多用户模式（类似于传统 init 系统的运行级别 3）。</li>
+<li><code>graphical.target</code>：对应图形界面模式（类似于运行级别 5）。</li>
+</ul>
+</li>
+<li><strong>RequiredBy</strong>：类似于 <code>WantedBy</code>，但表示强依赖。</li>
+</ul>
+<h4 id="3-常见的-service-管理命令">3. <strong>常见的 service 管理命令</strong></h4>
+<p>管理 <code>service</code> 单元时，常用的命令包括：</p>
+<ul>
+<li><strong>启动服务</strong>：<code>systemctl start &lt;service&gt;</code><br>
+例如：<code>systemctl start my-service</code></li>
+<li><strong>停止服务</strong>：<code>systemctl stop &lt;service&gt;</code><br>
+例如：<code>systemctl stop my-service</code></li>
+<li><strong>重启服务</strong>：<code>systemctl restart &lt;service&gt;</code><br>
+例如：<code>systemctl restart my-service</code></li>
+<li><strong>重载服务配置</strong>：<code>systemctl reload &lt;service&gt;</code><br>
+例如：<code>systemctl reload my-service</code></li>
+<li><strong>查看服务状态</strong>：<code>systemctl status &lt;service&gt;</code><br>
+例如：<code>systemctl status my-service</code></li>
+<li><strong>启用服务开机自启</strong>：<code>systemctl enable &lt;service&gt;</code><br>
+例如：<code>systemctl enable my-service</code></li>
+<li><strong>禁用服务开机自启</strong>：<code>systemctl disable &lt;service&gt;</code><br>
+例如：<code>systemctl disable my-service</code></li>
+<li><strong>查看服务日志</strong>：<code>journalctl -u &lt;service&gt;</code><br>
+例如：<code>journalctl -u my-service</code></li>
+</ul>
+<h4 id="4-实例分析">4. <strong>实例分析</strong></h4>
+<p>假设我们要创建一个简单的 <code>service</code> 单元文件，用于管理一个 Python 脚本，该脚本记录系统的 CPU 温度。我们将这个脚本放在 <code>/usr/local/bin/cpu-monitor.py</code> 中。</p>
+<p>首先，创建服务单元文件 <code>/etc/systemd/system/cpu-monitor.service</code>：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Unit]</span><br><span class="hljs-attr">Description</span>=CPU Temperature Monitor<br><span class="hljs-attr">After</span>=multi-user.target<br><br><span class="hljs-section">[Service]</span><br><span class="hljs-attr">ExecStart</span>=/usr/bin/python3 /usr/local/bin/cpu-monitor.py<br><span class="hljs-attr">Restart</span>=<span class="hljs-literal">on</span>-failure<br><span class="hljs-attr">User</span>=nobody<br><span class="hljs-attr">Group</span>=nogroup<br><br><span class="hljs-section">[Install]</span><br><span class="hljs-attr">WantedBy</span>=multi-user.target<br></code></pre></td></tr></table></figure>
+<p>然后使用以下命令启动并启用服务：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo systemctl start cpu-monitor.service<br>sudo systemctl <span class="hljs-built_in">enable</span> cpu-monitor.service<br></code></pre></td></tr></table></figure>
+<p>这个服务会在系统启动后自动运行，并在发生故障时自动重启。</p>
+<h4 id="5-总结">5. <strong>总结</strong></h4>
+<p><code>service</code> 单元是 <code>systemd</code> 中核心的组成部分，用于管理守护进程和服务的生命周期。通过定义服务的启动、停止行为及其依赖关系，管理员可以更灵活、可靠地控制系统中的各种服务。</p>
+<p><code>target</code> 单元文件是 <code>systemd</code> 中的一种特殊单元，用于表示系统的状态或“目标”（即运行级别）。<code>target</code> 通常用于将多个 <code>service</code>、<code>socket</code>、<code>mount</code> 等单元组合在一起，从而表示系统的某个阶段或服务的集合。与传统的 SysV init 系统中的运行级别类似，<code>target</code> 可以定义系统启动或关闭时所需的服务组合，但 <code>target</code> 更加灵活，可以用于细化控制系统的不同运行状态。init架构中根据/etc/inittab中定义的运行级别启动对应/etc/rc.d/rc*.d/文件夹下的服务，而systemd使用target单元文件来启动系统</p>
+<h4 id="1-target-单元的作用">1. <strong><code>target</code> 单元的作用</strong></h4>
+<ul>
+<li><strong>组合多个单元</strong>：<code>target</code> 本身不执行任何操作，而是作为多个服务或其他单元的聚合器。它可以将不同的服务或资源（如网络、文件系统、设备）组合成逻辑组。</li>
+<li><strong>系统状态管理</strong>：<code>target</code> 用于表示系统的不同状态，例如多用户模式、图形模式、救援模式等。它可以让系统进入不同的运行状态，并自动启动或停止相应的服务。</li>
+<li><strong>运行级别兼容性</strong>：传统 Linux 中的运行级别（如 3、5）在 <code>systemd</code> 中被替换为 <code>target</code>，例如 <code>multi-user.target</code> 相当于运行级别 3，<code>graphical.target</code> 相当于运行级别 5。</li>
+</ul>
+<p>Target Unit理解起来并不难，它就是一组Units的集合。这就跟学生时代升旗仪式一样，每个班（Target）有很多学生（Units），只有当每位学生（Units）都到齐之后，这个班（Target）才允许进入操场。当所有的班（Target）都进入操场后，升旗仪式（default.target）才会进行。所以，在systemd架构下，系统的启动方式可以这样理解：systemd通过default.target来启动系统，什么时候default.target准备就绪，系统就认为启动成功。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-built_in">ls</span> -l /usr/lib/systemd/system/default.target<br>lrwxrwxrwx 1 root root 16 11月 22  2023 /usr/lib/systemd/system/default.target -&gt; graphical.target<br></code></pre></td></tr></table></figure>
+<p>系统默认启动模式是级别5。此外，在ls命令中我们还可以看到很多以.wants结尾的目录，这些目录其实是配合Target Unit工作的，代表某个Target Unit所管理的一组Units。比如，default.target.wants目录中的Units就是default.target所管理的一批Units。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment">#  SPDX-License-Identifier: LGPL-2.1-or-later</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment">#  This file is part of systemd.</span><br><span class="hljs-comment">#</span><br><span class="hljs-comment">#  systemd is free software; you can redistribute it and/or modify it</span><br><span class="hljs-comment">#  under the terms of the GNU Lesser General Public License as published by</span><br><span class="hljs-comment">#  the Free Software Foundation; either version 2.1 of the License, or</span><br><span class="hljs-comment">#  (at your option) any later version.</span><br><br>[Unit]<br>Description=Graphical Interface<br>Documentation=man:systemd.special(7)<br>Requires=multi-user.target<br>Wants=display-manager.service<br>Conflicts=rescue.service rescue.target<br>After=multi-user.target rescue.service rescue.target display-manager.service<br>AllowIsolate=<span class="hljs-built_in">yes</span><br><br></code></pre></td></tr></table></figure>
+<p>所以我们可以这样理解，系统如果想以graphical.taget模式启动的话，就必须先将graphical.target.wants目录中的Units都启动成功才行。</p>
+<blockquote>
+<p><code>wants</code> 目录和 <code>Unit</code> 节中的 <code>After</code> 定义并不完全一样，它们在功能上有不同的作用，虽然都涉及服务的启动顺序和依赖关系。</p>
+<p>以 .wants 结尾的目录是 systemd 中用于管理目标单元（target）和其依赖服务的机制之一。这些目录中的符号链接告诉 systemd，当一个目标（如 multi-user.target 或 graphical.target）被启动时，哪些服务或其他单元应该被同时启动。</p>
+<ol>
+<li><strong><code>wants</code> 目录的作用</strong></li>
+</ol>
+<p><code>wants</code> 目录中的符号链接表示<strong>弱依赖</strong>关系。当一个 <code>target</code> 被启动时，<code>wants</code> 目录中的所有服务或单元都会被尝试启动，但它们之间没有严格的顺序要求。如果某个依赖服务无法启动，<code>target</code> 仍然会继续启动。</p>
+<ul>
+<li><strong>弱依赖</strong>：意味着如果某个服务未能启动，<code>target</code> 或依赖它的服务仍然可以正常启动。</li>
+<li><strong>没有强制顺序</strong>：<code>wants</code> 目录中的服务启动顺序不受控制。</li>
+</ul>
+<h4 id="示例">示例</h4>
+<p>假设有以下目录结构：</p>
+<figure class="highlight nsis"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs nsis">/etc/<span class="hljs-params">system</span>d/<span class="hljs-params">system</span>/multi-<span class="hljs-literal">user</span>.target.wants/<br>  ├─ sshd.service<br>  ├─ crond.service<br>  └─ networking.service<br></code></pre></td></tr></table></figure>
+<p>当 <code>multi-user.target</code> 被启动时，<code>sshd.service</code>、<code>crond.service</code> 和 <code>networking.service</code> 都会被自动尝试启动。但它们之间没有强制的启动顺序。启动 taget 单元文件系统会自动尝试启动 对应 wants 文件夹下的内容，但是After定义的不会自动启动。</p>
+<ol start="2">
+<li><strong><code>Unit</code> 节中的 <code>After</code> 指令</strong></li>
+</ol>
+<p><code>After</code> 指令则是用于定义<strong>启动顺序</strong>的，它<strong>仅控制服务的启动顺序，而不是依赖关系</strong>。即使 <code>Unit</code> 文件中定义了 <code>After=other.service</code>，也不会自动将 <code>other.service</code> 添加为一个依赖项，系统不会因为缺少 <code>other.service</code> 而阻止当前服务启动。<code>After</code> 只是确保当前服务在 <code>other.service</code> 启动后才启动。</p>
+<ul>
+<li><strong>启动顺序</strong>：<code>After</code> 指令仅控制启动顺序，确保当前服务在指定的其他服务之后启动。</li>
+<li><strong>不意味着依赖</strong>：<code>After</code> 不会自动添加依赖关系，也就是说，<code>systemd</code> 不会因为 <code>other.service</code> 不存在或未启动就阻止当前服务启动。</li>
+</ul>
+<h4 id="示例-2">示例</h4>
+<p>假设在某个服务的 <code>Unit</code> 文件中定义了以下内容：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Unit]</span><br><span class="hljs-attr">After</span>=networking.service<br></code></pre></td></tr></table></figure>
+<p>这意味着该服务会在 <code>networking.service</code> 启动之后再启动，但它并不依赖 <code>networking.service</code>。如果 <code>networking.service</code> 没有启动，这个服务仍然可以启动。</p>
+<ol start="3">
+<li><strong><code>wants</code> 和 <code>After</code> 的差异</strong></li>
+</ol>
+<ul>
+<li>
+<p><strong><code>wants</code></strong>：</p>
+<ul>
+<li>表示依赖关系（弱依赖），即在目标启动时应该尝试启动这些服务。</li>
+<li>不影响服务的启动顺序。</li>
+<li>如果某个服务未能启动，目标单元仍然可以启动。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>After</code></strong>：</p>
+<ul>
+<li>表示启动顺序，当前服务会在指定的服务之后启动。</li>
+<li>不表示依赖关系。即使 <code>After</code> 中指定的服务未能启动，当前服务依然可以启动。</li>
+</ul>
+</li>
+</ul>
+<ol start="4">
+<li><strong>如何同时使用 <code>wants</code> 和 <code>After</code></strong></li>
+</ol>
+<p>在实际配置中，通常会将 <code>wants</code> 和 <code>After</code> 一起使用，来既指定依赖关系又控制启动顺序。例如：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Unit]</span><br><span class="hljs-attr">Wants</span>=networking.service<br><span class="hljs-attr">After</span>=networking.service<br></code></pre></td></tr></table></figure>
+<p>这表示当前服务依赖 <code>networking.service</code>（<code>Wants</code>），并且应该在 <code>networking.service</code> 之后启动（<code>After</code>）。<code>Wants</code> 确保 <code>networking.service</code> 会在目标启动时被尝试启动，而 <code>After</code> 确保当前服务会在 <code>networking.service</code> 启动完成之后再启动。</p>
+<ol start="5">
+<li><strong>总结</strong></li>
+</ol>
+<ul>
+<li><strong><code>wants</code> 目录</strong>：表示目标单元应尝试启动哪些服务，但不控制启动顺序，也不强制依赖。</li>
+<li><strong><code>After</code> 指令</strong>：仅用于控制服务的启动顺序，不表示服务之间有依赖关系。</li>
+</ul>
+<p>简单总结：<br>
+如果 After 定义的服务没有启动：当前服务会直接启动，不会等待。<br>
+如果 After 定义的服务正在启动或已启动：当前服务会等待，直到这些服务启动完成，然后才启动当前服务。<br>
+两者可以结合使用，以实现既控制依赖关系，又控制启动顺序的更复杂配置。</p>
+</blockquote>
+<h4 id="2-target-单元文件的位置">2. <strong><code>target</code> 单元文件的位置</strong></h4>
+<p><code>target</code> 单元文件的存储位置与其他 <code>systemd</code> 单元文件相同，主要在以下路径中查找：</p>
+<ul>
+<li><code>/etc/systemd/system/</code>：用户自定义的 <code>target</code> 文件。</li>
+<li><code>/usr/lib/systemd/system/</code>：系统提供的 <code>target</code> 文件（或 <code>/lib/systemd/system/</code>，视发行版而定）。</li>
+<li><code>/run/systemd/system/</code>：运行时生成的临时文件。</li>
+</ul>
+<h4 id="3-target-单元文件的基本结构">3. <strong><code>target</code> 单元文件的基本结构</strong></h4>
+<p><code>target</code> 单元文件的结构与其他 <code>systemd</code> 单元文件类似，主要由 <code>[Unit]</code> 和 <code>[Install]</code> 两个部分组成。</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Unit]</span><br><span class="hljs-attr">Description</span>=My Custom Target<br><span class="hljs-attr">Requires</span>=network.target<br><span class="hljs-attr">After</span>=network.target<br><br><span class="hljs-section">[Install]</span><br><span class="hljs-attr">WantedBy</span>=multi-user.target<br></code></pre></td></tr></table></figure>
+<h5 id="1-Unit-节-2">(1) <code>[Unit]</code> 节</h5>
+<p><code>[Unit]</code> 节用于描述 <code>target</code> 的基本信息和依赖关系。常用字段包括：</p>
+<ul>
+<li><strong>Description</strong>：对 <code>target</code> 的简短描述，在 <code>systemctl status</code> 命令中显示。</li>
+<li><strong>Requires</strong>：列出该 <code>target</code> 所依赖的其他单元（如服务、套接字、设备等）。如果某个依赖项失败，整个 <code>target</code> 将无法启动。</li>
+<li><strong>Wants</strong>：与 <code>Requires</code> 类似，但关系更松散。<code>Wants</code> 定义了系统希望启动的单元，但如果这些单元无法启动，<code>target</code> 本身仍然可以启动。</li>
+<li><strong>Before</strong> 和 <strong>After</strong>：控制 <code>target</code> 的启动顺序，确保某些单元在该 <code>target</code> 启动之前或之后启动。例如，<code>After=network.target</code> 表示在网络服务启动后再启动该 <code>target</code>。</li>
+</ul>
+<h5 id="2-Install-节">(2) <code>[Install]</code> 节</h5>
+<p><code>[Install]</code> 节用于定义 <code>target</code> 在安装时的行为，控制它如何与其他 <code>target</code> 或运行级别进行关联。常用字段包括：</p>
+<ul>
+<li><strong>WantedBy</strong>：定义该 <code>target</code> 应该在哪个其他 <code>target</code> 中启用。例如，<code>WantedBy=multi-user.target</code> 表示此 <code>target</code> 是多用户模式下的目标之一，系统进入 <code>multi-user.target</code> 时，它将自动被启用。</li>
+<li><strong>RequiredBy</strong>：类似于 <code>WantedBy</code>，但表示强依赖关系。如果 <code>target</code> 被列为 <code>RequiredBy</code>，那么其依赖的单元无法启动时，<code>target</code> 也无法启动。</li>
+</ul>
+<h4 id="4-常见的-target-示例">4. <strong>常见的 <code>target</code> 示例</strong></h4>
+<p>以下是一些常见的 <code>systemd</code> 目标文件：</p>
+<h5 id="1-default-target">(1) <code>default.target</code></h5>
+<ul>
+<li><strong>作用</strong>：定义系统启动时默认进入的目标。</li>
+<li><strong>等效</strong>：传统 init 系统的默认运行级别。<code>default.target</code> 通常指向 <code>multi-user.target</code> 或 <code>graphical.target</code>。</li>
+<li><strong>位置</strong>：<code>/etc/systemd/system/default.target</code> 通常是一个符号链接，指向实际的目标文件。</li>
+</ul>
+<p>可以使用以下命令查看和设置默认目标：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs bash"><span class="hljs-comment"># 查看当前的默认目标</span><br>systemctl get-default<br><br><span class="hljs-comment"># 设置新的默认目标</span><br>sudo systemctl set-default graphical.target<br></code></pre></td></tr></table></figure>
+<h5 id="2-multi-user-target">(2) <code>multi-user.target</code></h5>
+<ul>
+<li><strong>作用</strong>：相当于传统运行级别 3，表示多用户模式，不启动图形界面。这是服务器环境常用的模式，启动基本的网络、SSH 和系统服务。</li>
+<li><strong>依赖</strong>：通常依赖网络服务和基本系统服务。</li>
+<li><strong>路径</strong>：<code>/usr/lib/systemd/system/multi-user.target</code></li>
+</ul>
+<h5 id="3-graphical-target">(3) <code>graphical.target</code></h5>
+<ul>
+<li><strong>作用</strong>：相当于传统运行级别 5，表示图形模式，启动图形用户界面（如 GNOME、KDE）。</li>
+<li><strong>依赖</strong>：<code>graphical.target</code> 在 <code>multi-user.target</code> 基础上增加了对图形界面的依赖，启动 Xorg 或 Wayland 以及桌面环境。</li>
+<li><strong>路径</strong>：<code>/usr/lib/systemd/system/graphical.target</code></li>
+</ul>
+<h5 id="4-rescue-target">(4) <code>rescue.target</code></h5>
+<ul>
+<li><strong>作用</strong>：类似于单用户模式，提供最小化的运行环境，主要用于系统故障恢复。只有基本文件系统和终端可用，网络和图形界面未启动。</li>
+<li><strong>路径</strong>：<code>/usr/lib/systemd/system/rescue.target</code></li>
+</ul>
+<h5 id="5-shutdown-target">(5) <code>shutdown.target</code></h5>
+<ul>
+<li><strong>作用</strong>：表示系统关闭目标。当系统进入 <code>shutdown.target</code> 时，它会停止所有服务并关闭系统。</li>
+<li><strong>路径</strong>：<code>/usr/lib/systemd/system/shutdown.target</code></li>
+</ul>
+<h4 id="5-创建自定义-target-单元">5. <strong>创建自定义 <code>target</code> 单元</strong></h4>
+<p>有时，管理员需要创建自定义的 <code>target</code> 以便将特定的服务组合在一起。例如，我们可以创建一个新的 <code>target</code>，用于启动一些自定义服务。</p>
+<p>假设我们要创建一个名为 <code>my-custom.target</code> 的 <code>target</code>，它会在系统启动时自动启用，并启动 <code>my-service1</code> 和 <code>my-service2</code>。</p>
+<h5 id="1-创建-my-custom-target">(1) 创建 <code>my-custom.target</code></h5>
+<p>首先，创建单元文件 <code>/etc/systemd/system/my-custom.target</code>：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs ini"><span class="hljs-section">[Unit]</span><br><span class="hljs-attr">Description</span>=My Custom Target<br><span class="hljs-attr">Requires</span>=my-service1.service my-service2.service<br><span class="hljs-attr">After</span>=network.target<br><br><span class="hljs-section">[Install]</span><br><span class="hljs-attr">WantedBy</span>=multi-user.target<br></code></pre></td></tr></table></figure>
+<ul>
+<li><strong>Description</strong>：该目标的简短描述。</li>
+<li><strong>Requires</strong>：表示这个 <code>target</code> 依赖 <code>my-service1</code> 和 <code>my-service2</code>，它们必须在该目标启动时被启动。</li>
+<li><strong>After</strong>：指定 <code>my-custom.target</code> 应在网络启动之后运行。</li>
+<li><strong>WantedBy</strong>：将此 <code>target</code> 安装为多用户模式的一部分。</li>
+</ul>
+<h5 id="2-配置自定义服务">(2) 配置自定义服务</h5>
+<p>确保 <code>my-service1.service</code> 和 <code>my-service2.service</code> 单元文件已经配置好并放在合适的目录中。</p>
+<h5 id="3-启用并使用自定义-target">(3) 启用并使用自定义 <code>target</code></h5>
+<p>使用以下命令启用和启动自定义的 <code>target</code>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo systemctl <span class="hljs-built_in">enable</span> my-custom.target<br>sudo systemctl start my-custom.target<br></code></pre></td></tr></table></figure>
+<p>现在，系统进入多用户模式时，<code>my-custom.target</code> 会自动启动，并确保 <code>my-service1</code> 和 <code>my-service2</code> 运行。</p>
+<h4 id="6-切换和管理-target">6. <strong>切换和管理 <code>target</code></strong></h4>
+<p>除了在系统启动时指定 <code>target</code>，你还可以通过以下命令在运行中的系统中切换 <code>target</code>：</p>
+<ul>
+<li>
+<p><strong>切换到指定 <code>target</code></strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo systemctl isolate graphical.target<br></code></pre></td></tr></table></figure>
+<p>这个命令会将系统切换到图形界面模式，停止所有不属于 <code>graphical.target</code> 的服务。</p>
+</li>
+<li>
+<p><strong>查看可用的 <code>target</code></strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">systemctl list-units --<span class="hljs-built_in">type</span>=target<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>设置默认 <code>target</code></strong>：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs bash">sudo systemctl set-default multi-user.target<br></code></pre></td></tr></table></figure>
+</li>
+</ul>
+<h4 id="7-总结">7. <strong>总结</strong></h4>
+<p><code>target</code> 单元文件是 <code>systemd</code> 中管理系统不同运行状态的核心机制。通过组合多个服务和其他资源，它们可以灵活地控制系统的启动和停止过程。系统管理员可以利用 <code>target</code> 来创建自定义的启动环境、简化复杂系统配置，并与传统的运行级别进行良好的兼容。</p>
+<h3 id="4-systemd-的优点">4. <strong>systemd 的优点</strong></h3>
+<ul>
+<li><strong>启动加速</strong>：systemd 支持并行启动和按需启动，可以显著加快系统的启动速度。</li>
+<li><strong>强大的依赖管理</strong>：可以精确控制服务启动顺序，确保所需的依赖关系正确处理。</li>
+<li><strong>统一日志管理</strong>：通过 <code>journald</code> 集成系统日志，方便管理员查看和分析系统运行状况。</li>
+<li><strong>细粒度的资源控制</strong>：通过 cgroups，可以限制和监控各个服务的资源使用情况，提升系统的稳定性和安全性。</li>
+<li><strong>现代化设计</strong>：systemd 通过新的机制和接口来替代传统的 init 系统，并提供了更强大的功能和灵活性。</li>
+</ul>
+<h3 id="5-systemd-的一些常见命令">5. <strong>systemd 的一些常见命令</strong></h3>
+<ul>
+<li><code>systemctl list-units</code>：列出所有正在运行的单元。</li>
+<li><code>systemctl disable &lt;service&gt;</code>：禁用服务，使其在启动时不自动运行。</li>
+<li><code>systemctl daemon-reload</code>：在手动修改 unit 文件后重载配置。</li>
+<li><code>systemctl list-timers</code>：列出系统中所有的定时器。</li>
+</ul>
+<h3 id="6-争议与批评">6. <strong>争议与批评</strong></h3>
+<p>systemd 在引入之初曾引起过一些争议，主要是因为它过于复杂、集成过多功能，违背了 Unix 哲学“每个工具做好一件事”。部分用户认为 systemd 的设计过于庞大，可能增加系统复杂度，且使得故障排除变得更加困难。</p>
+<p>总的来说，systemd 已成为现代 Linux 发行版的一个关键组件，虽然它的复杂性曾引发争议，但它提供的丰富功能和显著的性能改进使得它逐渐被大多数发行版广泛采用。</p>
 
                 
               </div>
