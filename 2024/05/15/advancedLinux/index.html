@@ -25,7 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/05/15/advancedLinux/systemd.png">
 <meta property="article:published_time" content="2024-05-15T07:37:24.000Z">
-<meta property="article:modified_time" content="2024-10-19T10:43:53.794Z">
+<meta property="article:modified_time" content="2024-10-20T07:38:55.147Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="linux">
 <meta name="twitter:card" content="summary_large_image">
@@ -190,7 +190,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          12k 字
+          13k 字
         
       </span>
     
@@ -201,7 +201,7 @@
         
         
         
-          101 分钟
+          105 分钟
         
       </span>
     
@@ -380,27 +380,13 @@
 <li>八进制数字表示法：例如修改文件权限可以直接 chmod 777 file，这样赋予文件所有人所有权限</li>
 <li>符号表示法，用三个字符表示如何操作权限，前两个字符代表的含义如下
 <ul>
-<li>
-<p><strong>u</strong>：用户（文件所有者）</p>
-</li>
-<li>
-<p><strong>g</strong>：组（文件所有者所属的组）</p>
-</li>
-<li>
-<p><strong>o</strong>：其他人</p>
-</li>
-<li>
-<p><strong>a</strong>：所有人（等同于 u、g、o）</p>
-</li>
-<li>
-<p><code>+</code>：添加权限</p>
-</li>
-<li>
-<p><code>-</code>：移除权限</p>
-</li>
-<li>
-<p><code>=</code>：设定精确权限</p>
-</li>
+<li><strong>u</strong>：用户（文件所有者）</li>
+<li><strong>g</strong>：组（文件所有者所属的组）</li>
+<li><strong>o</strong>：其他人</li>
+<li><strong>a</strong>：所有人（等同于 u、g、o），可以省略，例如<code>chmod +x</code>等效于<code>chmod a+x</code></li>
+<li><code>+</code>：添加权限</li>
+<li><code>-</code>：移除权限</li>
+<li><code>=</code>：设定精确权限</li>
 </ul>
 </li>
 </ul>
@@ -1150,6 +1136,68 @@ lrwxrwxrwx 1 root root 15 11月 14  2023 S01acpid -&gt; …/init.d/acpid<br>
 <h3 id="6-争议与批评">6. <strong>争议与批评</strong></h3>
 <p>systemd 在引入之初曾引起过一些争议，主要是因为它过于复杂、集成过多功能，违背了 Unix 哲学“每个工具做好一件事”。部分用户认为 systemd 的设计过于庞大，可能增加系统复杂度，且使得故障排除变得更加困难。</p>
 <p>总的来说，systemd 已成为现代 Linux 发行版的一个关键组件，虽然它的复杂性曾引发争议，但它提供的丰富功能和显著的性能改进使得它逐渐被大多数发行版广泛采用。</p>
+<h3 id="7-命令集">7. <strong>命令集</strong></h3>
+<p><code>systemd</code> 是 Linux 系统中的一个系统和服务管理器，它提供了一组命令来控制系统的启动、服务管理、日志查看等功能。常用的 <code>systemd</code> 命令集包括以下几个：</p>
+<ol>
+<li>
+<p><strong><code>systemctl</code></strong> - 控制系统服务和单元：</p>
+<ul>
+<li><code>systemctl start &lt;service&gt;</code>：启动服务。</li>
+<li><code>systemctl stop &lt;service&gt;</code>：停止服务。</li>
+<li><code>systemctl restart &lt;service&gt;</code>：重启服务。</li>
+<li><code>systemctl reload &lt;service&gt;</code>：重新加载服务配置。</li>
+<li><code>systemctl enable &lt;service&gt;</code>：开机时启用服务。</li>
+<li><code>systemctl disable &lt;service&gt;</code>：开机时禁用服务。</li>
+<li><code>systemctl status &lt;service&gt;</code>：查看服务状态。</li>
+<li><code>systemctl is-active &lt;service&gt;</code>：检查服务是否正在运行。</li>
+<li><code>systemctl list-units</code>：列出当前运行的单元（units）。</li>
+<li><code>systemctl list-timers</code>：列出所有的定时器。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>journalctl</code></strong> - 查看和管理日志：</p>
+<ul>
+<li><code>journalctl</code>：查看系统日志。</li>
+<li><code>journalctl -f</code>：实时查看日志输出。</li>
+<li><code>journalctl -u &lt;service&gt;</code>：查看特定服务的日志。</li>
+<li><code>journalctl --since &quot;YYYY-MM-DD HH:MM:SS&quot;</code>：查看自特定时间后的日志。</li>
+<li><code>journalctl --disk-usage</code>：显示日志占用的磁盘空间。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>loginctl</code></strong> - 管理用户登录会话：</p>
+<ul>
+<li><code>loginctl list-sessions</code>：列出当前会话。</li>
+<li><code>loginctl list-users</code>：列出当前登录的用户。</li>
+<li><code>loginctl show-session &lt;ID&gt;</code>：显示特定会话的详细信息。</li>
+<li><code>loginctl terminate-session &lt;ID&gt;</code>：终止会话。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>hostnamectl</code></strong> - 管理系统的主机名：</p>
+<ul>
+<li><code>hostnamectl status</code>：显示主机名及相关信息。</li>
+<li><code>hostnamectl set-hostname &lt;name&gt;</code>：设置主机名。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>timedatectl</code></strong> - 设置时间和日期：</p>
+<ul>
+<li><code>timedatectl</code>：查看当前的时间、日期和时区设置。</li>
+<li><code>timedatectl set-time &lt;time&gt;</code>：设置系统时间。</li>
+<li><code>timedatectl set-timezone &lt;timezone&gt;</code>：设置系统时区。</li>
+<li><code>timedatectl set-ntp true</code>：启用网络时间同步（NTP）。</li>
+</ul>
+</li>
+<li>
+<p><strong><code>systemd-analyze</code></strong> - 分析启动性能：</p>
+<ul>
+<li><code>systemd-analyze blame</code>：显示启动过程中耗时的服务。</li>
+<li><code>systemd-analyze critical-chain</code>：显示启动的关键路径。</li>
+</ul>
+</li>
+</ol>
+<p>这些命令构成了 <code>systemd</code> 提供的主要工具集，帮助用户有效管理系统和服务。</p>
 
                 
               </div>
