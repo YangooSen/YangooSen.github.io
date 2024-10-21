@@ -25,6 +25,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/11-interface.png">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/11-class.png">
+<meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/innerClass.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk7ArrayList.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8ArrayList.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8Vector.jpg">
@@ -32,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8HashMap.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8LinkedHashMap.jpg">
 <meta property="article:published_time" content="2024-06-11T07:31:08.000Z">
-<meta property="article:modified_time" content="2024-10-20T13:00:44.002Z">
+<meta property="article:modified_time" content="2024-10-21T13:22:52.463Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -798,6 +799,7 @@
 <p>Collection接口继承了Iterator接口，对象方法有next和hasNext和remove，注意和Collection接口的remove区分，另外remove的返回值是void，和cpp中的方法也不一样</p>
 <h4 id="1-1-List-接口">1.1 <strong>List 接口</strong></h4>
 <p><strong>List</strong> 接口表示一个存取有序（与插入顺序一致而不是经过了排序）的集合，允许重复元素。常见的实现类有（下面都是直接实现类，而不是像TreeSet和TreeMap一样通过子接口再实现）：</p>
+<p><img src="innerClass.jpg" srcset="/img/loading.gif" lazyload alt="内部类"></p>
 <blockquote>
 <p><code>java.util.Arrays$ArrayList</code> 是 Java 中的一个内部类，表示 <code>java.util.Arrays</code> 类中的一个静态内部类。它由 <code>Arrays.asList(…)</code> 方法返回。</p>
 <p>在 Java 中，符号 <code>$</code> 用于表示内部类的层级结构。所以，<code>java.util.Arrays$ArrayList</code> 表示的是 <code>Arrays</code> 类的内部类 <code>ArrayList</code>，它是 <code>java.util.Arrays</code> 类中定义的一个特殊的 <code>List</code> 实现。</p>
