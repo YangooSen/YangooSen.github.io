@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8HashMap.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8LinkedHashMap.jpg">
 <meta property="article:published_time" content="2024-06-11T07:31:08.000Z">
-<meta property="article:modified_time" content="2024-10-22T03:35:57.509Z">
+<meta property="article:modified_time" content="2024-10-22T07:51:49.990Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -198,7 +198,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          27k 字
+          29k 字
         
       </span>
     
@@ -209,7 +209,7 @@
         
         
         
-          229 分钟
+          244 分钟
         
       </span>
     
@@ -588,7 +588,7 @@
 <p>下面是单例的实现方法：</p>
 <h3 id="饿汉静态常量">饿汉静态常量</h3>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//饿汉式(静态常量)</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br>    <span class="hljs-comment">//    1.构造器私有化</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">Singleton</span><span class="hljs-params">()</span> &#123;<br><br>    &#125;<br><br>    <span class="hljs-comment">//2.本类内部创建对象实例</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> <span class="hljs-type">Singleton</span> <span class="hljs-variable">instance</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>();<br><br>    <span class="hljs-comment">//提供一个公共静态方法，返回实例对象</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
-<p>如果从未使用就会造成内存浪费</p>
+<p>另一种考虑是直接将成员instance设为public，这样就不需要通过getInstance来获得，除非有能想到的扩展优势，一般用这样更简单的方法。饿汉式如果从未使用就会造成内存浪费，但也要注意拥有特权的用户可以借助AccessibleObject.setAccessible方法，通过反射调用私有构造器</p>
 <h3 id="饿汉静态代码块">饿汉静态代码块</h3>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//饿汉式(静态代码块)</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton1</span> &#123;<br>    <span class="hljs-comment">//    1.构造器私有化</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">Singleton1</span><span class="hljs-params">()</span> &#123;<br><br>    &#125;<br><br>    <span class="hljs-comment">//2.本类内部创建对象实例</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">static</span> Singleton1 instance;<span class="hljs-comment">/*final修饰的属性必须显式赋值*/</span><br><br>    <span class="hljs-keyword">static</span> &#123;<br>        instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton1</span>();<br>    &#125;<br><br>    <span class="hljs-comment">//提供一个公共静态方法，返回实例对象</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton1 <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
 <blockquote>
@@ -606,7 +606,7 @@
 <p>链接阶段将类的字节码进行验证、准备和解析，确保类可以正确执行。这一阶段包括三个步骤：</p>
 <ul>
 <li><strong>验证（Verification）</strong>：确保类的字节码格式正确，并且不会违反JVM的安全规则（如类型安全性）。</li>
-<li><strong>准备（Preparation）</strong>：为类的静态变量分配内存，并初始化为默认值（如<code>int</code>类型为0，<code>boolean</code>类型为<code>false</code>等）。</li>
+<li><strong>准备（Preparation）</strong>：<strong>为类的静态变量分配内存</strong>，并初始化为默认值（如<code>int</code>类型为0，<code>boolean</code>类型为<code>false</code>等）。</li>
 <li><strong>解析（Resolution）</strong>：将类的符号引用（如类、方法、字段的名字）解析为直接引用，指向具体的内存地址。</li>
 </ul>
 <h4 id="3-类的初始化（Initialization）">3. 类的初始化（Initialization）</h4>
@@ -711,7 +711,57 @@
 </blockquote>
 <h3 id="双重检查">双重检查</h3>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br>    <span class="hljs-comment">//    volatile:使变量一有修改立马提交到主存里面去</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> Singleton instance;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">Singleton</span><span class="hljs-params">()</span> &#123;<br><br>    &#125;<br><br>    <span class="hljs-comment">//加入双重检查代码，解决线程安全问题，同时解决懒加载问题</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">synchronized</span> (Singleton.class) &#123;<br>                <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;<br>                    instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>();<br>                &#125;<br><br>            &#125;<br><br>        &#125;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
-<p>只有第一次使用（instance==null）的时候才用同步控制线程，非空直接返回。第一次if是为了效率，可以直接返回；第二次if是为了确保同步的实现，如果没有第二个if可能会：第一次使用时两个线程同时进入if，第一个线程获得锁创建实例后归还锁，然后第二个线程得到锁之后又创建实例。但是必须注意volatile防止指令重排，确保写操作在读操作之前完成的作用。JVM创建对象的时候先分配空间赋予域初始值，然后才调用构造器方法写内存。如果某线程分配空间之后，还没有构造赋值就被另一个线程抢占，那么返回的对象域值将只是初始值，加了volatile之后，一旦调用new，JVM会保证对象完全初始化结束（写）之后才允许其他线程访问（读）</p>
+<p>只有第一次使用（instance==null）的时候才用同步控制线程，非空直接返回。第一次if是为了效率，可以直接返回；第二次if是为了确保同步的实现，如果没有第二个if可能会：第一次使用时两个线程同时进入if，第一个线程获得锁创建实例后归还锁，然后第二个线程得到锁之后又创建实例。但是必须注意volatile防止指令重排，确保写操作在读操作之前完成的作用。JVM创建对象的时候先分配空间赋予域初始值，然后才调用构造器方法写内存。如果某线程分配空间之后，还没有构造赋值就被另一个线程抢占，那么返回的对象域值将只是初始值，加了volatile之后，一旦调用new，JVM会保证对象完全初始化结束（写）之后才允许其他线程访问（读），防止半初始化的对象</p>
+<blockquote>
+<p>JVM 创建对象时，确实会先分配内存并为对象的实例变量（成员变量）赋予默认初始值，然后再调用构造器方法执行进一步的初始化。这是对象创建过程中的标准步骤。</p>
+<p>具体来说，对象的创建过程大致可以分为以下几个阶段：</p>
+<h4 id="1-内存分配（Memory-Allocation）">1. <strong>内存分配（Memory Allocation）</strong></h4>
+<ul>
+<li>当使用 <code>new</code> 关键字创建一个对象时，JVM 首先会在堆内存中为该对象分配内存。</li>
+<li>分配的内存大小取决于该对象所属的类的定义，包括所有实例变量所需的空间。</li>
+<li>此时，JVM 会为每个实例变量分配空间，并按照其类型设置默认初始值（而不是显式赋值）。
+<ul>
+<li><strong>基本数据类型</strong>的默认初始值：
+<ul>
+<li><code>int</code>、<code>short</code>、<code>byte</code>、<code>long</code>：默认为 <code>0</code></li>
+<li><code>float</code>、<code>double</code>：默认为 <code>0.0</code></li>
+<li><code>char</code>：默认为 <code>'\u0000'</code>（null 字符）</li>
+<li><code>boolean</code>：默认为 <code>false</code></li>
+</ul>
+</li>
+<li><strong>引用类型</strong>的默认初始值：所有引用类型（对象、数组等）的默认值是 <code>null</code>。</li>
+</ul>
+</li>
+</ul>
+<h4 id="2-执行构造方法前的默认初始化">2. <strong>执行构造方法前的默认初始化</strong></h4>
+<ul>
+<li>在内存分配和默认值赋值完成后，对象的内存空间已经分配好了，并且所有实例变量都被设置为默认值。但此时对象尚未完成构造。</li>
+</ul>
+<h3 id="3-调用构造器方法（Constructor-Invocation）">3. <strong>调用构造器方法（Constructor Invocation）</strong></h3>
+<ul>
+<li>接下来，JVM 调用对象的构造方法（<code>constructor</code>），该方法可以进一步对对象进行初始化操作。
+<ul>
+<li><strong>在构造器中</strong>，你可以为实例变量赋值或者进行更复杂的初始化操作（如调用其他方法、进行逻辑运算等）。</li>
+<li>如果构造器中没有对某个实例变量赋值，那么该变量将保留前一步中的默认初始值。</li>
+</ul>
+</li>
+</ul>
+<h4 id="4-对象完成初始化">4. <strong>对象完成初始化</strong></h4>
+<ul>
+<li>当构造器方法执行完毕，内存中的对象才算真正完成初始化。此时，对象的引用将指向分配的内存，可以返回给调用者，且可以被使用。</li>
+</ul>
+<h4 id="总结-2"><strong>总结</strong></h4>
+<p>是的，JVM 在创建对象时会按照以下顺序操作：</p>
+<ol>
+<li><strong>分配内存</strong>：为对象在堆中分配空间。</li>
+<li><strong>默认初始化</strong>：为对象的所有实例变量赋予默认初始值。</li>
+<li><strong>调用构造器</strong>：通过构造器方法进行显式初始化，覆盖默认初始值或进行进一步的初始化。</li>
+<li><strong>完成初始化</strong>：构造器执行完毕后，内存中的对象初始化完成。</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>对于对象的创建，使用 volatile 可以确保对象的引用被分配并指向内存区域时，对象已经完全初始化，从而避免其他线程看到“半初始化”的对象。</p>
+</blockquote>
 <p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/111691225">懒汉中volatile的关键作用</a></p>
 <blockquote>
 <p>在Java中，<code>volatile</code> 关键字用于修饰变量，以确保该变量在多线程环境中可见，并防止指令重排序。它是一种轻量级的同步机制，主要用于解决多线程下的可见性问题，而不是原子性问题。下面详细解释一下 <code>volatile</code> 的核心概念：</p>
@@ -752,8 +802,45 @@
 </blockquote>
 <h3 id="静态内部类">静态内部类</h3>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> Singleton instance;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">Singleton</span><span class="hljs-params">()</span> &#123;<br><br>    &#125;<br><br>    <span class="hljs-comment">//    静态内部类,该类中有一个静态属性Singleton</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SingletonInstance</span> &#123;<br>        <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Singleton</span> <span class="hljs-variable">INSTANCE</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>();<br>    &#125;<br><br>    <span class="hljs-comment">//直接返回SingletonInstance.INSTANCE</span><br><span class="hljs-comment">//    注意：上面的静态内部类不会随着主类加载就加载，而是会在下面的方法执行时才加载。</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br><br>        <span class="hljs-keyword">return</span> SingletonInstance.INSTANCE;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>只有 getInstance 被调用时，静态内部类才会第一次被JVM加载，且以线程安全的模式初始化好静态内部类的静态域</p>
+<blockquote>
+<p>在 Java 中，内部类和静态内部类的加载时机有所不同，它们的加载时机由 JVM 控制，具体取决于它们的定义方式和使用场景。以下是对两者的详细描述：</p>
+<h4 id="1-内部类（Non-static-Inner-Class）的加载时机">1. <strong>内部类（Non-static Inner Class）的加载时机</strong></h4>
+<p>内部类是与外部类关联的类，它不能独立存在，必须通过外部类的实例来创建和访问。其加载时机如下：</p>
+<ul>
+<li><strong>依赖外部类的实例：</strong> 内部类的实例是依赖外部类的实例而存在的。换句话说，只有在外部类的实例被创建后，内部类才可能被创建。内部类会在它被实例化时进行加载，而不会在外部类加载时一同加载。</li>
+<li><strong>懒加载机制：</strong> 内部类只有在被实际使用时才会加载，JVM 不会在外部类加载时就加载内部类。这意味着，外部类的加载和内部类的加载是相互独立的，只有当内部类的代码被引用时，它才会被加载到内存中。</li>
+</ul>
+<p><strong>示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OuterClass</span> &#123;<br>    <span class="hljs-keyword">class</span> <span class="hljs-title class_">InnerClass</span> &#123;<br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">display</span><span class="hljs-params">()</span> &#123;<br>            System.out.println(<span class="hljs-string">&quot;Inner class method&quot;</span>);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">OuterClass</span> <span class="hljs-variable">outer</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OuterClass</span>();  <span class="hljs-comment">// 创建外部类实例</span><br>        OuterClass.<span class="hljs-type">InnerClass</span> <span class="hljs-variable">inner</span> <span class="hljs-operator">=</span> outer.<span class="hljs-keyword">new</span> <span class="hljs-title class_">InnerClass</span>();  <span class="hljs-comment">// 创建内部类实例</span><br>        inner.display();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在上面的代码中，<code>InnerClass</code> 只有在 <code>main</code> 方法中通过外部类实例 <code>outer</code> 调用时才会被加载和实例化。</p>
+<h4 id="2-静态内部类（Static-Nested-Class）的加载时机">2. <strong>静态内部类（Static Nested Class）的加载时机</strong></h4>
+<p>静态内部类（有时称为嵌套类）与普通的内部类不同，它不依赖于外部类的实例，类似于静态变量和静态方法。静态内部类的加载时机如下：</p>
+<ul>
+<li><strong>与外部类的实例无关：</strong> 静态内部类与外部类的实例没有任何依赖关系。它可以独立于外部类的实例进行创建。即使外部类的实例不存在，也可以创建静态内部类的实例。</li>
+<li><strong>外部类加载时不加载静态内部类：</strong> 静态内部类在外部类加载时不会一同加载。只有在首次引用静态内部类时，JVM 才会对其进行加载。这与普通的静态变量和方法的加载机制类似，只有在需要使用时才会进行加载。</li>
+</ul>
+<p><strong>示例：</strong></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OuterClass</span> &#123;<br>    <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">StaticNestedClass</span> &#123;<br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">display</span><span class="hljs-params">()</span> &#123;<br>            System.out.println(<span class="hljs-string">&quot;Static nested class method&quot;</span>);<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        OuterClass.<span class="hljs-type">StaticNestedClass</span> <span class="hljs-variable">nested</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">OuterClass</span>.StaticNestedClass();  <span class="hljs-comment">// 创建静态内部类实例</span><br>        nested.display();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>StaticNestedClass</code> 只有在 <code>main</code> 方法中被首次引用时才会被加载，而不会在 <code>OuterClass</code> 加载时被加载。</p>
+<h4 id="3-两者的对比总结">3. <strong>两者的对比总结</strong></h4>
+<ul>
+<li><strong>实例依赖：</strong> 普通内部类依赖外部类的实例，而静态内部类则不依赖外部类的实例。</li>
+<li><strong>加载时机：</strong> 普通内部类只有在被实际使用时才会加载，而静态内部类也是在首次使用时才加载，但不依赖外部类的实例。</li>
+<li><strong>内存占用：</strong> 普通内部类可能会占用更多的内存，因为它需要与外部类的实例关联。而静态内部类由于不依赖外部类的实例，通常占用较少的内存。</li>
+</ul>
+<h4 id="JVM-加载机制补充">JVM 加载机制补充</h4>
+<p>JVM 在类的加载过程中，一般会按照以下步骤进行：</p>
+<ul>
+<li><strong>加载（Loading）：</strong> JVM 读取类文件的二进制数据，将其加载到内存中。</li>
+<li><strong>链接（Linking）：</strong> 包括验证、准备（为静态变量分配内存并初始化默认值）和解析（将符号引用转化为直接引用）。</li>
+<li><strong>初始化（Initialization）：</strong> 执行类的初始化，包括静态变量的赋值和静态代码块的执行。</li>
+</ul>
+<p>静态内部类的静态变量和静态代码块也会在首次使用时进行初始化，而普通内部类则不会涉及静态代码块和静态变量的初始化。</p>
+</blockquote>
 <h3 id="枚举类">枚举类</h3>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">package</span> singleton.type6;<br><br><span class="hljs-keyword">import</span> java.sql.SQLOutput;<br><br><span class="hljs-comment">/**</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@Author</span> Worm</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@Date</span> 2020/8/9 20:09</span><br><span class="hljs-comment"> * <span class="hljs-doctag">@Version</span> 1.0</span><br><span class="hljs-comment"> **/</span><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">SingletonTest08</span> &#123;<br><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">Singleton</span> <span class="hljs-variable">singleton</span> <span class="hljs-operator">=</span> Singleton.INSTANCE;<br>        <span class="hljs-type">Singleton</span> <span class="hljs-variable">singleton1</span> <span class="hljs-operator">=</span> Singleton.INSTANCE;<br>        System.out.println(singleton == singleton1);<span class="hljs-comment">/*true*/</span><br>        System.out.println(singleton.hashCode());<br>        System.out.println(singleton1.hashCode());<br>    &#125;<br>&#125;<br><br><span class="hljs-comment">//枚举，推荐使用</span><br><span class="hljs-keyword">enum</span> <span class="hljs-title class_">Singleton</span> &#123;<br>    INSTANCE;<span class="hljs-comment">/*属性*/</span><br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">sayOK</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;ok&quot;</span>);<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-comment">//枚举，推荐使用</span><br><span class="hljs-keyword">enum</span> <span class="hljs-title class_">Singleton</span> &#123;<br>    INSTANCE;<span class="hljs-comment">/*属性*/</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>更加简洁，且提供了反序列化，即使面对复杂的序列化和反射也能保证单例。唯一的缺点是枚举类已经默认有了继承，这样实现单例无法让他继承任何父类</p>
 <blockquote>
 <p>Java 中的枚举类（<code>enum</code>）是一种特殊的类，用来定义一组固定的常量。<strong>枚举的每个成员都是该类的一个单实例</strong>，通常用于表示一组有限的可能值，比如一周的天数、交通信号灯的颜色等。枚举不仅限于简单的常量，它们还可以包含字段、方法、构造器，使其具备更强大的功能。</p>
 <ol>
@@ -864,7 +951,7 @@
 <h3 id="解决方案-3">解决方案</h3>
 <p>为了避免这种违反一致性的问题，推荐使用 <code>java.net.URI</code> 类而不是 <code>URL</code>，因为 <code>URI</code> 的 <code>equals()</code> 方法只会比较 URL 的字符串表示形式，而不会进行 DNS 解析。因此它能保证 <code>equals()</code> 的一致性。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">URI</span> <span class="hljs-variable">uri1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">URI</span>(<span class="hljs-string">&quot;http://example.com&quot;</span>);<br><span class="hljs-type">URI</span> <span class="hljs-variable">uri2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">URI</span>(<span class="hljs-string">&quot;http://example.com&quot;</span>);<br><br>System.out.println(uri1.equals(uri2)); <span class="hljs-comment">// 始终返回 true</span><br></code></pre></td></tr></table></figure>
-<h3 id="总结-2">总结</h3>
+<h3 id="总结-3">总结</h3>
 <ul>
 <li><code>java.net.URL</code> 的 <code>equals()</code> 方法依赖于 DNS 解析，可能导致在不同的时间或环境下比较结果不一致，从而违反一致性原则。</li>
 <li>解决这个问题的最佳方法是使用 <code>java.net.URI</code> 类进行 URL 比较，因为它的 <code>equals()</code> 方法不会依赖外部网络状态。</li>
@@ -998,7 +1085,7 @@
 <h3 id="示例：AbstractList-的作用">示例：AbstractList 的作用</h3>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AbstractList</span>&lt;E&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractCollection</span>&lt;E&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title class_">List</span>&lt;E&gt; &#123;<br>    <span class="hljs-comment">// 默认实现了 List 接口的部分方法</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">add</span><span class="hljs-params">(E e)</span> &#123;<br>        add(size(), e); <span class="hljs-comment">// 基于 size() 和 add(int, E) 实现</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 抽象方法，子类必须实现</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> E <span class="hljs-title function_">get</span><span class="hljs-params">(<span class="hljs-type">int</span> index)</span>;<br>    <br>    <span class="hljs-comment">// 可选地，子类可以覆盖此方法</span><br>    <span class="hljs-keyword">public</span> E <span class="hljs-title function_">remove</span><span class="hljs-params">(<span class="hljs-type">int</span> index)</span> &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个示例中，<code>AbstractList</code> 已经实现了 <code>List</code> 接口中的部分方法（如 <code>add()</code>），而将具体的 <code>get()</code> 和 <code>remove()</code> 等方法留给子类实现。这样，子类可以通过继承 <code>AbstractList</code>，快速实现一个具体的 <code>List</code> 类。</p>
-<h3 id="总结-3">总结</h3>
+<h3 id="总结-4">总结</h3>
 <p>以 <code>Abstract</code> 开头的类在 Java 集合框架中扮演了一个模板和部分实现的角色，它们帮助开发者简化具体集合类的实现，并确保新的集合类遵循集合框架的设计原则。</p>
 </blockquote>
 <p>在 Java 中，集合框架（Collection Framework）是用来存储和操作一组对象的。其主要包含两个基本接口：<strong>Collection</strong> 和 <strong>Map</strong>。它们有各自的常见实现层次。以下是这两个接口的描述及其常见实现类的层次结构：</p>
@@ -1471,7 +1558,7 @@ ayList的对象，例如：后期从数据库查询对象的方<br>
 <h5 id="JDK-1-8-对-HashMap-的改进">JDK 1.8 对 <code>HashMap</code> 的改进</h5>
 <p>在 JDK 1.8 中，<code>HashMap</code> 对链表结构做了重要改进，当链表中的节点数量超过一定阈值（默认 8 个）时，会将链表转换为红黑树，从而降低了链表过长带来的性能问题和冲突问题。但这一改进仅仅是针对链表长度过长的场景，并没有解决多线程并发问题。</p>
 <p>因此，即便在 JDK 1.8 中，<code>HashMap</code> 仍然不是线程安全的，在多线程环境下依然可能发生循环链表的问题，除非使用了其他同步措施或专为并发设计的数据结构（如 <code>ConcurrentHashMap</code>）。</p>
-<h5 id="总结-4">总结</h5>
+<h5 id="总结-5">总结</h5>
 <ul>
 <li>在多线程环境下，<code>HashMap</code> 确实可能出现 <strong>循环链表</strong> 的问题，这会导致程序进入死循环，耗尽 CPU 资源。</li>
 <li>这个问题主要发生在并发环境下的 <code>put</code> 操作，由于 <code>HashMap</code> 不是线程安全的，所以多个线程同时操作时会破坏链表结构。</li>
