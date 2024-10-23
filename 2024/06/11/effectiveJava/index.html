@@ -33,7 +33,7 @@
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8HashMap.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8LinkedHashMap.jpg">
 <meta property="article:published_time" content="2024-06-11T07:31:08.000Z">
-<meta property="article:modified_time" content="2024-10-22T07:51:49.990Z">
+<meta property="article:modified_time" content="2024-10-23T03:27:11.326Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -198,7 +198,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          29k 字
+          30k 字
         
       </span>
     
@@ -209,7 +209,7 @@
         
         
         
-          244 分钟
+          249 分钟
         
       </span>
     
@@ -879,6 +879,31 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span> (TrafficLight light : TrafficLight.values()) &#123;<br>    System.out.println(light + <span class="hljs-string">&quot; lasts for &quot;</span> + light.getDuration() + <span class="hljs-string">&quot; seconds.&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 </blockquote>
 <p>jdk中Runtime类利用第一种饿汉式实现了单例模式</p>
+<h2 id="第4条：通过私有构造器强化不可实例化的能力">第4条：通过私有构造器强化不可实例化的能力</h2>
+<p>以s结尾的静态工具类不希望被实例化，由于当类不存在显式构造器的时候编译器会生成默认的构造器，因此需要声明一个private的构造器，然后在构造器内部抛出异常，防止类内部不小心调用构造器。确定是这个类将不能再被继承，因为类构造器都会调用超类的构造器</p>
+<h2 id="第5条：优先考虑依赖注入来引用资源">第5条：优先考虑依赖注入来引用资源</h2>
+<p>在 Java 中，<strong>依赖注入（Dependency Injection, DI）</strong> 是一种设计模式，用来减少类之间的耦合度。其核心思想是将对象的依赖关系从代码中硬编码的形式剥离出来，通过外部机制来动态提供依赖对象。这通常通过框架来实现，比如 Spring 框架。</p>
+<p>依赖注入有三种常见的方式：</p>
+<ol>
+<li>
+<p><strong>构造器注入</strong>：通过类的构造方法将依赖传递给对象。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-keyword">private</span> UserRepository userRepository;<br>    <br>    <span class="hljs-comment">// 依赖通过构造器传入</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">UserService</span><span class="hljs-params">(UserRepository userRepository)</span> &#123;<br>        <span class="hljs-built_in">this</span>.userRepository = userRepository;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>Setter 注入</strong>：通过 setter 方法来注入依赖。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">UserService</span> &#123;<br>    <span class="hljs-keyword">private</span> UserRepository userRepository;<br>    <br>    <span class="hljs-comment">// 依赖通过 setter 方法注入</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">setUserRepository</span><span class="hljs-params">(UserRepository userRepository)</span> &#123;<br>        <span class="hljs-built_in">this</span>.userRepository = userRepository;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>接口注入</strong>（相对较少使用）：通过实现某个接口，框架会调用实现类的方法来注入依赖。</p>
+</li>
+</ol>
+<h3 id="为什么使用依赖注入？">为什么使用依赖注入？</h3>
+<ol>
+<li><strong>降低耦合性</strong>：类与类之间的依赖关系由外部注入，避免了直接实例化依赖对象，便于后期的扩展和维护。</li>
+<li><strong>提高可测试性</strong>：依赖注入允许你更轻松地对单个类进行单元测试，因为你可以在测试中传入 mock 或者 stub 对象。</li>
+<li><strong>简化代码</strong>：特别是在 Spring 这样的框架中，DI 管理了对象的生命周期和依赖关系，你只需专注于业务逻辑。</li>
+</ol>
+<p>Spring 是最常见的依赖注入框架，通过其 IoC 容器（Inversion of Control，控制反转容器）来实现依赖注入。</p>
 <h1>第三章 对于所有对象都通用的方法</h1>
 <blockquote>
 <p>在 Java 中，<code>final</code> 关键字有以下三种主要用途：</p>
