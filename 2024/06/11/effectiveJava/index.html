@@ -23,6 +23,10 @@
 <meta property="og:site_name" content="YangooSen">
 <meta property="og:description" content="《Effective Java》笔记">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/6-1.png">
+<meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/6-2.png">
+<meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/6-3.png">
+<meta property="og:image" content="https://blog.csdn.net/qq_41813208/article/details/110849158">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/11-interface.png">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/11-class.png">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/innerClass.jpg">
@@ -33,11 +37,11 @@
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8HashMap.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8LinkedHashMap.jpg">
 <meta property="article:published_time" content="2024-06-11T07:31:08.000Z">
-<meta property="article:modified_time" content="2024-10-23T03:27:11.326Z">
+<meta property="article:modified_time" content="2024-10-26T01:57:47.917Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/06/11/effectiveJava/11-interface.png">
+<meta name="twitter:image" content="http://example.com/2024/06/11/effectiveJava/6-1.png">
   
   
   
@@ -198,7 +202,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          30k 字
+          32k 字
         
       </span>
     
@@ -209,7 +213,7 @@
         
         
         
-          249 分钟
+          268 分钟
         
       </span>
     
@@ -879,9 +883,9 @@
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">for</span> (TrafficLight light : TrafficLight.values()) &#123;<br>    System.out.println(light + <span class="hljs-string">&quot; lasts for &quot;</span> + light.getDuration() + <span class="hljs-string">&quot; seconds.&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
 </blockquote>
 <p>jdk中Runtime类利用第一种饿汉式实现了单例模式</p>
-<h2 id="第4条：通过私有构造器强化不可实例化的能力">第4条：通过私有构造器强化不可实例化的能力</h2>
+<h2 id="第四条：通过私有构造器强化不可实例化的能力">第四条：通过私有构造器强化不可实例化的能力</h2>
 <p>以s结尾的静态工具类不希望被实例化，由于当类不存在显式构造器的时候编译器会生成默认的构造器，因此需要声明一个private的构造器，然后在构造器内部抛出异常，防止类内部不小心调用构造器。确定是这个类将不能再被继承，因为类构造器都会调用超类的构造器</p>
-<h2 id="第5条：优先考虑依赖注入来引用资源">第5条：优先考虑依赖注入来引用资源</h2>
+<h2 id="第五条：优先考虑依赖注入来引用资源">第五条：优先考虑依赖注入来引用资源</h2>
 <p>在 Java 中，<strong>依赖注入（Dependency Injection, DI）</strong> 是一种设计模式，用来减少类之间的耦合度。其核心思想是将对象的依赖关系从代码中硬编码的形式剥离出来，通过外部机制来动态提供依赖对象。这通常通过框架来实现，比如 Spring 框架。</p>
 <p>依赖注入有三种常见的方式：</p>
 <ol>
@@ -904,6 +908,115 @@
 <li><strong>简化代码</strong>：特别是在 Spring 这样的框架中，DI 管理了对象的生命周期和依赖关系，你只需专注于业务逻辑。</li>
 </ol>
 <p>Spring 是最常见的依赖注入框架，通过其 IoC 容器（Inversion of Control，控制反转容器）来实现依赖注入。</p>
+<h2 id="第六条：避免创建不必要的对象">第六条：避免创建不必要的对象</h2>
+<h3 id="字符串字面量">字符串字面量</h3>
+<p>在 Java 中，<code>String</code> 对象的确是不可变的（immutable），并且会存储在常量池（String Pool）中。</p>
+<ol>
+<li>
+<p><strong>不可变性</strong>：<code>String</code> 类被设计为不可变的对象，即一旦创建，字符串的内容就无法更改。任何修改操作（例如拼接、替换等）都会创建一个新的字符串对象，而不会改变原有对象的值。这种不可变性确保了线程安全，使字符串可以在多线程环境中安全共享。</p>
+</li>
+<li>
+<p><strong>字符串常量池</strong>：Java 将所有直接用双引号创建的<strong>字符串字面量</strong>储存在常量池中（例如 <code>&quot;hello&quot;</code>）。当程序中使用相同内容的字符串时，Java 会在常量池中查找是否已有相同内容的字符串，如果有，则直接返回引用，不会创建新的对象。这样可以减少内存的使用，尤其是在大量重复字符串的情况下。</p>
+</li>
+<li>
+<p><strong>new 关键字创建的字符串</strong>：使用 <code>new String(&quot;example&quot;)</code> 会在堆内存中创建一个新的 <code>String</code> 对象，而不会使用常量池中的字符串。</p>
+</li>
+</ol>
+<p>在 Java 中，<code>String a = &quot;a&quot;;</code> 和 <code>String b = new String(&quot;b&quot;);</code> 是创建字符串对象的两种不同方式，区别主要体现在以下几点：</p>
+<ol>
+<li>
+<p><strong>内存分配</strong>：</p>
+<ul>
+<li><code>String a = &quot;a&quot;;</code>：字符串 <code>&quot;a&quot;</code> 是一个字面量，直接保存在<strong>字符串常量池</strong>中。如果常量池中已有 <code>&quot;a&quot;</code>，则 <code>a</code> 会直接引用该对象，不会创建新的对象。这种方式更节省内存，因为相同的字符串字面量只会在常量池中存在一份。</li>
+<li><code>String b = new String(&quot;b&quot;);</code>：使用 <code>new</code> 关键字会强制在<strong>堆内存</strong>中创建一个新的 <code>String</code> 对象，即使 <code>&quot;b&quot;</code> 已存在于字符串常量池中。这样一来，即使堆中和常量池中的字符串内容相同，它们也会是不同的对象。</li>
+</ul>
+</li>
+<li>
+<p><strong>对象数量</strong>：</p>
+<ul>
+<li><code>String a = &quot;a&quot;;</code>：当使用这种方式时，如果常量池中已经有 <code>&quot;a&quot;</code>，不会创建新对象；如果没有，才会在常量池中添加 <code>&quot;a&quot;</code>。</li>
+<li><code>String b = new String(&quot;b&quot;);</code>：这行代码实际上会在常量池和堆内存中分别创建或引用一个 <code>&quot;b&quot;</code>，即可能会涉及到两个不同的对象。堆中的 <code>b</code> 是一个新的对象，而常量池中的 <code>&quot;b&quot;</code> 是之前就存在的。</li>
+</ul>
+</li>
+<li>
+<p><strong>== 和 equals 比较</strong>：</p>
+<ul>
+<li><code>==</code>：<code>==</code> 比较的是两个对象的**引用（即地址）**是否相同。对于 <code>String a = &quot;a&quot;;</code> 和 <code>String b = new String(&quot;b&quot;);</code>，即使它们内容相同，<code>a == b</code> 也会返回 <code>false</code>，因为它们引用的对象在不同的内存区域。</li>
+<li><code>equals()</code>：<code>equals</code> 方法比较的是两个字符串的<strong>内容</strong>是否相同。无论是 <code>a.equals(&quot;a&quot;)</code> 还是 <code>b.equals(&quot;b&quot;)</code>，只要内容相同，<code>equals()</code> 都会返回 <code>true</code>。</li>
+</ul>
+</li>
+</ol>
+<p>总结来说：</p>
+<ul>
+<li><code>String a = &quot;a&quot;;</code> 使用的是字符串常量池，具有内存优势。</li>
+<li><code>String b = new String(&quot;b&quot;);</code> 在堆内存中创建了新的对象，即使内容相同，它和常量池中的 <code>&quot;b&quot;</code> 是不同的对象。如果常量池中原本不存在字面量对象，会先创建字面量，再用创建堆中的String对象:w</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">s1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">String</span>(<span class="hljs-string">&quot;hello&quot;</span>);<br><span class="hljs-type">String</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hello&quot;</span>;<br>System.out.println(s1 == s2);<span class="hljs-comment">// false</span><br>System.out.println(s1.equals(s2));<span class="hljs-comment">// true</span><br></code></pre></td></tr></table></figure>
+<p>堆中的 <code>String</code> 对象并不会直接“指向”常量池中的对象，而是<strong>复制了常量池中字符串的字符内容</strong>（也就是字符数组）来初始化自己。所以，它在内存中是一个独立的对象，而不是对常量池中字符串的引用。</p>
+<p>当你使用 new String(“a”) 创建一个字符串时，Java在堆中创建一个新的 String 对象。这一对象的内部表示会直接包含字符串的内容，比如字符数组（char[]）等。堆中的String对象是直接存储其实际内容，而不是存储一个指向常量池中字符串对象的地址</p>
+<p>具体解释如下：</p>
+<ul>
+<li>当执行 <code>new String(&quot;b&quot;)</code> 时，<code>&quot;b&quot;</code> 字符串字面量会先在常量池中查找，若不存在，则会在常量池中创建。</li>
+<li>然后，<code>new String(&quot;b&quot;)</code> 会在堆中创建一个新的 <code>String</code> 对象，并将常量池中字符串的字符内容（字符数组）<strong>复制</strong>到堆中的对象中。</li>
+</ul>
+<p><strong>因此，堆中的 <code>String</code> 对象拥有自己独立的字符内容（虽然内容相同），但它并不直接引用常量池中的 <code>String</code> 对象或字符数组。</strong></p>
+<p>也就是说，堆中的 <code>String</code> 对象内容和常量池中相同，但两者是独立的。</p>
+<p><img src="6-1.png" srcset="/img/loading.gif" lazyload alt="6-1"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">String</span> <span class="hljs-variable">s1</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;hello&quot;</span>;<br><span class="hljs-type">String</span> <span class="hljs-variable">s2</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;world&quot;</span>;<br><span class="hljs-type">String</span> <span class="hljs-variable">s3</span> <span class="hljs-operator">=</span> <span class="hljs-string">&quot;helloworld&quot;</span>;<br>System.out.println(s3 == s1 + s2); <span class="hljs-comment">//false</span><br>System.out.println(s3.equals((s1 + s2)));<span class="hljs-comment">//true</span><br>System.out.println(s3 == <span class="hljs-string">&quot;hello&quot;</span> + <span class="hljs-string">&quot;world&quot;</span>);<span class="hljs-comment">//true</span><br>System.out.println(s3.equals(<span class="hljs-string">&quot;hello&quot;</span> + <span class="hljs-string">&quot;world&quot;</span>));<span class="hljs-comment">//true</span><br><br></code></pre></td></tr></table></figure>
+<p><img src="6-2.png" srcset="/img/loading.gif" lazyload alt="6-2"><br>
+<img src="6-3.png" srcset="/img/loading.gif" lazyload alt="6-3"></p>
+<blockquote>
+<p>注意对象和对象变量的区别和牢记&quot;按值传递&quot;</p>
+</blockquote>
+<h3 id="字符串常量池具体位置">字符串常量池具体位置</h3>
+<p>在Java的不同版本中，字符串常量池的位置确实有所变化。具体如下：</p>
+<ol>
+<li>
+<p><strong>Java 6及之前</strong>：字符串常量池位于<strong>方法区</strong>，并且是全局的。每次创建字符串字面量，都会检查常量池中是否已有相同的字符串，如果有，则返回已有的字符串引用；否则，将新字符串添加到常量池中。</p>
+</li>
+<li>
+<p><strong>Java 7</strong>：字符串常量池被移到了<strong>堆内存</strong>中。这是因为字符串常量池在方法区占用大量内存，将其移至堆可以有效减少方法区内存的使用。此改动使得字符串常量池在堆中与其他对象共存，改善了内存管理效率。</p>
+</li>
+<li>
+<p><strong>Java 8及之后</strong>：字符串常量池依然位于<strong>堆内存</strong>中。Java 8还移除了永久代（PermGen），将其内容划分至元空间（Metaspace），但这不影响字符串常量池的位置。</p>
+</li>
+</ol>
+<p>总结来说，自Java 7起，字符串常量池一直位于堆内存中，而在Java 6及之前则位于方法区。</p>
+<p><img src="https://blog.csdn.net/qq_41813208/article/details/110849158" srcset="/img/loading.gif" lazyload alt="java8以后字符串常量池的位置实验"></p>
+<h3 id="底层结构">底层结构</h3>
+<p>在Java的不同版本中，<code>String</code>类的底层数据结构确实有所不同：</p>
+<ol>
+<li>
+<p><strong>Java 6及之前</strong>：<code>String</code>类内部使用**<code>char[]</code>字符数组**来存储字符串内容，每个字符占用2个字节。字符串内容存储在<code>char</code>数组中，同时<code>String</code>对象是不可变的（immutable），所以一旦创建，<code>String</code>对象中的字符内容就无法修改。</p>
+</li>
+<li>
+<p><strong>Java 7到Java 8</strong>：<code>String</code>类依然使用<code>char[]</code>字符数组作为底层存储结构。不过，Java 7引入了<strong>字符串去重机制</strong>，允许多个相同的字符串字面量共享同一个<code>char[]</code>数组。</p>
+</li>
+<li>
+<p><strong>Java 9及之后</strong>：Java 9开始对<code>String</code>类做了优化，改用**<code>byte[]</code>数组**来存储字符串内容，同时引入了一个名为<code>coder</code>的字段，用于指示字符串的编码方式。这个字段只有两个值：</p>
+<ul>
+<li><code>0</code>表示Latin-1（ISO-8859-1）编码，每个字符占用1个字节；</li>
+<li><code>1</code>表示UTF-16编码，每个字符占用2个字节。</li>
+</ul>
+<p>这样，如果字符串中只有Latin-1字符（即单字节字符），<code>String</code>可以通过<code>byte[]</code>来节省内存。这种设计被称为<strong>Compact Strings</strong>，可以显著减少内存占用。</p>
+</li>
+</ol>
+<p>因此，Java 9及之后的<code>String</code>类的底层实现结构由<code>char[]</code>改为<code>byte[]</code>，通过<code>coder</code>字段实现对字符编码的判断，以更高效地管理字符串存储。</p>
+<p>在Java中，<code>Map</code>接口的<code>keySet()</code>方法返回的是一个<code>Set</code>视图，代表了映射中所有键的集合。这个视图是“动态”的，意味着它是对原始映射的一个视图，因此任何在<code>keySet</code>上所做的修改都会影响原始映射，反之亦然，每次返回的都是同一个对象，避免了创建不必要的对象。具体来说：</p>
+<ol>
+<li>
+<p><strong>重用视图</strong>：<code>keySet()</code>返回的<code>Set</code>视图是直接引用原始映射中的键，因此对该<code>Set</code>的修改（如添加或删除键）会反映在原始的<code>Map</code>中。举个例子：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java">Map&lt;String, Integer&gt; map = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br>map.put(<span class="hljs-string">&quot;one&quot;</span>, <span class="hljs-number">1</span>);<br>map.put(<span class="hljs-string">&quot;two&quot;</span>, <span class="hljs-number">2</span>);<br><br>Set&lt;String&gt; keySet = map.keySet();<br>keySet.remove(<span class="hljs-string">&quot;one&quot;</span>);  <span class="hljs-comment">// 从keySet中移除&quot;one&quot;</span><br><br>System.out.println(map); <span class="hljs-comment">// 输出: &#123;two=2&#125;</span><br></code></pre></td></tr></table></figure>
+</li>
+<li>
+<p><strong>一致性</strong>：由于<code>keySet()</code>视图与原始<code>Map</code>保持一致，任何对<code>Map</code>的修改（如插入新键）也会反映在<code>keySet</code>中。例如，如果你在<code>Map</code>中添加了一个新键，<code>keySet</code>的内容会自动更新。</p>
+</li>
+<li>
+<p><strong>不支持的操作</strong>：虽然<code>keySet()</code>返回的<code>Set</code>支持大部分常见操作，但它并不支持<code>add</code>操作，因为你不能直接向映射中添加一个新的键。你必须通过<code>put</code>方法来添加键值对。</p>
+</li>
+</ol>
+<p>总结来说，<code>Map</code>接口的<code>keySet()</code>方法返回的<code>Set</code>视图是重用的，与原始映射紧密关联，确保了操作的一致性。</p>
+<p>为了避免创建不必要的对象，还要尽量避免使用装箱基本类型，尽量使用基本类型，当心无意识的自动装箱</p>
 <h1>第三章 对于所有对象都通用的方法</h1>
 <blockquote>
 <p>在 Java 中，<code>final</code> 关键字有以下三种主要用途：</p>
