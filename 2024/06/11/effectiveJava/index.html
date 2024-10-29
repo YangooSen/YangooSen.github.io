@@ -23,6 +23,7 @@
 <meta property="og:site_name" content="YangooSen">
 <meta property="og:description" content="《Effective Java》笔记">
 <meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/v_s.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/6-1.png">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/6-2.png">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/6-3.png">
@@ -37,11 +38,11 @@
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8HashMap.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8LinkedHashMap.jpg">
 <meta property="article:published_time" content="2024-06-11T07:31:08.000Z">
-<meta property="article:modified_time" content="2024-10-26T01:57:47.917Z">
+<meta property="article:modified_time" content="2024-10-29T01:02:07.969Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="http://example.com/2024/06/11/effectiveJava/6-1.png">
+<meta name="twitter:image" content="http://example.com/2024/06/11/effectiveJava/v_s.jpg">
   
   
   
@@ -202,7 +203,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          32k 字
+          34k 字
         
       </span>
     
@@ -213,7 +214,7 @@
         
         
         
-          268 分钟
+          285 分钟
         
       </span>
     
@@ -716,6 +717,7 @@
 <h3 id="双重检查">双重检查</h3>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Singleton</span> &#123;<br>    <span class="hljs-comment">//    volatile:使变量一有修改立马提交到主存里面去</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">volatile</span> Singleton instance;<br><br>    <span class="hljs-keyword">private</span> <span class="hljs-title function_">Singleton</span><span class="hljs-params">()</span> &#123;<br><br>    &#125;<br><br>    <span class="hljs-comment">//加入双重检查代码，解决线程安全问题，同时解决懒加载问题</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> Singleton <span class="hljs-title function_">getInstance</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;<br>            <span class="hljs-keyword">synchronized</span> (Singleton.class) &#123;<br>                <span class="hljs-keyword">if</span> (instance == <span class="hljs-literal">null</span>) &#123;<br>                    instance = <span class="hljs-keyword">new</span> <span class="hljs-title class_">Singleton</span>();<br>                &#125;<br><br>            &#125;<br><br>        &#125;<br>        <span class="hljs-keyword">return</span> instance;<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
 <p>只有第一次使用（instance==null）的时候才用同步控制线程，非空直接返回。第一次if是为了效率，可以直接返回；第二次if是为了确保同步的实现，如果没有第二个if可能会：第一次使用时两个线程同时进入if，第一个线程获得锁创建实例后归还锁，然后第二个线程得到锁之后又创建实例。但是必须注意volatile防止指令重排，确保写操作在读操作之前完成的作用。JVM创建对象的时候先分配空间赋予域初始值，然后才调用构造器方法写内存。如果某线程分配空间之后，还没有构造赋值就被另一个线程抢占，那么返回的对象域值将只是初始值，加了volatile之后，一旦调用new，JVM会保证对象完全初始化结束（写）之后才允许其他线程访问（读），防止半初始化的对象</p>
+<p><img src="v_s.jpg" srcset="/img/loading.gif" lazyload alt="volatile"></p>
 <blockquote>
 <p>JVM 创建对象时，确实会先分配内存并为对象的实例变量（成员变量）赋予默认初始值，然后再调用构造器方法执行进一步的初始化。这是对象创建过程中的标准步骤。</p>
 <p>具体来说，对象的创建过程大致可以分为以下几个阶段：</p>
@@ -1017,6 +1019,58 @@
 </ol>
 <p>总结来说，<code>Map</code>接口的<code>keySet()</code>方法返回的<code>Set</code>视图是重用的，与原始映射紧密关联，确保了操作的一致性。</p>
 <p>为了避免创建不必要的对象，还要尽量避免使用装箱基本类型，尽量使用基本类型，当心无意识的自动装箱</p>
+<h3 id="第七条：消除过期对象的引用">第七条：消除过期对象的引用</h3>
+<p>利用java实现一个简单的栈，底层是数组结构，在需要增大时扩充容量。如果栈先是增长（实现中是<code>array[size++]=e</code>），然后再收缩，那么从栈中pop出来的对象（实现中是<code>return array[--size]</code>）将不会被当做垃圾回收，因为栈内部还维护着这些对象的过期引用，即永远不会再被解除的引用。非活动部分即下标大于size的那些元素都是过期对象，但不会自动进行垃圾回收，需要在pop前手动设置为null</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> Object <span class="hljs-title function_">pop</span><span class="hljs-params">()</span>&#123;<br>    <span class="hljs-keyword">if</span> (size=<span class="hljs-number">0</span>) <span class="hljs-keyword">throws</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">Exception</span>();<br>    Object result=array[--size];<br>    array[size]=<span class="hljs-literal">null</span>;   <span class="hljs-comment">//手动清除</span><br>    <span class="hljs-keyword">return</span> result;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p><strong>一般来说只要类是自己管理内存，就应该警惕内存泄漏问题</strong>。当然也不需要过分小心，清空对象引用应该是一种例外，而不是规范行为，只有当类自己处理存储池（array）中的元素才需要注意。</p>
+<p>在支持垃圾回收（GC）的语言（如Java、Python等）中，内存泄漏通常不会像在手动管理内存的语言（如C/C++）中那样明显。然而，即便有垃圾回收机制，仍然可能出现隐蔽的内存泄漏，这种情况通常由**无意识的对象保持（unintentional object retention）**导致。无意识的对象保持指的是某些对象不再需要使用，但由于程序不小心保留了对这些对象的引用，垃圾回收器无法回收它们，从而导致内存占用不断增加。</p>
+<p>以下是无意识对象保持导致隐蔽内存泄漏的常见场景及其原因：</p>
+<h3 id="1-静态集合或全局集合的使用">1. 静态集合或全局集合的使用</h3>
+<p>在很多应用程序中，会使用全局静态集合（如<code>List</code>、<code>Map</code>）来保存数据。由于静态集合的生命周期与程序相同，只要有元素引用存在，垃圾回收器就无法释放其中的对象。如果将不再需要的对象放入静态集合并且忘记清除它们，便会导致这些对象无法被回收。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MemoryLeakExample</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> List&lt;Object&gt; staticList = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addItem</span><span class="hljs-params">(Object item)</span> &#123;<br>        staticList.add(item); <span class="hljs-comment">// 添加对象到静态集合</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，任何添加到<code>staticList</code>中的对象都会在应用程序的整个生命周期内被保留，除非手动清理。</p>
+<h3 id="2-缓存导致的内存泄漏">2. 缓存导致的内存泄漏</h3>
+<p>缓存机制经常会导致无意识的对象保持。为了提高性能，程序通常会缓存一些数据对象，避免重复创建。但如果没有使用合适的缓存策略（如定期清理或限制大小的缓存），这些缓存数据会在不需要时仍然被保留，无法被垃圾回收器回收。</p>
+<p><strong>解决方案</strong>：可以使用<code>WeakReference</code>或类似的弱引用机制，允许垃圾回收器在内存紧张时清除缓存数据。</p>
+<h3 id="3-监听器和回调未正确移除">3. 监听器和回调未正确移除</h3>
+<p>当一个对象注册了事件监听器或回调（callback）时，这些监听器会保存对该对象的引用。如果对象在事件源中未正确移除，GC将无法回收它们，导致内存泄漏。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">EventSource</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> List&lt;EventListener&gt; listeners = <span class="hljs-keyword">new</span> <span class="hljs-title class_">ArrayList</span>&lt;&gt;();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">addListener</span><span class="hljs-params">(EventListener listener)</span> &#123;<br>        listeners.add(listener); <span class="hljs-comment">// 添加监听器</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>EventListener</code>实例会保持对注册对象的引用，必须在不再需要时手动移除监听器。</p>
+<h3 id="4-自定义类加载器导致的内存泄漏">4. 自定义类加载器导致的内存泄漏</h3>
+<p>在一些Java应用服务器中，会加载并卸载多种不同的应用，而每种应用使用自己的类加载器。类加载器和类之间有强引用关系，如果类加载器没有正确卸载，可能会导致整个应用的对象无法被回收。</p>
+<h3 id="5-内部类或匿名类导致的内存泄漏">5. 内部类或匿名类导致的内存泄漏</h3>
+<p>在使用内部类或匿名类时，内部类会自动保存外部类的引用。如果不小心创建了生命周期较长的内部类对象，那么它们会保持对外部类的引用，导致外部类对象也无法被回收。</p>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">OuterClass</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">InnerClass</span> &#123;<br>        <span class="hljs-comment">// 内部类对外部类的引用</span><br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，<code>InnerClass</code>的实例会持有<code>OuterClass</code>的引用。如果<code>InnerClass</code>的实例在其他地方被持久化保存了，它会间接导致<code>OuterClass</code>无法被回收。</p>
+<h3 id="6-ThreadLocal变量导致的内存泄漏">6. ThreadLocal变量导致的内存泄漏</h3>
+<p><code>ThreadLocal</code>变量为每个线程提供独立的变量副本。然而，线程池中的线程生命周期较长，若<code>ThreadLocal</code>变量未及时清理，就会导致其保留的对象无法被回收。</p>
+<h3 id="解决这些问题的建议">解决这些问题的建议</h3>
+<ul>
+<li><strong>使用弱引用</strong>：对于缓存对象、监听器和回调等场景，可以使用<code>WeakReference</code>或<code>WeakHashMap</code>等弱引用机制。</li>
+<li><strong>定期清理集合</strong>：对长生命周期集合的数据进行定期清理。</li>
+<li><strong>谨慎使用静态变量和集合</strong>：确保静态变量和集合中的对象确实需要被长时间引用。</li>
+<li><strong>移除不再需要的监听器</strong>：在对象销毁或不再需要监听器时，及时移除注册的监听器或回调。</li>
+<li><strong>尽量避免ThreadLocal在长时间运行的线程中</strong>：对于线程池的使用，注意及时清理<code>ThreadLocal</code>变量。</li>
+</ul>
+<p>通过这些措施，可以尽量避免无意识的对象保持导致的内存泄漏问题，让垃圾回收器更有效地回收不再需要的内存。</p>
+<p><code>java.lang.ref</code>包中的引用类型（特别是<code>WeakReference</code>和<code>SoftReference</code>）可以帮助管理缓存数据，避免无意识的对象保持，进而减少内存泄漏的风险。</p>
+<h3 id="1-WeakReference-弱引用">1. <code>WeakReference</code> - 弱引用</h3>
+<p>弱引用是为了让GC更积极地回收对象的引用类型。只要某个对象只被弱引用持有，GC会优先回收它。因此，<code>WeakReference</code>非常适合缓存场景，尤其是那些可以随时重新生成的数据。例如，如果一个缓存对象仅被弱引用持有，那么当内存不足时，GC可以回收这些弱引用的对象，释放内存。</p>
+<h4 id="使用示例">使用示例</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.lang.ref.WeakReference;<br><span class="hljs-keyword">import</span> java.util.Map;<br><span class="hljs-keyword">import</span> java.util.WeakHashMap;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">CacheExample</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, WeakReference&lt;Object&gt;&gt; cache = <span class="hljs-keyword">new</span> <span class="hljs-title class_">WeakHashMap</span>&lt;&gt;();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">put</span><span class="hljs-params">(String key, Object value)</span> &#123;<br>        cache.put(key, <span class="hljs-keyword">new</span> <span class="hljs-title class_">WeakReference</span>&lt;&gt;(value));<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> Object <span class="hljs-title function_">get</span><span class="hljs-params">(String key)</span> &#123;<br>        WeakReference&lt;Object&gt; ref = cache.get(key);<br>        <span class="hljs-keyword">return</span> ref != <span class="hljs-literal">null</span> ? ref.get() : <span class="hljs-literal">null</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，我们使用<code>WeakHashMap</code>作为缓存容器。当内存紧张时，GC会自动回收缓存中不再强引用的对象。</p>
+<h3 id="2-SoftReference-软引用">2. <code>SoftReference</code> - 软引用</h3>
+<p><code>SoftReference</code>是另一种引用类型，适合用来缓存可能需要的、但可以在内存不足时释放的对象。软引用比弱引用更“坚强”，GC只会在内存不足时回收这些对象。通常情况下，可以用软引用来缓存占用内存较大的对象，例如图像或大型数据。</p>
+<h4 id="使用示例-2">使用示例</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.lang.ref.SoftReference;<br><span class="hljs-keyword">import</span> java.util.HashMap;<br><span class="hljs-keyword">import</span> java.util.Map;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ImageCache</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Map&lt;String, SoftReference&lt;<span class="hljs-type">byte</span>[]&gt;&gt; imageCache = <span class="hljs-keyword">new</span> <span class="hljs-title class_">HashMap</span>&lt;&gt;();<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">put</span><span class="hljs-params">(String key, <span class="hljs-type">byte</span>[] imageData)</span> &#123;<br>        imageCache.put(key, <span class="hljs-keyword">new</span> <span class="hljs-title class_">SoftReference</span>&lt;&gt;(imageData));<br>    &#125;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">byte</span>[] get(String key) &#123;<br>        SoftReference&lt;<span class="hljs-type">byte</span>[]&gt; ref = imageCache.get(key);<br>        <span class="hljs-keyword">return</span> (ref != <span class="hljs-literal">null</span>) ? ref.get() : <span class="hljs-literal">null</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在这个例子中，当内存不足时，GC会自动回收缓存中使用<code>SoftReference</code>保存的图像数据。</p>
+<h3 id="3-PhantomReference-虚引用">3. <code>PhantomReference</code> - 虚引用</h3>
+<p><code>PhantomReference</code>主要用于跟踪对象的最终化状态。虽然通常不会用在缓存中，但在需要精确控制资源释放的场景下，它可以用于执行一些清理操作，确保对象内存被彻底释放。</p>
+<h3 id="小结">小结</h3>
+<p>使用<code>java.lang.ref</code>包中的引用类型，可以让缓存机制更智能，在内存紧张时自动清理不再使用的对象。这种方法不仅能优化内存使用，还能降低内存泄漏的风险，是Java缓存管理中的一项重要工具。</p>
 <h1>第三章 对于所有对象都通用的方法</h1>
 <blockquote>
 <p>在 Java 中，<code>final</code> 关键字有以下三种主要用途：</p>
@@ -1151,7 +1205,7 @@
 <p>以下是使用 <code>Objects.hash()</code> 方法的一个简单示例：</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.util.Objects;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Example</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Example</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age)</span> &#123;<br>        <span class="hljs-built_in">this</span>.name = name;<br>        <span class="hljs-built_in">this</span>.age = age;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">int</span> <span class="hljs-title function_">hashCode</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">return</span> Objects.hash(name, age);<br>    &#125;<br><br>    <span class="hljs-comment">// 其他方法</span><br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个例子中，<code>hashCode()</code> 方法通过调用 <code>Objects.hash(name, age)</code> 来计算哈希码。这样可以简化哈希码的实现，同时避免处理 <code>null</code> 的复杂性。</p>
-<h3 id="小结">小结</h3>
+<h3 id="小结-2">小结</h3>
 <p>使用 <code>Objects.hash()</code> 方法可以让哈希码的计算更简洁和安全，尤其是在需要考虑多个字段的情况下。</p>
 </blockquote>
 <p><img src="11-interface.png" srcset="/img/loading.gif" lazyload alt="接口层次"><br>
