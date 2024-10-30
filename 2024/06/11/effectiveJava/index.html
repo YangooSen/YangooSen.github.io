@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8HashMap.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8LinkedHashMap.jpg">
 <meta property="article:published_time" content="2024-06-11T07:31:08.000Z">
-<meta property="article:modified_time" content="2024-10-29T01:02:07.969Z">
+<meta property="article:modified_time" content="2024-10-30T02:59:54.952Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -203,7 +203,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          34k 字
+          37k 字
         
       </span>
     
@@ -214,7 +214,7 @@
         
         
         
-          285 分钟
+          312 分钟
         
       </span>
     
@@ -1071,14 +1071,166 @@
 <p><code>PhantomReference</code>主要用于跟踪对象的最终化状态。虽然通常不会用在缓存中，但在需要精确控制资源释放的场景下，它可以用于执行一些清理操作，确保对象内存被彻底释放。</p>
 <h3 id="小结">小结</h3>
 <p>使用<code>java.lang.ref</code>包中的引用类型，可以让缓存机制更智能，在内存紧张时自动清理不再使用的对象。这种方法不仅能优化内存使用，还能降低内存泄漏的风险，是Java缓存管理中的一项重要工具。</p>
-<h1>第三章 对于所有对象都通用的方法</h1>
+<h2 id="第八条-避免使用终结方法和清除方法">第八条 避免使用终结方法和清除方法</h2>
+<p>在 Java 中，终结方法（Finalizer）和清除方法（Cleaner）都是用于在对象被垃圾回收之前执行一些<strong>资源释放操作</strong>的机制，但它们的使用方式和效率有所不同。注意是资源的管理，例如文件描述符等</p>
+<h3 id="1-终结方法（Finalizer）">1. 终结方法（Finalizer）</h3>
+<p>终结方法是 Java 中用于清理对象的旧机制，它通过覆盖 <code>Object</code> 类的 <code>finalize()</code> 方法来实现。当垃圾回收器发现某个对象没有引用时，会调用这个对象的 <code>finalize()</code> 方法，以便在对象被回收之前完成清理工作。</p>
+<p><strong>特点</strong>：</p>
+<ul>
+<li><code>finalize()</code> 只会在垃圾回收之前调用一次，之后该对象的 <code>finalize()</code> 方法不会再被调用。</li>
+<li>因为垃圾回收的时间不确定，所以 <code>finalize()</code> 的执行时间也是不确定的，可能导致资源得不到及时释放。</li>
+<li>Java 9 开始，<code>finalize()</code> 方法被标记为过时（deprecated），不推荐使用。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-meta">@Override</span><br><span class="hljs-keyword">protected</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">finalize</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Throwable &#123;<br>    <span class="hljs-keyword">try</span> &#123;<br>        <span class="hljs-comment">// 清理资源</span><br>    &#125; <span class="hljs-keyword">finally</span> &#123;<br>        <span class="hljs-built_in">super</span>.finalize();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>缺点</strong>：</p>
+<ul>
+<li>效率低，可能延迟垃圾回收，甚至导致内存泄漏。</li>
+<li>终结方法在使用时没有可靠的执行顺序。</li>
+<li>在使用错误时可能导致应用程序崩溃等问题。</li>
+</ul>
+<h3 id="2-清除方法（Cleaner）">2. 清除方法（Cleaner）</h3>
+<p><code>Cleaner</code> 是从 Java 9 引入的一种替代 <code>finalize()</code> 的机制，用于更加高效和灵活的清理工作。<code>Cleaner</code> 通过注册一个清理任务（清理回调）来完成对象的清理工作，它不会影响垃圾回收的效率。</p>
+<p><strong>特点</strong>：</p>
+<ul>
+<li><code>Cleaner</code> 是由 <code>java.lang.ref.Cleaner</code> 类实现的，它允许注册一个清理任务，在对象没有引用时自动执行。</li>
+<li><code>Cleaner</code> 是非阻塞的，不会拖慢垃圾回收的速度。</li>
+<li>相比于 <code>finalize()</code>，<code>Cleaner</code> 更加安全、高效，且可以控制清理任务的执行。</li>
+</ul>
+<p><strong>示例</strong>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.lang.ref.Cleaner;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ResourceHolder</span> &#123;<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Cleaner</span> <span class="hljs-variable">cleaner</span> <span class="hljs-operator">=</span> Cleaner.create();<br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Cleaner.Cleanable cleanable;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ResourceHolder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">this</span>.cleanable = cleaner.register(<span class="hljs-built_in">this</span>, () -&gt; &#123;<br>            <span class="hljs-comment">// 资源清理代码</span><br>            System.out.println(<span class="hljs-string">&quot;Resource cleaned up.&quot;</span>);<br>        &#125;);<br>    &#125;<br><br>    <span class="hljs-comment">// 其他方法</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<p><strong>优点</strong>：</p>
+<ul>
+<li>更加高效，不会影响垃圾回收性能。</li>
+<li>清理过程更加灵活，可以独立定义清理任务。</li>
+<li>避免了 <code>finalize()</code> 的性能开销和不确定性。</li>
+</ul>
+<h3 id="总结-3">总结</h3>
+<ol>
+<li><strong>终结方法</strong> (<code>finalize()</code>): 旧方法，效率低，Java 9 开始被弃用。</li>
+<li><strong>清除方法</strong> (<code>Cleaner</code>): 新方法，推荐使用，性能更高，资源清理更可靠。</li>
+</ol>
+<p>在实际编程中，建议尽量避免使用 <code>finalize()</code>，转而使用 <code>Cleaner</code> 或者手动清理资源。实际应该尽量少得使用终结方法和清除方法，但是它们也有好处：</p>
+<ul>
+<li>当资源的所有者忘记调用close方法时，它们可以充当安全网，迟一点释放资源总比永不释放资源好</li>
+<li>对象的本地对等体不是一个普通对象，所以垃圾回收期不会知道他，如果本地对等体拥有资源，并且性能可以被接受的话就应该使用终结方法或清除方法</li>
+</ul>
 <blockquote>
-<p>在 Java 中，<code>final</code> 关键字有以下三种主要用途：</p>
+<p>在 Java 中，<code>Cleaner</code> 提供了一种比 <code>finalize</code> 更高效和可靠的方式来执行对象的清理操作。<code>Cleaner</code> 通过注册清理任务（也称清理回调）来帮助我们在对象不再被引用时进行清理。下面是 <code>Cleaner</code> 的基本使用方法和要点。</p>
+<h3 id="Cleaner-的使用步骤"><code>Cleaner</code> 的使用步骤</h3>
+<ol>
+<li><strong>创建 <code>Cleaner</code> 实例</strong>：使用 <code>Cleaner.create()</code> 创建一个 <code>Cleaner</code> 对象。</li>
+<li><strong>注册清理任务</strong>：在构造函数或初始化方法中，将对象注册到 <code>Cleaner</code> 中，同时定义一个清理任务。这个任务将在对象被垃圾回收前执行。</li>
+<li><strong>实现清理任务</strong>：清理任务通常是一个实现 <code>Runnable</code> 接口的实例，包含资源释放的逻辑。</li>
+</ol>
+<h3 id="示例：使用-Cleaner-来管理资源">示例：使用 <code>Cleaner</code> 来管理资源</h3>
+<p>假设我们有一个 <code>ResourceHolder</code> 类来管理某种资源（如文件句柄或数据库连接），我们希望在对象被回收时自动释放资源。</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> java.lang.ref.Cleaner;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">ResourceHolder</span> &#123;<br><br>    <span class="hljs-comment">// 创建一个 Cleaner 实例（可以在多个对象间共享）</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">final</span> <span class="hljs-type">Cleaner</span> <span class="hljs-variable">cleaner</span> <span class="hljs-operator">=</span> Cleaner.create();<br><br>    <span class="hljs-comment">// 内部类，用于实现清理任务</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">State</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Runnable</span> &#123;<br>        <span class="hljs-keyword">private</span> <span class="hljs-type">boolean</span> resourceInUse; <span class="hljs-comment">// 资源的状态</span><br><br>        State() &#123;<br>            <span class="hljs-built_in">this</span>.resourceInUse = <span class="hljs-literal">true</span>;<br>            System.out.println(<span class="hljs-string">&quot;Resource acquired.&quot;</span>);<br>        &#125;<br><br>        <span class="hljs-comment">// 定义清理任务，用于在垃圾回收时释放资源</span><br>        <span class="hljs-meta">@Override</span><br>        <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">run</span><span class="hljs-params">()</span> &#123;<br>            <span class="hljs-keyword">if</span> (resourceInUse) &#123;<br>                resourceInUse = <span class="hljs-literal">false</span>;<br>                System.out.println(<span class="hljs-string">&quot;Resource released.&quot;</span>);<br>            &#125;<br>        &#125;<br>    &#125;<br><br>    <span class="hljs-comment">// 实例字段，表示对象的状态</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> State state;<br>    <span class="hljs-comment">// Cleanable 对象，用于管理清理任务</span><br>    <span class="hljs-keyword">private</span> <span class="hljs-keyword">final</span> Cleaner.Cleanable cleanable;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">ResourceHolder</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-built_in">this</span>.state = <span class="hljs-keyword">new</span> <span class="hljs-title class_">State</span>();<br>        <span class="hljs-comment">// 注册清理任务，并在对象的 state 不再被引用时执行 state 的 run 方法</span><br>        <span class="hljs-built_in">this</span>.cleanable = cleaner.register(<span class="hljs-built_in">this</span>, state);<br>    &#125;<br><br>    <span class="hljs-comment">// 其他业务逻辑</span><br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="代码说明">代码说明</h3>
+<ul>
+<li><strong><code>Cleaner cleaner = Cleaner.create();</code></strong>：创建一个 <code>Cleaner</code> 实例，可以在多个对象之间共享。</li>
+<li><strong><code>State</code> 类</strong>：这是一个实现 <code>Runnable</code> 接口的内部类，定义了资源释放的逻辑。</li>
+<li><strong><code>cleaner.register(this, state);</code></strong>：将 <code>ResourceHolder</code> 对象注册到 <code>Cleaner</code> 中，并将 <code>state</code> 设置为清理任务。这样，垃圾回收器发现 <code>ResourceHolder</code> 不再被引用时，将会调用 <code>state.run()</code> 来释放资源。</li>
+</ul>
+<h3 id="使用-ResourceHolder-类的示例">使用 <code>ResourceHolder</code> 类的示例</h3>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">ResourceHolder</span> <span class="hljs-variable">resource</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">ResourceHolder</span>();<br>        <br>        <span class="hljs-comment">// 资源使用代码</span><br>        <span class="hljs-comment">// ...</span><br><br>        <span class="hljs-comment">// 通过显式地将对象设置为 null，可以提示垃圾回收器回收</span><br>        resource = <span class="hljs-literal">null</span>;<br><br>        <span class="hljs-comment">// 主动调用垃圾回收器（仅作为示例，垃圾回收的时机是不确定的）</span><br>        System.gc();<br><br>        <span class="hljs-comment">// 等待清理任务完成（仅用于演示）</span><br>        <span class="hljs-keyword">try</span> &#123;<br>            Thread.sleep(<span class="hljs-number">1000</span>); <span class="hljs-comment">// 等待一会儿以确保清理任务输出</span><br>        &#125; <span class="hljs-keyword">catch</span> (InterruptedException e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="注意事项-2">注意事项</h3>
+<ol>
+<li><strong>不能替代显式资源管理</strong>：<code>Cleaner</code> 虽然提供了自动清理功能，但仍不如 <code>try-with-resources</code> 或显式调用 <code>close()</code> 方法可靠。</li>
+<li><strong>性能和资源消耗</strong>：<code>Cleaner</code> 的清理任务会在后台线程中执行，这在性能敏感的场景中可能会有额外开销。</li>
+<li><strong>非实时清理</strong>：清理任务的执行时间依赖于垃圾回收，因此，<code>Cleaner</code> 不适合用于实时性要求高的资源释放场景。</li>
+</ol>
+<h3 id="总结-4">总结</h3>
+<p><code>Cleaner</code> 是 <code>finalize</code> 的改进，但仍然不如显式资源管理可靠。通常建议仅在对象的生命周期复杂且不易管理的情况下使用 <code>Cleaner</code>。<br>
+在 Java 中，<code>Cleaner.register</code> 的方法签名如下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> Cleanable <span class="hljs-title function_">register</span><span class="hljs-params">(Object obj, Runnable action)</span><br></code></pre></td></tr></table></figure>
+<p>该方法用于注册一个清理任务，当指定的对象 <code>obj</code> 被垃圾回收时，将自动执行该清理任务 <code>action</code>。</p>
+<h3 id="参数说明">参数说明</h3>
 <ol>
 <li>
-<p><strong>修饰变量</strong>：表示该变量只能被赋值一次。一旦赋值，值不能再被修改（对于对象引用，引用不能被改变，但对象的内容仍然可以改变）。</p>
-<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">final</span> <span class="hljs-type">int</span> <span class="hljs-variable">age</span> <span class="hljs-operator">=</span> <span class="hljs-number">25</span>;<br>age = <span class="hljs-number">30</span>; <span class="hljs-comment">// 这会导致编译错误，因为age已经是final的。</span><br></code></pre></td></tr></table></figure>
+<p><strong><code>obj</code></strong>（<code>Object</code> 类型）：</p>
+<ul>
+<li><code>register</code> 方法中的第一个参数 <code>obj</code> 是需要进行清理的对象，即当这个对象变得不可达时，清理任务 <code>action</code> 会被触发。</li>
+<li>该对象通常是含有需要清理的资源（如文件、数据库连接等）的类实例。<code>Cleaner</code> 会监控这个对象的状态，一旦它不再被引用且符合垃圾回收条件，就会触发 <code>action</code>。</li>
+</ul>
 </li>
+<li>
+<p><strong><code>action</code></strong>（<code>Runnable</code> 类型）：</p>
+<ul>
+<li><code>action</code> 是一个实现了 <code>Runnable</code> 接口的实例，用于定义当 <code>obj</code> 不再被引用且垃圾回收时要执行的清理任务。</li>
+<li>清理任务通常用于释放资源，比如关闭文件、断开数据库连接等。</li>
+<li><code>Runnable</code> 的 <code>run()</code> 方法中包含具体的清理逻辑。这个清理任务会在 <code>obj</code> 被垃圾回收时自动调用。</li>
+</ul>
+</li>
+</ol>
+<h3 id="返回值">返回值</h3>
+<ul>
+<li><code>register</code> 方法返回一个 <code>Cleaner.Cleanable</code> 对象。通过调用 <code>Cleanable.clean()</code> 方法，用户可以手动执行清理任务，而不必等待垃圾回收器触发它。这在需要更及时地释放资源时非常有用。例如在实现了AutoCloseable的类中，将close方法定义为调用Cleanable.clean()</li>
+</ul>
+</blockquote>
+<p>在 Java 中，确实建议尽量避免使用终结方法 (<code>finalize</code>) 和清除方法 (<code>Cleaner</code>)，这是因为它们在性能、可靠性、和可控性方面都存在一些限制和风险，尤其是在特定场景中。主要原因如下：</p>
+<h3 id="1-终结方法的性能和不确定性问题">1. <strong>终结方法的性能和不确定性问题</strong></h3>
+<ul>
+<li>
+<p><strong>终结方法的调用时间不确定</strong>：终结方法依赖垃圾回收（GC）来触发，但垃圾回收的时间无法预测，这意味着终结方法的执行时间也是不确定的。</p>
+</li>
+<li>
+<p><strong>效率低下</strong>：终结方法的实现通常会影响垃圾回收的性能，因为垃圾回收器需要多做一些检查和管理工作。启用终结方法的对象会被放入一个队列中等待回收，这可能会导致对象在内存中停留更长时间，延迟内存释放，从而占用资源。</p>
+</li>
+<li>
+<p><strong>多线程安全性</strong>：终结方法是在垃圾回收器的线程中调用的，处理不当会引发线程安全问题，尤其是当清理的资源与其他线程共享时。</p>
+</li>
+<li>
+<p><strong>不保证执行</strong>：终结方法线程的优先级很低，有可能使得对象进入队列的速度超过对象的终结速度，这时就无法执行终结任务。当一个程序终止的时候，某些已经无法访问的对象上的终结方法完全有可能根本没有被执行。如果异常发生在终结方法中，不会使得线程终止，连警告都不会打出来</p>
+</li>
+</ul>
+<h3 id="2-清除方法的改进与局限">2. <strong>清除方法的改进与局限</strong></h3>
+<ul>
+<li>
+<p><strong>尽管 <code>Cleaner</code> 提高了效率</strong>，它也面临类似的问题，例如，它的执行仍然依赖于垃圾回收，尽管比 <code>finalize</code> 效率高，但清理的时间和顺序依然不完全可控。这样，对于资源敏感型应用，依赖 <code>Cleaner</code> 进行清理仍然存在风险。</p>
+</li>
+<li>
+<p><strong>在高性能场景中代价高</strong>：<code>Cleaner</code> 需要额外的线程和资源管理，可能对系统资源造成额外负担。这在频繁创建、销毁对象的环境中会影响性能。</p>
+</li>
+</ul>
+<h3 id="3-推荐的替代方案">3. <strong>推荐的替代方案</strong></h3>
+<ul>
+<li>
+<p><strong>使用 <code>try-with-resources</code> 或显式的 <code>close()</code> 方法</strong>：Java 7 引入的 <code>try-with-resources</code> 结构提供了一种更加可靠的资源管理方式。实现了 <code>AutoCloseable</code> 或 <code>Closeable</code> 接口的对象可以在 <code>try</code> 代码块结束时自动调用 <code>close()</code> 方法，以确保资源被及时释放，无需依赖垃圾回收。</p>
+</li>
+<li>
+<p><strong>显式地管理资源</strong>：对于一些重要资源，如文件、数据库连接和网络连接，最好由开发者在合适的地方显式释放资源。通过显式地调用关闭方法，可以明确清理的时间和顺序。</p>
+</li>
+</ul>
+<h3 id="4-总结：终结方法和清除方法的局限性">4. <strong>总结：终结方法和清除方法的局限性</strong></h3>
+<p>终结方法和清除方法在自动清理方面确实提供了一定的便利，但由于其执行时间和顺序的不确定性，以及潜在的性能影响，它们并不是理想的资源管理工具。更好的方法是使用 <code>try-with-resources</code> 或显式管理资源，这样可以保证资源的及时释放、提高性能，并避免潜在的内存泄漏和线程安全问题。</p>
+<blockquote>
+<p><code>AutoCloseable</code> 是 Java 1.7 引入的接口，用于实现资源自动关闭，通常在涉及资源的代码中使用，比如文件、数据库连接、网络资源等。实现了 <code>AutoCloseable</code> 的类可以在 <code>try-with-resources</code> 语句中自动关闭资源，而不需要显式地在 <code>finally</code> 块中调用 <code>close()</code> 方法。</p>
+<h3 id="基本用法">基本用法</h3>
+<p>以下是 <code>AutoCloseable</code> 的简单示例，假设我们有一个类 <code>MyResource</code> 实现了 <code>AutoCloseable</code>：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">MyResource</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">AutoCloseable</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">doSomething</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;Doing something...&quot;</span>);<br>    &#125;<br>    <br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">close</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> Exception &#123;<br>        System.out.println(<span class="hljs-string">&quot;Resource closed.&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Main</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-keyword">try</span> (<span class="hljs-type">MyResource</span> <span class="hljs-variable">resource</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">MyResource</span>()) &#123;<br>            resource.doSomething();<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            e.printStackTrace();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="解释-2">解释</h3>
+<ol>
+<li><code>try-with-resources</code> 语句在 <code>try</code> 块执行完毕后会自动调用 <code>AutoCloseable</code> 资源的 <code>close()</code> 方法。</li>
+<li>当 <code>MyResource</code> 实现了 <code>AutoCloseable</code>，它可以在 <code>try</code> 语句中初始化，并在结束时自动关闭。</li>
+<li>如果有多个资源，可以在 <code>try</code> 后加多个资源，用分号分隔，所有资源都会在块结束后依次关闭。</li>
+</ol>
+<h3 id="使用场景">使用场景</h3>
+<p><code>AutoCloseable</code> 常用于 <code>InputStream</code>、<code>OutputStream</code>、<code>Reader</code>、<code>Writer</code>、数据库连接等实现了 <code>AutoCloseable</code> 接口的类。</p>
+</blockquote>
+<h2 id="第九条：try-with-resources-优先于-try-finally">第九条：try-with-resources 优先于 try-finally</h2>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">import</span> org.junit.jupiter.api.Test;<br><br><span class="hljs-keyword">import</span> java.io.*;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyTest</span> &#123;<br><br>    <span class="hljs-meta">@Test</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">test</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-type">InputStream</span> <span class="hljs-variable">inputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(<span class="hljs-string">&quot;/home/yangsen/in.txt&quot;</span>);<br>        <span class="hljs-keyword">try</span>&#123;<br>            <span class="hljs-type">OutputStream</span> <span class="hljs-variable">outputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;/home/yangsen/out.txt&quot;</span>);<br>            <span class="hljs-type">int</span> a=<span class="hljs-number">1</span>/<span class="hljs-number">0</span>;<br>            <span class="hljs-keyword">try</span>&#123;<br>                System.out.println(<span class="hljs-string">&quot;do sth&quot;</span>);<br>            &#125;<span class="hljs-keyword">finally</span>&#123;<br>                System.out.println(<span class="hljs-string">&quot;out close&quot;</span>);<br>                outputStream.close();<br>            &#125;<br>        &#125;<span class="hljs-keyword">finally</span> &#123;<br>            System.out.println(<span class="hljs-string">&quot;in close&quot;</span>);<br>            inputStream.close();<br>        &#125;<br>    &#125;<br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+<p>运行上面的程序，会使得发生异常时只有inputStream关闭了，而完全跨过了outputStream的finally块，导致outputStream无法关闭，使用try-resources就可以避免</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs java">可以使用 `<span class="hljs-keyword">try</span>-with-resources` 来简化资源管理代码，从而自动关闭资源，避免手动关闭文件流。以下是改进后的代码：<br><br>```java<br><span class="hljs-keyword">import</span> org.junit.jupiter.api.Test;<br><span class="hljs-keyword">import</span> java.io.*;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">MyTest</span> &#123;<br><br>    <span class="hljs-meta">@Test</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">test</span><span class="hljs-params">()</span> <span class="hljs-keyword">throws</span> IOException &#123;<br>        <span class="hljs-keyword">try</span> (<span class="hljs-type">InputStream</span> <span class="hljs-variable">inputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileInputStream</span>(<span class="hljs-string">&quot;/home/yangsen/in.txt&quot;</span>);<br>             <span class="hljs-type">OutputStream</span> <span class="hljs-variable">outputStream</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">FileOutputStream</span>(<span class="hljs-string">&quot;/home/yangsen/out.txt&quot;</span>)) &#123;<br>            <br>            <span class="hljs-type">int</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-number">1</span> / <span class="hljs-number">0</span>; <span class="hljs-comment">// 模拟异常</span><br>            <br>            System.out.println(<span class="hljs-string">&quot;do sth&quot;</span>);<br><br>        &#125; <span class="hljs-keyword">catch</span> (ArithmeticException e) &#123;<br>            System.out.println(<span class="hljs-string">&quot;ArithmeticException caught: &quot;</span> + e.getMessage());<br>        &#125; <span class="hljs-keyword">finally</span> &#123;<br>            System.out.println(<span class="hljs-string">&quot;Resources closed automatically.&quot;</span>);<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在改进后的代码中：</p>
+<ul>
+<li><code>try-with-resources</code> 自动管理 <code>inputStream</code> 和 <code>outputStream</code>，不再需要在 <code>finally</code> 块中手动关闭它们。</li>
+<li>当发生异常（如 <code>ArithmeticException</code>），资源仍然会自动关闭。</li>
+<li>移除了嵌套 <code>try-finally</code>，代码结构更加简洁易读</li>
+</ul>
+<figure class="highlight node-repl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs node-repl"><br><br># 第三章 对于所有对象都通用的方法<br><br><span class="hljs-meta prompt_">&gt;</span> <span class="language-javascript">在 <span class="hljs-title class_">Java</span> 中，<span class="hljs-string">`final`</span> 关键字有以下三种主要用途：</span><br><span class="hljs-meta prompt_">&gt;</span> <br><span class="hljs-meta prompt_">&gt;</span> <span class="language-javascript"><span class="hljs-number">1.</span> **修饰变量**：表示该变量只能被赋值一次。一旦赋值，值不能再被修改（对于对象引用，引用不能被改变，但对象的内容仍然可以改变）。</span><br><span class="hljs-meta prompt_">&gt;</span> <span class="language-javascript">   <span class="hljs-string">``</span><span class="hljs-string">`java</span></span><br><span class="hljs-meta prompt_">&gt;</span> <span class="language-javascript"><span class="hljs-string">   final int age = 25;</span></span><br><span class="hljs-meta prompt_">&gt;</span> <span class="language-javascript"><span class="hljs-string">   age = 30; // 这会导致编译错误，因为age已经是final的。</span></span><br></code></pre></td></tr></table></figure>
+<blockquote>
+<ol start="2">
 <li>
 <p><strong>修饰方法</strong>：表示该方法不能在子类中被重写（override）。这在设计不可更改的逻辑时很有用。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Parent</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">final</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">display</span><span class="hljs-params">()</span> &#123;<br>        System.out.println(<span class="hljs-string">&quot;This is a final method.&quot;</span>);<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Child</span> <span class="hljs-keyword">extends</span> <span class="hljs-title class_">Parent</span> &#123;<br>    <span class="hljs-comment">// 这里不能重写display()方法，否则会导致编译错误</span><br>&#125;<br></code></pre></td></tr></table></figure>
@@ -1143,7 +1295,7 @@
 <h3 id="解决方案-3">解决方案</h3>
 <p>为了避免这种违反一致性的问题，推荐使用 <code>java.net.URI</code> 类而不是 <code>URL</code>，因为 <code>URI</code> 的 <code>equals()</code> 方法只会比较 URL 的字符串表示形式，而不会进行 DNS 解析。因此它能保证 <code>equals()</code> 的一致性。</p>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-type">URI</span> <span class="hljs-variable">uri1</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">URI</span>(<span class="hljs-string">&quot;http://example.com&quot;</span>);<br><span class="hljs-type">URI</span> <span class="hljs-variable">uri2</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">URI</span>(<span class="hljs-string">&quot;http://example.com&quot;</span>);<br><br>System.out.println(uri1.equals(uri2)); <span class="hljs-comment">// 始终返回 true</span><br></code></pre></td></tr></table></figure>
-<h3 id="总结-3">总结</h3>
+<h3 id="总结-5">总结</h3>
 <ul>
 <li><code>java.net.URL</code> 的 <code>equals()</code> 方法依赖于 DNS 解析，可能导致在不同的时间或环境下比较结果不一致，从而违反一致性原则。</li>
 <li>解决这个问题的最佳方法是使用 <code>java.net.URI</code> 类进行 URL 比较，因为它的 <code>equals()</code> 方法不会依赖外部网络状态。</li>
@@ -1277,7 +1429,7 @@
 <h3 id="示例：AbstractList-的作用">示例：AbstractList 的作用</h3>
 <figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">AbstractList</span>&lt;E&gt; <span class="hljs-keyword">extends</span> <span class="hljs-title class_">AbstractCollection</span>&lt;E&gt; <span class="hljs-keyword">implements</span> <span class="hljs-title class_">List</span>&lt;E&gt; &#123;<br>    <span class="hljs-comment">// 默认实现了 List 接口的部分方法</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-type">boolean</span> <span class="hljs-title function_">add</span><span class="hljs-params">(E e)</span> &#123;<br>        add(size(), e); <span class="hljs-comment">// 基于 size() 和 add(int, E) 实现</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br><br>    <span class="hljs-comment">// 抽象方法，子类必须实现</span><br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">abstract</span> E <span class="hljs-title function_">get</span><span class="hljs-params">(<span class="hljs-type">int</span> index)</span>;<br>    <br>    <span class="hljs-comment">// 可选地，子类可以覆盖此方法</span><br>    <span class="hljs-keyword">public</span> E <span class="hljs-title function_">remove</span><span class="hljs-params">(<span class="hljs-type">int</span> index)</span> &#123;<br>        <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">UnsupportedOperationException</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
 <p>在这个示例中，<code>AbstractList</code> 已经实现了 <code>List</code> 接口中的部分方法（如 <code>add()</code>），而将具体的 <code>get()</code> 和 <code>remove()</code> 等方法留给子类实现。这样，子类可以通过继承 <code>AbstractList</code>，快速实现一个具体的 <code>List</code> 类。</p>
-<h3 id="总结-4">总结</h3>
+<h3 id="总结-6">总结</h3>
 <p>以 <code>Abstract</code> 开头的类在 Java 集合框架中扮演了一个模板和部分实现的角色，它们帮助开发者简化具体集合类的实现，并确保新的集合类遵循集合框架的设计原则。</p>
 </blockquote>
 <p>在 Java 中，集合框架（Collection Framework）是用来存储和操作一组对象的。其主要包含两个基本接口：<strong>Collection</strong> 和 <strong>Map</strong>。它们有各自的常见实现层次。以下是这两个接口的描述及其常见实现类的层次结构：</p>
@@ -1750,7 +1902,7 @@ ayList的对象，例如：后期从数据库查询对象的方<br>
 <h5 id="JDK-1-8-对-HashMap-的改进">JDK 1.8 对 <code>HashMap</code> 的改进</h5>
 <p>在 JDK 1.8 中，<code>HashMap</code> 对链表结构做了重要改进，当链表中的节点数量超过一定阈值（默认 8 个）时，会将链表转换为红黑树，从而降低了链表过长带来的性能问题和冲突问题。但这一改进仅仅是针对链表长度过长的场景，并没有解决多线程并发问题。</p>
 <p>因此，即便在 JDK 1.8 中，<code>HashMap</code> 仍然不是线程安全的，在多线程环境下依然可能发生循环链表的问题，除非使用了其他同步措施或专为并发设计的数据结构（如 <code>ConcurrentHashMap</code>）。</p>
-<h5 id="总结-5">总结</h5>
+<h5 id="总结-7">总结</h5>
 <ul>
 <li>在多线程环境下，<code>HashMap</code> 确实可能出现 <strong>循环链表</strong> 的问题，这会导致程序进入死循环，耗尽 CPU 资源。</li>
 <li>这个问题主要发生在并发环境下的 <code>put</code> 操作，由于 <code>HashMap</code> 不是线程安全的，所以多个线程同时操作时会破坏链表结构。</li>
