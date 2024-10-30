@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8HashMap.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8LinkedHashMap.jpg">
 <meta property="article:published_time" content="2024-06-11T07:31:08.000Z">
-<meta property="article:modified_time" content="2024-10-30T02:59:54.952Z">
+<meta property="article:modified_time" content="2024-10-30T03:26:44.122Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -203,7 +203,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          37k 字
+          38k 字
         
       </span>
     
@@ -214,7 +214,7 @@
         
         
         
-          312 分钟
+          319 分钟
         
       </span>
     
@@ -1908,6 +1908,39 @@ ayList的对象，例如：后期从数据库查询对象的方<br>
 <li>这个问题主要发生在并发环境下的 <code>put</code> 操作，由于 <code>HashMap</code> 不是线程安全的，所以多个线程同时操作时会破坏链表结构。</li>
 <li>避免这种问题的方式是使用线程安全的集合类，例如 <code>ConcurrentHashMap</code>，或通过同步机制来保护 <code>HashMap</code> 的操作。</li>
 </ul>
+<h2 id="第十二条：始终要覆盖toString">第十二条：始终要覆盖toString</h2>
+<p>toString 应该返回对象中包含的所有值得关注的信息，例如在共享通用字符串表示方法的抽象类中，编写一个toString，就像大多数集合中使用的那样</p>
+<h2 id="第十三条：谨慎地覆盖clone">第十三条：谨慎地覆盖clone</h2>
+<p>Cloneable接口中没有任何方法，和一般的接口作用不同，它不是表明类可以做什么，而是改变了protected clone() 的行为</p>
+<p><code>Cloneable</code> 接口在 Java 中是一个标记接口（marker interface），它本身没有任何方法，唯一的作用是表明实现该接口的类支持“浅拷贝”（Shallow Copy）。Java 中的对象拷贝是通过 <code>Object</code> 类中的 <code>clone()</code> 方法实现的，而要使用该方法，类必须实现 <code>Cloneable</code> 接口，否则会抛出 <code>CloneNotSupportedException</code> 异常。</p>
+<h3 id="一、Cloneable-接口的作用">一、<code>Cloneable</code> 接口的作用</h3>
+<ol>
+<li><strong>标记功能</strong>：<code>Cloneable</code> 是一个空接口（没有任何方法），表示类的实例可以合法地被拷贝。</li>
+<li><strong>避免异常</strong>：如果一个类没有实现 <code>Cloneable</code> 接口，但尝试调用 <code>clone()</code> 方法，那么 JVM 会抛出 <code>CloneNotSupportedException</code> 异常。</li>
+</ol>
+<h3 id="二、clone-方法的工作机制">二、<code>clone()</code> 方法的工作机制</h3>
+<p><code>clone()</code> 方法定义在 <code>Object</code> 类中，主要用于创建当前对象的一个副本。一般步骤如下：</p>
+<ol>
+<li><strong>实现 <code>Cloneable</code> 接口</strong>：要使用 <code>clone()</code>，类必须实现 <code>Cloneable</code> 接口，否则会抛出异常。</li>
+<li><strong>重写 <code>clone()</code> 方法</strong>：通常需要在类中重写 <code>clone()</code> 方法，修改其访问权限为 <code>public</code>，并调用 <code>super.clone()</code>，实现对象拷贝。</li>
+</ol>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Cloneable</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Person</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age)</span> &#123;<br>        <span class="hljs-built_in">this</span>.name = name;<br>        <span class="hljs-built_in">this</span>.age = age;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Person <span class="hljs-title function_">clone</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">return</span> (Person) <span class="hljs-built_in">super</span>.clone();<br>        &#125; <span class="hljs-keyword">catch</span> (CloneNotSupportedException e) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AssertionError</span>(); <span class="hljs-comment">// 这种异常在实现了Cloneable后不应该发生</span><br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h3 id="三、浅拷贝与深拷贝">三、浅拷贝与深拷贝</h3>
+<ul>
+<li><strong>浅拷贝</strong>：默认的 <code>clone()</code> 方法只会进行浅拷贝，即只拷贝对象的基本字段值（对于引用类型字段，拷贝的是引用地址而不是引用对象）。
+<ul>
+<li>例如，在拷贝一个对象后，两个对象内部的引用类型字段仍指向同一个对象，因此修改一个对象的引用字段可能会影响另一个对象。</li>
+</ul>
+</li>
+<li><strong>深拷贝</strong>：对于深拷贝，则需要对所有引用类型字段重新分配内存，生成新的对象，这通常需要手动实现。</li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Cloneable</span> &#123;<br>    <span class="hljs-keyword">private</span> String name;<br>    <span class="hljs-keyword">private</span> <span class="hljs-type">int</span> age;<br>    <span class="hljs-keyword">private</span> Address address;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Person</span><span class="hljs-params">(String name, <span class="hljs-type">int</span> age, Address address)</span> &#123;<br>        <span class="hljs-built_in">this</span>.name = name;<br>        <span class="hljs-built_in">this</span>.age = age;<br>        <span class="hljs-built_in">this</span>.address = address;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Person <span class="hljs-title function_">clone</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-type">Person</span> <span class="hljs-variable">cloned</span> <span class="hljs-operator">=</span> (Person) <span class="hljs-built_in">super</span>.clone();<br>            <span class="hljs-comment">// 实现深拷贝</span><br>            cloned.address = address.clone();<br>            <span class="hljs-keyword">return</span> cloned;<br>        &#125; <span class="hljs-keyword">catch</span> (CloneNotSupportedException e) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AssertionError</span>();<br>        &#125;<br>    &#125;<br>&#125;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Address</span> <span class="hljs-keyword">implements</span> <span class="hljs-title class_">Cloneable</span> &#123;<br>    <span class="hljs-keyword">private</span> String city;<br><br>    <span class="hljs-keyword">public</span> <span class="hljs-title function_">Address</span><span class="hljs-params">(String city)</span> &#123;<br>        <span class="hljs-built_in">this</span>.city = city;<br>    &#125;<br><br>    <span class="hljs-meta">@Override</span><br>    <span class="hljs-keyword">public</span> Address <span class="hljs-title function_">clone</span><span class="hljs-params">()</span> &#123;<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-keyword">return</span> (Address) <span class="hljs-built_in">super</span>.clone();<br>        &#125; <span class="hljs-keyword">catch</span> (CloneNotSupportedException e) &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">AssertionError</span>();<br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>在以上代码中，<code>Person</code> 类和 <code>Address</code> 类都实现了 <code>Cloneable</code> 接口，并在 <code>Person</code> 的 <code>clone()</code> 方法中通过调用 <code>Address</code> 的 <code>clone()</code> 方法来实现深拷贝。</p>
+<h3 id="四、注意事项">四、注意事项</h3>
+<ol>
+<li><strong>使用场景</strong>：<code>clone()</code> 方法适合需要快速复制对象的场景，但由于浅拷贝和深拷贝的区别，复杂对象的拷贝需要小心处理。</li>
+<li><strong>更灵活的替代方案</strong>：在现代 Java 编程中，<code>clone()</code> 方法因其复杂性和潜在的错误风险，并不常用，许多开发者更偏向于使用构造方法或序列化的方式来复制对象。</li>
+</ol>
 
                 
               </div>
