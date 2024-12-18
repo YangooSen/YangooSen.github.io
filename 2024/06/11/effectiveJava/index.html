@@ -38,7 +38,7 @@
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8HashMap.jpg">
 <meta property="og:image" content="http://example.com/2024/06/11/effectiveJava/jdk8LinkedHashMap.jpg">
 <meta property="article:published_time" content="2024-06-11T07:31:08.000Z">
-<meta property="article:modified_time" content="2024-10-30T03:26:44.122Z">
+<meta property="article:modified_time" content="2024-11-25T07:02:32.274Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -203,7 +203,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          38k 字
+          39k 字
         
       </span>
     
@@ -214,7 +214,7 @@
         
         
         
-          319 分钟
+          323 分钟
         
       </span>
     
@@ -1941,6 +1941,50 @@ ayList的对象，例如：后期从数据库查询对象的方<br>
 <li><strong>使用场景</strong>：<code>clone()</code> 方法适合需要快速复制对象的场景，但由于浅拷贝和深拷贝的区别，复杂对象的拷贝需要小心处理。</li>
 <li><strong>更灵活的替代方案</strong>：在现代 Java 编程中，<code>clone()</code> 方法因其复杂性和潜在的错误风险，并不常用，许多开发者更偏向于使用构造方法或序列化的方式来复制对象。</li>
 </ol>
+<p>JVM 在调用 <code>Object.clone()</code> 方法时，会在内部对调用对象的类型进行检查，并且包含类似以下伪代码的逻辑：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">if</span> (!(<span class="hljs-built_in">this</span> <span class="hljs-keyword">instanceof</span> Cloneable)) &#123;<br>    <span class="hljs-keyword">throw</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">CloneNotSupportedException</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+<p>不过，这段代码并不是直接在字节码层插入的，而是由 JVM 在 <code>Object.clone()</code> 的本地方法实现中处理的。这段逻辑是 <code>Object.clone()</code> 方法的一部分，由 JVM 本地代码完成类型检查后决定是否抛出 <code>CloneNotSupportedException</code>。</p>
+<hr>
+<h3 id="JVM-行为的具体说明">JVM 行为的具体说明</h3>
+<ol>
+<li>
+<p>当 <code>clone()</code> 方法被调用时：</p>
+<ul>
+<li>JVM 会检查当前对象是否实现了 <code>Cloneable</code> 接口。</li>
+<li>如果没有实现 <code>Cloneable</code>，则抛出 <code>CloneNotSupportedException</code>。</li>
+<li>如果实现了 <code>Cloneable</code>，JVM 调用本地方法进行内存级别的对象拷贝。</li>
+</ul>
+</li>
+<li>
+<p><code>Object.clone()</code> 是一个本地方法，其实现由 JVM 提供，并且它对对象的克隆过程高度优化，包括：</p>
+<ul>
+<li>分配一个新的对象实例。</li>
+<li>将原对象的所有字段复制到新对象中（浅拷贝）。</li>
+</ul>
+</li>
+<li>
+<p><strong>为什么需要 <code>instanceof Cloneable</code> 检查？</strong></p>
+<ul>
+<li>Java 的设计理念是通过 <code>Cloneable</code> 作为标记接口，显式声明一个类支持克隆。</li>
+<li>通过 <code>instanceof</code> 操作符来检查类是否实现了该接口，是一种简单且有效的方式。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="如何验证这段逻辑？">如何验证这段逻辑？</h3>
+<p>我们可以通过反射绕过直接调用 <code>Object.clone()</code>，验证没有 <code>instanceof Cloneable</code> 检查时会发生什么：</p>
+<h4 id="示例代码-2">示例代码</h4>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><code class="hljs java"><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> &#123;<br>    <span class="hljs-comment">// 没有实现 Cloneable</span><br>&#125;<br><br><span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title class_">Test</span> &#123;<br>    <span class="hljs-keyword">public</span> <span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title function_">main</span><span class="hljs-params">(String[] args)</span> &#123;<br>        <span class="hljs-type">A</span> <span class="hljs-variable">a</span> <span class="hljs-operator">=</span> <span class="hljs-keyword">new</span> <span class="hljs-title class_">A</span>();<br>        <span class="hljs-keyword">try</span> &#123;<br>            <span class="hljs-comment">// 直接通过反射调用 Object 的 clone 方法</span><br>            <span class="hljs-type">A</span> <span class="hljs-variable">cloneA</span> <span class="hljs-operator">=</span> (A) a.getClass().getSuperclass().getDeclaredMethod(<span class="hljs-string">&quot;clone&quot;</span>).invoke(a);<br>        &#125; <span class="hljs-keyword">catch</span> (Exception e) &#123;<br>            e.printStackTrace(); <span class="hljs-comment">// 抛出 CloneNotSupportedException</span><br>        &#125;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+<h4 id="运行结果">运行结果</h4>
+<p>即使通过反射调用 <code>clone()</code>，JVM 依然会检查 <code>Cloneable</code>，并抛出如下异常：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs stylus">java<span class="hljs-selector-class">.lang</span><span class="hljs-selector-class">.CloneNotSupportedException</span>: A<br></code></pre></td></tr></table></figure>
+<hr>
+<h3 id="总结-8">总结</h3>
+<ul>
+<li>JVM 在执行 <code>Object.clone()</code> 时确实会自动插入类似 <code>if (!(this instanceof Cloneable))</code> 的检查。</li>
+<li>这段检查逻辑不是在字节码层面插入的，而是 <code>Object.clone()</code> 本地方法实现的一部分。</li>
+<li>这种设计保证了只有显式实现了 <code>Cloneable</code> 的类才能成功克隆，未实现的类调用 <code>clone()</code> 会安全地失败。</li>
+</ul>
 
                 
               </div>
