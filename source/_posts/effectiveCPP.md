@@ -76,6 +76,44 @@ tag: cpp
 > 
 > C++ 的发展历程展示了语言的不断演进和优化，适应了现代软件开发的需求，同时保留了其高性能和灵活性的核心优势。
 
+> 在 C++ 中，`::` 是**作用域解析运算符**，用于指定作用域或全局命名空间的元素。当 `::` 前没有任何限定时，表示从**全局命名空间**中查找符号。这意味着在当前作用域中没有找到符号时，它会直接查找全局作用域中的符号。
+> 
+> 具体含义如下：
+> 
+> 1. **调用全局函数或全局变量**：
+>    如果你在局部作用域中有与全局作用域同名的变量或函数，但你想调用全局作用域中的函数或变量，可以使用 `::` 来明确指示查找全局命名空间中的定义。例如：
+> 
+>    ```cpp
+>    int x = 10;  // 全局变量
+> 
+>    void foo() {
+>        int x = 20;  // 局部变量
+>        std::cout << x << std::endl;   // 输出 20，局部变量
+>        std::cout << ::x << std::endl; // 输出 10，全局变量
+>    }
+>    ```
+> 
+>    在这个例子中，`::x` 明确指示要使用全局作用域中的变量 `x`。
+> 
+> 2. **调用全局的 `operator new`**：
+>    在自定义类的 `operator new` 时，常常会使用 `::operator new` 来调用全局默认的 `operator new`，确保调用的是标准库中的内存分配函数。例如：
+> 
+>    ```cpp
+>    class MyClass {
+>    public:
+>        void* operator new(size_t size) {
+>            std::cout << "Custom operator new\n";
+>            return ::operator new(size);  // 调用全局的 new 操作符
+>        }
+>    };
+>    ```
+> 
+>    这里的 `::operator new` 表示调用标准库提供的默认全局 `operator new`，而不是递归调用自定义的 `operator new`。
+> 
+> ### 总结
+> 当 `::` 前没有任何限定时，表示查找全局命名空间中的符号，通常用于在局部作用域中避免名称冲突，或者明确调用全局作用域中的函数或变量。
+
+
 # introduction
 
 ## Terminology
@@ -539,7 +577,7 @@ inline void callWithMax(const T& a,const T&b){
 
 ```
 
-## item3: Use const whenever possible
+## Item3: Use const whenever possible
 
 ```cpp
 char greeting[]="Hello";
@@ -783,7 +821,7 @@ public:
 >   
 > - **安全使用**：`const_cast` 主要用于需要兼容旧代码或处理 API 接口的场景。对于大多数场景，避免不必要地更改对象的常量性是最佳实践。
 > 
-> ## item4: Make sure that objects are initialized before they're used
+> ## Item4: Make sure that objects are initialized before they're used
 > 
 > The rules of  C++ stipulate that data member of an object are **initialized before the body of a ctor** is entered. The best way to write ctor is to use member initialization list instead of assignment.
 
@@ -860,6 +898,11 @@ void sharedFunction();
 > 每个翻译单元分别编译生成目标文件，然后链接成最终的可执行文件或库。
 
 The order of initialization of non-local static object defined in different translation units may cause trouble, because the relative order of initialization of non-local static objects defined in different translation units is undefined.
+
+![static解释](static.png)
+
+
+
 
 > 静态对象包括在全局对象，在命名空间中定义的对象，类中声明为static的对象，函数中声明为static的对象，某个文件中声明为static的对象。局部static对象特指函数内定义的static变量。其他的静态对象都是 non-local object，本节要声明的就是要把所有静态对象都尽量做成局部静态对象 local static，即静态对象都放在函数内部，c++保证在第一次调用函数的时候会把它内部的静态对象都初始化
 > 
@@ -951,11 +994,11 @@ foo2& getFoo2(){
 
 # 2.Constructors, Destructors, and Assignment Operators
 
-## item5: Know what functions C++ silently writes and calls
+## Item5: Know what functions C++ silently writes and calls
 
 Compilers may implicitly generate a class's default ctor, copy ctor, copy op=, and destructor.
 
-## item6: Explicitly disallow the use of compiler generated function you do not want
+## Item6: Explicitly disallow the use of compiler generated function you do not want
 
 By declaring a member function explicitly and not implementing them, you prevent compilers from generating thier own version,, and by making the function `private`, you keep people from calling it. It is used to prevent copying in several classes in C++'s iostream library.
 
@@ -2172,7 +2215,7 @@ To avoid confusion, abstain from `typedef` for array types, use vector.
 "
 
 
-# 4. Designs and Declarations
+# 4.Designs and Declarations
 
 ## Item 18: Make interfaces easy to use correctly and hard to use incorrectly
 
@@ -6227,6 +6270,10 @@ When writing a class template that offer functions relalted to the template that
 
 ## Item 49: Understand the behavior of the new-handler
 
+> c++中的new执行:分配内存(operator new) => static_cast<type> 转成类指针类型 => 用这个指针调用构造函数
+> c++中的delete执行:先调用析构函数，再用指针调用operator delete
+
+
 > 在 C++ 的多线程环境中，堆（heap）和 `new-handler` 作为全局资源的确可能会引发一些问题，尤其是它们的非线程安全特性。
 > 
 > ### 1. 堆 (Heap) 管理问题：
@@ -6358,21 +6405,16 @@ When writing a class template that offer functions relalted to the template that
 > 
 >    - `set_new_handler`的签名如下：
 >      ```cpp
->      typedef void (*new_handler)(); //返回值为void,参数列表是()的函数指针 
+>      typedef void (*new_handler)() new_handler; //返回值为void,参数列表是()的函数指针 
 >      std::new_handler set_new_handler(std::new_handler new_p) noexcept;
 >      ```
->      这里的`new_p`是一个指向无返回值、无参数的函数指针。
+>      这里的`new_p`是一个指向无返回值、无参数的函数指针，set_new_handler 的返回值是原来的 handler，如果原来没有的话，返回的是 nullptr
 > 
 >    - 如果调用了`set_new_handler`来设置自定义的处理函数，当内存分配失败时，`operator new`会调用这个处理函数。处理函数可以尝试进行一些操作，例如：
 >      - 释放内存或其他资源。
 >      - 记录日志或提供错误提示。
 >      - 甚至可以通过某种策略降低程序的内存需求。
-> 
->    - **重要的一点**是，如果`new_handler`函数不能解决问题，即仍然没有足够的内存，则它可以通过两种方式处理：
->      1. **抛出异常**: 例如再次抛出`std::bad_alloc`，此时将停止内存分配操作并传递给上层。
->      2. **终止程序**: 如果情况无法挽回，处理函数可以调用`std::terminate()`来终止程序。
-> 
->    - **如果`new_handler`成功处理了内存问题，`operator new`将会再次尝试分配内存。这个过程可以反复多次，只要`new_handler`被成功调用且未终止程序。**
+> 当operator new 分配内存失败时，可以调用 handler 函数，然后再次尝试分配内存，如果仍然不行就再次调用 handler，这是一个死循环，因此要合理设计 handler，要么能分配更多的空间以满足 new 的需求，要么就抛出异常。如果一开始就没有设定 handler，无法分配足够的空间时就抛出异常
 > 
 > ### 代码示例
 > 
@@ -6630,4 +6672,941 @@ A well-designed new-handler function must do one of the following:
 > - 如果成功分配了内存，不要忘记用 `delete[]` 来释放分配的数组。
 > 
 > 这种方式适合那些希望通过检查返回值而不是处理异常来应对内存分配失败的场景。异常仅仅是 operator new 不返回，构造函数还是能返回的。在任何情况下，用户都永远不会需要这种new
+
+## Item 50. Understand when it makes sense to replace new and delete
+
+The reasons for replacing operator new and operator delete:
+- To detect usage errors
+> 在 C++ 编程中，`overrun` 和 `underrun` 通常与内存管理和缓冲区的操作有关，尤其是在动态内存分配和数组操作时。它们描述了内存操作过程中不正确的访问，导致对未授权的内存区域进行读写。
+> 
+> 1. **Overrun（内存越界/溢出）**：
+>    - 这通常指的是 **缓冲区溢出**（Buffer Overrun/Overflow），即当你试图写入数据到分配给缓冲区或数组的内存区域时，超出了分配的范围（边界），导致写入了超出缓冲区的其他内存。
+>    - 例如，如果你分配了一个大小为 10 的数组，但试图写入第 11 个元素，就会发生 overrun。这个行为会覆盖紧邻该数组的其他内存数据，可能导致程序崩溃或引发安全漏洞。
+> 
+>    示例：
+>    ```cpp
+>    int arr[10];   // 分配了 10 个整数的数组
+>    arr[10] = 42;  // 这是一个超出数组范围的写入操作，导致 overrun
+>    ```
+> 
+> 2. **Underrun（内存下溢）**：
+>    - 这是指 **缓冲区下溢**（Buffer Underrun），即访问分配给缓冲区或数组的起始位置之前的内存区域。通常，这发生在尝试读取或写入负索引时，或者错误地认为缓冲区的最小索引比实际的小。
+>    - 例如，如果你有一个数组，试图访问负索引或者比数组起始位置更早的内存地址，会导致 underrun。
+> 
+>    示例：
+>    ```cpp
+>    int arr[10];   // 分配了 10 个整数的数组
+>    arr[-1] = 42;  // 这是一个访问负索引的操作，导致 underrun
+>    ```
+> 
+> ### Overrun 和 Underrun 与内存分配的关系
+> - 这些问题通常发生在动态内存分配时（如使用 `new` 或 `malloc` 分配内存）。如果程序员没有正确管理内存的边界，可能会导致访问未分配或已释放的内存区域。
+> - **Overrun** 通常发生在分配的内存块之后，写入超出分配区域的数据。
+> - **Underrun** 则发生在内存块分配之前，试图访问比分配地址更早的内存位置。
+> 
+> 这两种错误都会导致不确定的行为，可能影响程序的稳定性和安全性。
+- To improve efficiency
+- To collect usage statistics
+
+> ### 内存对齐概念
+> 
+> **内存对齐**是指数据在内存中的地址必须按照特定的边界对齐，这样可以提高数据访问的效率。对于不同的数据类型（如 `int`、`float`、`double`），计算机可能要求它们存储在内存中某些特定的地址上，而不是任意地址。例如，32 位系统中，4 字节的整数（`int`）可能要求地址是 4 的倍数。
+> 
+> #### 举例说明：
+> 假设一个 32 位系统中，`int` 类型需要 4 字节。如果 `int` 类型的变量存储在一个未对齐的内存地址上（比如不是 4 的倍数的地址），则 CPU 可能需要额外的内存访问操作，导致性能下降。
+> 
+> - 如果变量在地址 `0x1000` 处（4 的倍数），访问是对齐的，CPU 可以直接读取。
+> - 如果变量在地址 `0x1003` 处（不是 4 的倍数），访问是不对齐的，CPU 需要做更多的工作，例如跨越两个内存块来读取完整数据，这会增加操作的复杂性和延迟。
+> 
+> ### 为什么需要内存对齐
+> 
+> 1. **性能原因**：现代 CPU 通常以字（word）为单位进行数据读取。未对齐的内存访问可能需要 CPU 进行多次访问，从而降低性能。
+> 2. **硬件要求**：某些处理器严格要求内存对齐，如果不对齐的内存访问会引发硬件异常或系统崩溃。
+> 3. **缓存效率**：内存对齐能够提高缓存命中率，减少由于跨缓存行访问数据而产生的延迟。
+> 
+> ### 不同系统中的内存对齐
+> 
+> 不同的计算机架构对于内存对齐有不同的要求：
+> 
+> - **32 位系统**：通常要求 4 字节的类型（如 `int`）对齐到 4 字节边界，8 字节的类型（如 `double`）对齐到 8 字节边界。
+> - **64 位系统**：要求更大数据类型（如 8 字节的 `long long` 和 `double`）对齐到 8 字节边界。
+> 
+> ### 对齐填充（Padding）
+> 
+> 为了确保内存对齐，编译器有时需要在数据结构（如 `struct`）中插入额外的字节，这些字节叫做**填充字节**。它们并不存储有效数据，而是用于对齐结构体的各个成员。
+> 
+> #### 例子：
+> ```cpp
+> struct Example {
+>     char a;
+>     int b;
+> };
+> ```
+> 在默认情况下，`char` 类型的 `a` 占用 1 字节，而 `int` 类型的 `b` 占用 4 字节。为了使 `b` 对齐到 4 字节边界，编译器可能会在 `a` 和 `b` 之间插入 3 字节的填充。
+> 
+> ```
+> | a (1 byte) | padding (3 bytes) | b (4 bytes) |
+> ```
+> 
+> 总共占用 8 字节，而不是 5 字节。
+> 
+> ### 自定义内存对齐
+> 
+> 在 C++ 中，可以使用 `alignas` 关键字或特定编译器指令来指定对齐方式。例如：
+> ```cpp
+> struct AlignedData {
+>     alignas(16) int data[4];  // 对齐到 16 字节边界
+> };
+> ```
+> 
+> ### 总结
+> 
+> 内存对齐主要是为了满足硬件架构的要求，提升数据访问的效率，减少未对齐访问带来的额外开销。在不同的系统架构中，内存对齐要求不同，编译器有时会自动插入填充字节以确保对齐。
+
+Writing a custom memory manager that almost works is pretty easy. Writing one that works well is a lot harder.
+
+> 很多现代平台和操作系统已经有非常高效的内存管理器，因此在大多数情况下，手动自定义 `operator new` 和 `operator delete` 并不是必要的。以下是一些关键点，解释为什么现代平台上通常不需要自定义内存管理器：
+> 
+> ### 1. **操作系统级别的优化**
+> 
+> 大多数操作系统都有经过高度优化的内存分配机制，能很好地满足大多数应用场景的性能需求。这些系统通常包括：
+> 
+> - **glibc 的 malloc/free**：在 Linux 系统中，`malloc` 和 `free` 是由 GNU C 库（glibc）实现的，它包含了经过多次优化的内存分配器，能够很好地处理大多数情况下的内存分配需求。
+>   
+> - **Windows 的 HeapAlloc/HeapFree**：Windows 系统中使用的内存管理器也经过高度优化，能够有效处理内存碎片和多线程并发的内存分配。
+> 
+> - **tcmalloc/jemalloc**：这些是专门用于提高性能的内存分配器，广泛用于高并发、低延迟的应用场景，尤其是服务器和数据库系统中。它们的设计重点在于减少内存碎片、提高多线程环境下的分配速度，并且已经集成到许多现代应用程序和平台中。
+> 
+> ### 2. **内存池和缓存分配器**
+> 
+> 一些现代内存管理器，如 `jemalloc` 和 `tcmalloc`，会使用**内存池**和**缓存分配器**，这使得它们能够以更高的效率处理小对象的频繁分配和释放。由于这些机制的存在，很多情况下不需要手动管理小块内存分配。
+> 
+> ### 3. **垃圾收集器 (GC) 和智能指针**
+> 
+> 在某些高级语言（如 Java 和 C#）中，使用**垃圾收集器 (Garbage Collector)** 来管理内存，这消除了手动内存管理的需求。在 C++ 中，`std::shared_ptr` 和 `std::unique_ptr` 等智能指针极大地简化了内存的管理和释放，减少了内存泄漏的风险。
+> 
+> ### 4. **专用分配器**
+> 
+> 某些平台或应用会选择在特定场景下使用专用分配器（如 `tcmalloc`、`jemalloc` 或 `dlmalloc`），这些专用分配器在性能和内存利用率方面比系统默认的分配器更优。它们被广泛应用于数据库、Web 服务器和高性能计算等领域。使用这些专用分配器通常可以避免手动自定义 `operator new`。
+> 
+> ### 5. **STL 提供的分配器支持**
+> 
+> C++ 标准库提供了一个灵活的分配器接口，允许程序开发者自定义分配器，而不需要自定义 `operator new`。通过自定义分配器，开发者可以为特定的容器或数据结构定制内存分配策略，而不影响其他代码。
+> 
+> 例如：
+> ```cpp
+> std::vector<int, MyCustomAllocator<int>> vec;
+> ```
+> 
+> 这种方式允许开发者只在必要的场景下定制内存管理，而不是全局修改 `operator new` 和 `operator delete`。
+> 
+> ### 6. **现代编译器和硬件优化**
+> 
+> 现代编译器和硬件已经对内存访问做了很多优化。例如：
+> 
+> - **缓存机制**：CPU 的缓存机制可以极大地提高内存访问的效率，即使某些情况下内存访问没有严格对齐。
+> - **预取（Prefetching）**：现代处理器能够通过预取机制提前加载内存数据，减小访问延迟。
+> 
+> 这些硬件级别的优化进一步减少了手动优化内存分配和管理的需求。
+> 
+> ### 7. **何时需要自定义 `operator new`**
+> 
+> 虽然大多数情况下无需自定义 `operator new` 和 `operator delete`，但在以下场景中仍然可能需要手动优化内存管理：
+> 
+> - **嵌入式系统**：内存资源极其有限的环境中，定制内存分配策略可以显著提升性能和资源利用率。
+> - **实时系统**：需要确保内存分配和释放的时间复杂度是可控的，以避免延迟问题。
+> - **游戏引擎**：对于一些高性能场景，尤其是游戏开发，手动控制内存分配有时能进一步优化性能，减少内存碎片。
+> - **特殊对齐需求**：在某些情况下，程序可能需要特定的内存对齐（如使用 SIMD 指令），这时自定义 `operator new` 以确保对齐是必要的。
+> 
+> ### 总结
+> 
+> 大多数现代平台已经有非常优秀的内存管理器，满足了大部分应用的需求，通常不需要自定义 `operator new`。除非在一些特殊场景下（如嵌入式系统、游戏引擎或实时系统），手动管理内存可能会带来一定的性能收益，但需要谨慎使用，以避免引入复杂性和潜在的错误。
+
+> 内存管理器在不同的场景下有不同的需求，商用和开源的内存管理器非常丰富，既有专为高性能应用设计的分配器，也有适合嵌入式系统、游戏开发或特定应用的内存管理器。以下是一些常见的商用和开源内存管理器：
+> 
+> ### 1. **开源内存管理器**
+> 
+> #### 1.1. **tcmalloc**
+> - **全称**：Thread-Caching Malloc
+> - **维护者**：Google
+> - **用途**：广泛用于高并发、低延迟的场景，例如 Google 的服务器和大型应用。
+> - **特性**：
+>   - 对小对象有极高的分配效率。
+>   - 每个线程维护独立的缓存，减少线程间的竞争。
+>   - 减少内存碎片，提高多线程性能。
+>   - 常用于 C++ 高性能服务器应用中，例如 `gperftools` 中的 `tcmalloc` 。
+>   
+> - **项目地址**：[gperftools/tcmalloc](https://github.com/gperftools/gperftools)
+> 
+> #### 1.2. **jemalloc**
+> - **维护者**：Jason Evans
+> - **用途**：广泛用于数据库、操作系统和服务器等高性能应用，最著名的用户是 Redis 和 Facebook。
+> - **特性**：
+>   - 高效处理多线程环境下的内存分配。
+>   - 减少内存碎片，并优化内存使用。
+>   - 提供了多种工具用于内存分析和调优。
+>   
+> - **项目地址**：[jemalloc/jemalloc](https://github.com/jemalloc/jemalloc)
+> 
+> #### 1.3. **Hoard**
+> - **维护者**：Emery Berger
+> - **用途**：用于减少内存碎片并提高多线程环境下的分配性能，适用于服务器和并发性强的应用。
+> - **特性**：
+>   - 高效支持多线程，并减少竞争锁定。
+>   - 支持大规模并发应用和高性能服务器。
+>   - 通过层次化的分配器减少了锁竞争。
+>   
+> - **项目地址**：[Hoard](https://github.com/emeryberger/Hoard)
+> 
+> #### 1.4. **dlmalloc**
+> - **全称**：Doug Lea's Malloc
+> - **维护者**：Doug Lea
+> - **用途**：经典的内存分配器，在很多操作系统和嵌入式系统中使用，因其简单和高效而著称。
+> - **特性**：
+>   - 内存碎片较少，性能较好。
+>   - 被广泛用于早期的 Linux、FreeBSD 等系统。
+>   - 设计上比较简单，适合嵌入式系统。
+>   
+> - **项目地址**：[dlmalloc](http://g.oswego.edu/dl/html/malloc.html)
+> 
+> #### 1.5. **ptmalloc**
+> - **全称**：Pthread Malloc
+> - **维护者**：Wolfram Gloger
+> - **用途**：基于 `dlmalloc`，针对多线程进行了优化。它曾是 GNU C 库（glibc）中的默认内存管理器。
+> - **特性**：
+>   - 针对多线程场景的优化。
+>   - 继承了 `dlmalloc` 的特点，并减少了锁竞争。
+>   
+> - **项目地址**：[ptmalloc](http://www.malloc.de/en/)
+> 
+> #### 1.6. **Scalloc**
+> - **全称**：Scalable allocator
+> - **维护者**：团队开发
+> - **用途**：一种针对高并发、多核系统设计的分配器，侧重于提高并发性能。
+> - **特性**：
+>   - 通过缓存局部性和分离分配机制提升性能。
+>   - 在高度并发的环境下仍能保证良好的性能。
+>   
+> - **项目地址**：[Scalloc](https://github.com/cksystemsgroup/scalloc)
+> 
+> #### 1.7. **bdwgc**
+> - **全称**：Boehm-Demers-Weiser Garbage Collector
+> - **维护者**：Hans Boehm 等
+> - **用途**：基于标记-清除算法的垃圾收集器，广泛用于 C/C++ 代码中，适合需要自动垃圾回收的场景。
+> - **特性**：
+>   - 自动内存管理，减少内存泄漏。
+>   - 支持多线程程序的垃圾回收。
+>   
+> - **项目地址**：[bdwgc](https://github.com/ivmai/bdwgc)
+> 
+> ### 2. **商用内存管理器**
+> 
+> #### 2.1. **Intel Memory Allocator (Intel TBB malloc)**
+> - **全称**：Threading Building Blocks Malloc
+> - **维护者**：Intel
+> - **用途**：为多核处理器设计，提供高效的内存分配解决方案。适合并发和多线程程序，尤其是在 Intel 处理器上优化。
+> - **特性**：
+>   - 对多线程应用进行优化，减少线程间的内存竞争。
+>   - 可以作为替代标准库的 `malloc` 使用。
+>   
+> - **相关产品**：包含在 Intel TBB 库中，用于高性能计算和多线程程序开发。
+> 
+> #### 2.2. **Microsoft Windows Low Fragmentation Heap (LFH)**
+> - **维护者**：Microsoft
+> - **用途**：Windows 操作系统中的默认内存管理器之一，专门用于减少内存碎片，提升系统整体性能。
+> - **特性**：
+>   - 用于避免标准堆中的碎片问题。
+>   - 通过自动分配低碎片内存池，提升应用性能。
+>   
+> - **相关产品**：Windows 操作系统的内存管理机制。
+> 
+> #### 2.3. **VMem**
+> - **维护者**：VMware
+> - **用途**：VMem 是一个商用的内存管理解决方案，专门为 VMware 的虚拟化产品优化，能够高效地处理虚拟机的内存需求。
+> - **特性**：
+>   - 处理虚拟化环境中复杂的内存分配需求。
+>   - 高效管理虚拟机中的大块和小块内存分配。
+> 
+> #### 2.4. **RPMalloc**
+> - **维护者**：Randy Gaul
+> - **用途**：一个小而高效的多线程内存分配器，特别适合游戏开发和嵌入式系统。
+> - **特性**：
+>   - 高效支持多线程，并保证低碎片和高并发性能。
+>   - 适合小块内存分配和实时系统。
+>   
+> - **项目地址**：[RPMalloc](https://github.com/rampantpixels/rpmalloc)
+> 
+> #### 2.5. **EASTL Allocator**
+> - **维护者**：Electronic Arts
+> - **用途**：专为游戏开发优化，Electronic Arts 开发的内存分配器与其专有的 EASTL 标准库结合使用。
+> - **特性**：
+>   - 适用于实时游戏引擎中的内存分配。
+>   - EASTL 是标准 C++ STL 的一个高效实现，专门为游戏和嵌入式环境设计。
+> 
+> - **相关产品**：EA 的游戏引擎和相关游戏开发工具链中使用。
+> 
+> ### 3. **特殊用途的内存管理器**
+> 
+> #### 3.1. **TLSF (Two-Level Segregated Fit)**
+> - **用途**：专门为嵌入式系统和实时系统设计，确保分配和释放操作的时间复杂度为 O(1)。
+> - **特性**：
+>   - 时间复杂度为 O(1)，非常适合实时系统和嵌入式系统。
+>   - 碎片率低，保证了在长时间运行后的性能稳定性。
+> 
+> - **项目地址**：[TLSF](https://github.com/mattconte/tlsf)
+> 
+> #### 3.2. **SNmalloc**
+> - **用途**：一个基于消息传递的内存分配器，适合基于对象的语言，具有高并发性和高效的内存分配特性。
+> - **特性**：
+>   - 线程私有缓存，减少线程间锁竞争。
+>   - 优化了多线程环境下的性能。
+> 
+> - **项目地址**：[SNmalloc](https://github.com/microsoft/snmalloc)
+> 
+> ### 总结
+> 
+> 不同的内存管理器针对不同的需求和应用场景进行了优化。对于高并发、低延迟的应用，像 `jemalloc` 和 `tcmalloc` 这样的管理器非常适合。而在嵌入式系统和实时系统中，`TLSF` 等分配器提供了确定性的内存管理方案。在游戏开发和专用环境下，像 `RPMalloc` 和 `EASTL Allocator` 提供了针对性优化。根据应用场景选择合适的内存管理器可以显著提升系统的性能和稳定性。
+
+
+## Adhere to convention when writing new and delete
+
+> 在C++中，`operator new` 的自定义实现可以用于为对象分配内存，通常默认的 `operator new` 是使用标准库的 `malloc` 或类似的低级内存分配函数进行实现的。而自定义的 `operator new` 可以通过以下方式进行修改，以满足特定需求，如处理请求分配大小为 0 和重复调用 `new_handler`（处理内存分配失败的机制）。
+> 
+> ### 自定义 `operator new` 实现
+> 你可以重载全局的 `operator new` 或者为特定类重载 `operator new`，以下是一个自定义的 `operator new` 示例：
+> 
+> ```cpp
+> #include <new>        // For std::bad_alloc, std::set_new_handler
+> #include <cstdlib>    // For std::malloc, std::free
+> #include <iostream>
+> 
+> // 定义一个全局的 new_handler
+> void my_new_handler() {
+>     std::cerr << "Custom new_handler: Memory allocation failed!" << std::endl;
+>     std::abort();
+> }
+> 
+> // 自定义 operator new
+> void* operator new(std::size_t size) noexcept(false) {
+>     std::cout << "Custom operator new called. Size requested: " << size << std::endl;
+> 
+>     // 如果请求大小为 0，设置为最小分配单位
+>     if (size == 0) {
+>         size = 1;  // 有些系统不允许分配 0 字节，可以设置为 1 字节
+>     }
+> 
+>     // 尝试分配内存
+>     void* ptr = nullptr;
+>     while (true) {
+>         ptr = std::malloc(size);
+>         if (ptr) {
+>             return ptr;  // 成功分配内存
+>         }
+> 
+>         // 如果分配失败，调用 new_handler
+>         //没有直接的get_handler，只能先调用set_new_handler得到handler之后再重新设置回原来的情况
+>         std::new_handler global_handler = std::set_new_handler(0);
+>         std::set_new_handler(globalHandler);
+>         if (global_handler) {
+>             global_handler();  // 调用当前设置的 new_handler
+>         } else {
+>             throw std::bad_alloc();  // 如果没有设置 handler，则抛出 std::bad_alloc 异常
+>         }
+>     }
+> }
+> 
+> // 自定义 operator delete
+> void operator delete(void* ptr) noexcept {
+>     std::cout << "Custom operator delete called." << std::endl;
+>     std::free(ptr);
+> }
+> 
+> int main() {
+>     // 设置自定义的 new_handler
+>     std::set_new_handler(my_new_handler);
+> 
+>     try {
+>         // 尝试分配内存
+>         int* p = new int[1000000000000];  // 请求大内存，触发失败处理
+>     } catch (const std::bad_alloc&) {
+>         std::cerr << "Caught std::bad_alloc exception!" << std::endl;
+>     }
+> 
+>     return 0;
+> }
+> ```
+> 
+> ### 代码解释：
+> 1. **自定义的 `operator new`**：
+>    - 在这个实现中，我们重载了全局的 `operator new`。当请求的分配大小为 0 时，将其设置为 1，以防止某些系统不支持 0 字节分配。
+>    - 使用 `malloc` 来实际分配内存，如果分配失败，则调用 `new_handler`。
+>    
+> 2. **`new_handler` 的处理**：
+>    - `new_handler` 是一个函数指针，指向当 `new` 操作符内存分配失败时调用的处理函数。可以通过 `std::set_new_handler` 来设置它。如果 `malloc` 失败，会调用这个处理函数，处理失败的情况。
+>    - 如果没有设置 `new_handler`，将抛出 `std::bad_alloc` 异常。
+> 
+> 3. **重复调用 `new_handler`**：
+>    - 如果内存分配失败，`operator new` 将反复调用已设置的 `new_handler`，直到内存分配成功或 `new_handler` 自行中止程序（例如通过调用 `std::abort`）。
+>    
+> 4. **自定义 `operator delete`**：
+>    - 同时，自定义的 `operator delete` 用于释放内存，以便配合 `operator new` 一起使用。
+> 
+> ### 特别注意：
+> - **分配大小为 0**：一些系统不允许分配 0 字节，因此通常的做法是将请求大小为 0 的分配调整为至少 1 字节。
+> - **new_handler 的作用**：`new_handler` 通常用于处理内存分配失败的场景，重复调用它可以让程序尝试多次分配内存或记录日志等。
+> 
+> ### 默认 `operator new` 行为：
+> 默认的 `operator new` 行为是在请求的内存大小为 0 时，不保证返回有效指针（可能会返回 `nullptr` 或者其他行为），并且它默认只会调用一次 `new_handler`。通过自定义它，我们可以为这种特殊场景添加更精细的处理逻辑。
+
+> 在 C++ 中，如果基类定义了自定义的 `operator new`，但子类继承并调用了这个自定义的 `operator new`，确实可能引发一些性能和内存管理问题，尤其是在子类需要额外的内存布局或特殊的初始化过程时。因为基类的 `operator new` 是根据基类的需求优化的，而子类可能有不同的内存分配需求，比如额外的成员变量或更复杂的构造过程，导致子类使用基类的 `operator new` 可能不是最佳选择。
+> 
+> ### 可能导致子类性能问题的原因：
+> 1. **内存分配不适合子类**：基类的 `operator new` 可能分配的内存空间大小或方式是根据基类的需求优化的，而子类的内存布局可能更复杂，需要更多或不同的内存分配策略。
+>    
+> 2. **没有考虑子类的特殊需求**：基类的 `operator new` 可能忽略了子类在初始化时需要的额外内存或资源分配需求，导致子类的构造或运行时性能受影响。
+> 
+> ### 解决方法：
+> 1. **在子类中重新定义 `operator new`**：如果子类有不同的内存需求，可以在子类中重新定义 `operator new` 和 `operator delete`，以便根据子类的特点进行内存分配。例如：
+> 
+>    ```cpp
+>    class Base {
+>    public:
+>        void* operator new(size_t size) {
+>            std::cout << "Base class operator new\n";
+>            return ::operator new(size);
+>        }
+>    };
+> 
+>    class Derived : public Base {
+>    public:
+>        void* operator new(size_t size) {
+>            std::cout << "Derived class operator new\n";
+>            return ::operator new(size);
+>        }
+>    };
+>    ```
+> 
+> 2. **通过 RTTI 或类型信息进行适配**：如果无法或不希望在子类中重新定义 `operator new`，可以在基类的 `operator new` 中添加对子类的类型检查，并动态适配分配的内存空间。例如使用 `typeid` 或其他机制来识别类型。
+> 
+> 3. **避免在基类中定义通用的 `operator new`**：如果基类和子类的内存需求差异很大，可以考虑避免在基类中定义 `operator new`，让每个类自行管理内存分配，从而减少由于继承带来的问题。
+> 
+> ### 小结：
+> 基类自定义 `operator new` 的优化可能不适用于子类，因为子类可能有不同的内存布局需求。如果这种优化确实影响到了子类的性能，最佳的解决方案是根据需要在子类中重新定义 `operator new` 或调整内存分配策略。
+
+> 自定 operator new[] 有更多需要考虑的内容，例如难以确定具体有多大空间需要分配，因为子类也能调用基类实现的array new，并且空间中还需要记录数组中元素的数量
+
+> 在 C++ 中，`operator delete` 函数通常用于释放通过 `operator new` 分配的内存，并且允许delete null，在自定义实现时需要注意。标准的 `operator delete` 有多种版本，其中一个可以接受两个参数：指针和大小。这个功能在 C++17 中引入，允许自定义的 `delete` 操作更灵活，尤其是在某些优化场景中，编译器可以传递内存块的大小。在某些情况下，new申请的大小可能是错的，比如类只需要4B，但new返回了6B，这时delete必须释放6B,用ptr参数，而不是size参数。
+> 
+> 这个函数的签名通常是这样的：
+> 
+> ```cpp
+> void operator delete(void* ptr, std::size_t size) noexcept;
+> ```
+> 
+> ### 参数说明：
+> - `ptr`：指向需要释放的内存的指针。
+> - `size`：表示被释放内存块的大小。
+> 
+> ### 使用场景：
+> 1. 自定义分配器：当你实现自定义内存分配器时，可以利用 `size` 来更高效地管理内存。例如，你可能会根据大小选择不同的内存池来释放内存。
+> 2. 调试和优化：通过 `size`，可以进行内存使用的分析、日志记录或做出一些优化决策。
+> 3. 与 `operator new` 相匹配：如果你自定义了带有大小参数的 `operator new`，那么通常也要相应地自定义 `operator delete`，以确保内存分配和释放的一致性。
+> 
+> ### 例子：
+> 
+> ```cpp
+> #include <iostream>
+> #include <cstdlib>
+> 
+> class MyClass {
+> public:
+>     static void* operator new(std::size_t size) {
+>         std::cout << "Allocating " << size << " bytes\n";
+>         return std::malloc(size);
+>     }
+> 
+>     static void operator delete(void* ptr, std::size_t size) {
+>         std::cout << "Deallocating " << size << " bytes\n";
+>         std::free(ptr);
+>     }
+> };
+> 
+> int main() {
+>     MyClass* obj = new MyClass;
+>     delete obj;
+>     return 0;
+> }
+> ```
+> 
+> ### 输出：
+> ```
+> Allocating 1 bytes
+> Deallocating 1 bytes
+> ```
+> 
+> 在上面的例子中，自定义了 `operator new` 和 `operator delete`，并且 `delete` 操作收到了分配时的大小信息。
+
+
+## Item 52: Write placement if you write placement new
+
+> **`placement new` 是指除了size_t 之外有额外的参数的 operator new，例如使用一个指针作为额外参数是它的典型用法**。其作用是指定对象应该被构造在给定的内存位置上。
+> 
+> ### 使用 `placement new` 的场景
+> 
+> 在容器（如 `std::vector`）扩容时，通常需要将现有元素复制到新的、更大的内存块中，这时 `placement new` 就可以派上用场。例如，当 `std::vector` 的容量不足时，首先会分配一块新的、更大的内存空间，然后使用 `placement new` 在这块新内存中构造原有元素，最后释放旧内存。
+> 
+> ### 语法示例
+> 
+> ```cpp
+> #include <new>  // for std::nothrow
+> #include <iostream>
+> 
+> int main() {
+>     // 预分配一块足够的内存
+>     char* buffer = new char[sizeof(int)];
+> 
+>     // 在 buffer 所指的内存位置上构造一个 int 对象，值为42
+>     int* p = new (buffer) int(42);
+> 
+>     // 输出对象的值
+>     std::cout << *p << std::endl;
+> 
+>     // 需要手动调用析构函数，因为内存没有通过正常的 new 分配
+>     p->~int();
+> 
+>     // 手动释放之前分配的内存
+>     delete[] buffer;
+> 
+>     return 0;
+> }
+> ```
+> 
+> 一般而言人们讨论中提到的 placement new 大多数指的是 vector 中实现的这个特定版本的 placement new，而不是上面提到的更广泛的定义；少部分时候是指上面那个有额外参数的定义。具体指哪个需要联系上下文看具体含义
+> 
+> ### 注意事项
+> 
+> - 使用 `placement new` 构造对象后，需要手动调用析构函数来销毁对象，因为普通的 `delete` 不会被调用。
+> - 需要手动管理内存的分配与释放，错误处理起来可能比较复杂，容易引发内存泄漏或其他未定义行为。
+> 
+> 这种方式在需要高度优化和控制内存分配的场景中非常有用，比如在容器的实现中使用以避免频繁的内存分配和释放操作。
+
+> c++中new的具体执行流程是operator new，static_cast 修改内存type，然后调用构造函数。如果你定义了带有额外参数的 `operator new`即 placement new，那么为了避免潜在的内存泄漏，你也必须定义相应带有相同参数签名的 `operator delete` 和 普通版本的 operator delete 即不带参数的版本，因为大多数时候 new 没抛出异常，就需要调用普通版本的 delete，这时候也需要处理有额外参数new造成的额外开支。这是因为：
+> 
+> - 当使用 `new` 分配内存时，`operator new` 被调用来分配内存。
+> - 如果在分配完内存后，构造函数抛出了异常，C++ 会自动调用相应的 `operator delete` 来释放之前分配的内存。
+> 
+> ### 详细解释：
+> 
+> 1. **自定义 `operator new` 和 `operator delete`：**
+>    你可以为某个类重载 `operator new` 和 `operator delete`，并且可以为 `operator new` 提供额外的参数。
+> 
+>    ```cpp
+>    class MyClass {
+>    public:
+>        void* operator new(size_t size, int extraParam) {
+>            std::cout << "Allocating memory with extra parameter: " << extraParam << std::endl;
+>            return ::operator new(size);
+>        }
+>    
+>        void operator delete(void* ptr, int extraParam) {
+>            std::cout << "Deallocating memory with extra parameter: " << extraParam << std::endl;
+>            ::operator delete(ptr);
+>        }
+>    };
+>    ```
+> 
+> 2. **异常处理中的配对问题：**
+>    当你使用 `new` 分配对象时，通常会先调用 `operator new` 来分配内存，然后调用构造函数初始化对象。如果构造函数抛出异常，分配的内存需要通过调用 `operator delete` 进行释放。对于自定义的 `operator new`，其调用时传递的参数在异常处理时也需要传递给 `operator delete`，否则可能会导致内存泄漏。
+> 
+>    例如：
+> 
+>    ```cpp
+>    try {
+>        MyClass* obj = new (42) MyClass();
+>    } catch (...) {
+>        // 如果构造函数抛出异常，带参数的 operator delete 会被调用来释放内存
+>    }
+>    ```
+> 
+>    这里 `42` 是传给 `operator new` 的额外参数，如果构造函数抛出异常，C++ 需要用相同的额外参数（42）调用 `operator delete` 来释放内存。
+> 
+> 3. **没有配对的风险：**
+>    **如果你只定义了带有额外参数的 `operator new`，但没有定义匹配的 `operator delete`，那么在构造函数抛出异常时，C++ 的runtime system会找不到合适的 `operator delete` 来释放内存，从而导致内存泄漏**。
+> 
+> 因此，在自定义带参数的 `operator new` 时，务必定义具有相同参数签名的 `operator delete`和普通版本的 `operator delete`，以确保异常安全性。
+
+> 在实现类的 placement operator new 的时候要注意不要用名字覆盖全局正常版本的 operator new 或基类声明的 operator new，覆盖见Item 33
+
+> 在 C++ 中，`operator new` 是用于动态内存分配的操作符。它有多个全局版本，可以根据不同的需求进行内存分配。以下是标准库中提供的几个全局 `operator new` 版本：
+> 
+> ### 1. `void* operator new(std::size_t size);`
+> - 这个是最常见的 `new` 操作符，它分配大小为 `size` 的内存，并返回一个指向该内存块的指针。如果分配失败，会抛出 `std::bad_alloc` 异常。
+> 
+> ### 2. `void* operator new(std::size_t size, const std::nothrow_t&) noexcept;`
+> - 这是一个不抛出异常的版本。如果内存分配失败，它返回 `nullptr` 而不是抛出异常。
+> 
+> ### 3. `void* operator new[](std::size_t size);`
+> - 用于分配数组类型的内存，与第一个版本类似，只不过它用于分配多个元素的连续内存。
+> 
+> ### 4. `void* operator new[](std::size_t size, const std::nothrow_t&) noexcept;`
+> - 不抛出异常的数组版本。如果分配失败，返回 `nullptr`。
+> 
+> ### 5. Placement new: `void* operator new(std::size_t size, void* ptr) noexcept;`
+> - 这个版本的 `new` 是“定位 new”（Placement new），不会分配新的内存，而是直接在给定的内存地址 `ptr` 处构造对象。这种用法常见于自定义内存管理。
+> 
+> ### 6. `void* operator new[](std::size_t size, void* ptr) noexcept;`
+> - 这是定位 new 的数组版本，用于在指定地址 `ptr` 上构造数组对象。
+> 
+> ### 7. Aligned allocation (C++17 引入的对齐分配版本):
+>   - `void* operator new(std::size_t size, std::align_val_t alignment);`
+>   - `void* operator new(std::size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept;`
+>   - `void* operator new[](std::size_t size, std::align_val_t alignment);`
+>   - `void* operator new[](std::size_t size, std::align_val_t alignment, const std::nothrow_t&) noexcept;`
+> 
+>   这些版本允许指定分配的内存块的对齐方式，以便支持对齐要求较高的数据类型。
+> 
+> ### 8. 自定义 `operator new`
+> - 程序员还可以自定义 `new` 操作符，以实现自己的内存管理逻辑。
+> 
+> 这些不同版本的 `operator new` 提供了灵活的内存分配机制，适应不同的应用场景。当在类内部自定义了任何版本的 operator new，都将会覆盖这些标准形式正常版本的 operator new。一个简单的不覆盖的方式是声明一个StandardNewDeleteForms类，并且实现各个版本的new和相对应的delete，让自定义类继承这个类，并用using 声明
+
+![实现free和delete](52-1.png)
+![自定义类继承](52-2.png)
+
+# 9.Miscellany
+## Item 53: Pay attention to compiler warnings
+
+- Take compiler warnings seriously, and strive to compile warning-free at the maximum warning level supported by yor compilers.
+- Don't become depend on compiler warnings, because different compilers warn about different things. Porting to a new compilers may eliminate warning messages you've come to rely on.
+
+
+
+## Item 54: Familiarize yourself with the standard library including TR1
+
+> 在C++中，输入输出操作通过标准库中的一组预定义的对象来处理。最常用的三个输入输出流对象是：
+> 
+> 1. **`cin`**（标准输入流）：
+>    - `cin` 是一个标准输入流对象，用于从键盘获取输入。
+>    - `cin` 使用的是输入运算符（`>>`），会根据用户输入的格式将数据读入变量中。输入时，`cin` 会忽略空格、换行符和制表符，直到遇到非空白字符开始读取。
+>    - 示例：
+>      ```cpp
+>      #include <iostream>
+>      using namespace std;
+> 
+>      int main() {
+>          int number;
+>          cout << "Enter a number: ";
+>          cin >> number;  // 从用户输入读取数据
+>          cout << "You entered: " << number << endl;
+>          return 0;
+>      }
+>      ```
+> 
+> 2. **`cout`**（标准输出流）：
+>    - `cout` 是一个标准输出流对象，用于向控制台输出数据。
+>    - `cout` 使用的是输出运算符（`<<`），可以输出各种数据类型并自动格式化。
+>    - 示例：
+>      ```cpp
+>      #include <iostream>
+>      using namespace std;
+> 
+>      int main() {
+>          cout << "Hello, World!" << endl;  // 向控制台输出信息
+>          return 0;
+>      }
+>      ```
+> 
+> 3. **`cerr`**（标准错误流）：
+>    - `cerr` 是标准错误流对象，专门用于输出错误信息。
+>    - 与 `cout` 类似，`cerr` 也使用输出运算符（`<<`）来输出数据，但 `cerr` 的输出通常是未经缓冲的（unbuffered），意味着信息会立即输出到控制台，常用于错误或调试信息的输出。
+>    - 示例：
+>      ```cpp
+>      #include <iostream>
+>      using namespace std;
+> 
+>      int main() {
+>          cerr << "Error: Something went wrong!" << endl;  // 输出错误信息
+>          return 0;
+>      }
+>      ```
+> 
+> 4. **`clog`**（标准日志流）：
+>    - `clog` 也是一个输出流对象，专门用于输出日志信息。
+>    - 与 `cerr` 不同的是，`clog` 是缓冲的（buffered），这意味着它的输出可能会稍微延迟，直到缓冲区被填满或程序显式刷新输出缓冲。
+>    - 示例：
+>      ```cpp
+>      #include <iostream>
+>      using namespace std;
+> 
+>      int main() {
+>          clog << "Log: This is a log message." << endl;  // 输出日志信息
+>          return 0;
+>      }
+>      ```
+> 
+> ### 总结：
+> - **`cin`**：从标准输入设备（通常是键盘）读取输入。
+> - **`cout`**：向标准输出设备（通常是屏幕）输出数据。
+> - **`cerr`**：向标准错误设备（通常是屏幕）输出错误信息（无缓冲）。
+> - **`clog`**：向标准日志设备（通常是屏幕）输出日志信息（有缓冲）。
+> 
+> 这些对象都定义在头文件 `<iostream>` 中，并且通常与 C++ 标准流 `istream`、`ostream`、`iostream` 的类功能相关。
+ 
+> C++ 的异常处理机制（Exception Handling）允许程序在运行时捕获并处理错误或异常情况，而不会导致程序崩溃。C++ 的异常处理系统由关键字 `try`、`throw` 和 `catch` 实现，通过抛出异常和捕获异常来处理程序中的错误。异常处理系统中的异常类型组织成一个层次结构，允许程序员定义和使用标准异常类以及自定义异常类。
+> 
+> ### C++ 异常系统的层次结构
+> 
+> C++ 提供了一组标准异常类，它们都继承自标准库中的 `std::exception` 类，形成了一种类层次结构。`std::exception` 是所有异常类的基类，其他异常类则从它派生出来。以下是 C++ 中常见的标准异常类及其层次结构：
+> 
+> #### 1. `std::exception`（基类）
+>    - `std::exception` 是所有 C++ 标准异常的基类，位于头文件 `<exception>` 中。
+>    - 该类定义了一个虚拟成员函数 `what()`，用于返回异常的描述信息（通常为字符指针 `const char*`）。
+>    - 示例：
+>      ```cpp
+>      #include <iostream>
+>      #include <exception>
+> 
+>      int main() {
+>          try {
+>              throw std::exception();
+>          } catch (const std::exception& e) {
+>              std::cout << "Caught exception: " << e.what() << std::endl;
+>          }
+>          return 0;
+>      }
+>      ```
+> 
+> #### 2. `std::bad_alloc`（内存分配错误）
+>    - 继承自 `std::exception`，用于表示在内存分配失败时抛出的异常（如 `new` 操作符分配内存失败）。
+>    - 头文件 `<new>` 中定义。
+>    - 示例：
+>      ```cpp
+>      #include <iostream>
+>      #include <new>
+> 
+>      int main() {
+>          try {
+>              int* arr = new int[100000000000];  // 可能分配失败
+>          } catch (const std::bad_alloc& e) {
+>              std::cout << "Memory allocation failed: " << e.what() << std::endl;
+>          }
+>          return 0;
+>      }
+>      ```
+> 
+> #### 3. `std::bad_cast`（类型转换失败）
+>    - 继承自 `std::exception`，用于表示动态类型转换失败（`dynamic_cast`）时抛出的异常。
+>    - 头文件 `<typeinfo>` 中定义。
+>    - 示例：
+>      ```cpp
+>      #include <iostream>
+>      #include <typeinfo>
+> 
+>      class Base { virtual void foo() {} };
+>      class Derived : public Base {};
+> 
+>      int main() {
+>          try {
+>              Base* base = new Base;
+>              Derived* derived = dynamic_cast<Derived*>(base);  // 转换失败
+>              if (!derived) throw std::bad_cast();
+>          } catch (const std::bad_cast& e) {
+>              std::cout << "Bad cast: " << e.what() << std::endl;
+>          }
+>          return 0;
+>      }
+>      ```
+> 
+> #### 4. `std::bad_typeid`（类型信息获取失败）
+>    - 继承自 `std::exception`，在通过 `typeid` 操作获取空指针的类型信息时抛出异常。
+>    - 头文件 `<typeinfo>` 中定义。
+>    - 示例：
+>      ```cpp
+>      #include <iostream>
+>      #include <typeinfo>
+> 
+>      class Base { virtual void foo() {} };
+> 
+>      int main() {
+>          try {
+>              Base* base = nullptr;
+>              std::cout << typeid(*base).name() << std::endl;  // 会抛出 std::bad_typeid 异常
+>          } catch (const std::bad_typeid& e) {
+>              std::cout << "Bad typeid: " << e.what() << std::endl;
+>          }
+>          return 0;
+>      }
+>      ```
+> 
+> #### 5. `std::bad_function_call`（无效的函数调用）
+>    - 继承自 `std::exception`，表示无效的函数调用（如调用空 `std::function` 对象）时抛出的异常。
+>    - 头文件 `<functional>` 中定义。
+> 
+> #### 6. `std::logic_error`（逻辑错误异常类）
+>    - `std::logic_error` 是从 `std::exception` 派生的，用于表示程序逻辑上的错误，这些错误通常由代码中的设计缺陷引起，不应该通过运行时来捕获，而是应该在编写程序时避免。
+>    - 这个类主要用于捕获那些在编译时能预测到的错误。
+>    - 它的派生类有：
+>      - `std::invalid_argument`：表示函数接收到无效的参数。
+>      - `std::domain_error`：表示数学函数的输入超出了有效范围。
+>      - `std::length_error`：表示尝试创建超出最大长度的对象。
+>      - `std::out_of_range`：表示数组或容器访问超出了有效范围。
+> 
+> #### 7. `std::runtime_error`（运行时错误异常类）
+>    - `std::runtime_error` 也是从 `std::exception` 派生的，用于表示程序运行时出现的错误，这些错误是程序无法避免的异常情况（如文件读取失败、数学错误等）。
+>    - 它的派生类有：
+>      - `std::range_error`：表示算术运算产生超出有效范围的结果。
+>      - `std::overflow_error`：表示算术运算导致溢出。
+>      - `std::underflow_error`：表示算术运算导致下溢。
+> 
+> ### C++ 异常处理的基本流程
+> 
+> 1. **`throw`** 关键字：
+>    - 用于抛出异常，当程序检测到错误时，通过 `throw` 抛出异常对象。
+>    - 可以抛出标准异常对象，也可以抛出用户自定义的异常对象。
+>    - 示例：
+>      ```cpp
+>      throw std::runtime_error("Error occurred");
+>      ```
+> 
+> 2. **`try` 块**：
+>    - 用于包裹可能会抛出异常的代码，异常会在 `try` 块中抛出。
+>    - 示例：
+>      ```cpp
+>      try {
+>          // 可能抛出异常的代码
+>      }
+>      ```
+> 
+> 3. **`catch` 块**：
+>    - 用于捕获异常，`catch` 块后紧跟一个参数，表示捕获的异常类型。
+>    - 一个 `try` 块可以有多个 `catch` 块，每个 `catch` 块捕获不同类型的异常。
+>    - 示例：
+>      ```cpp
+>      try {
+>          // 可能抛出异常的代码
+>      } catch (const std::exception& e) {
+>          std::cout << "Caught exception: " << e.what() << std::endl;
+>      }
+>      ```
+> 
+> ### 自定义异常类
+> 
+> C++ 允许程序员定义自己的异常类，可以继承自 `std::exception` 或其他标准异常类，重写 `what()` 方法提供更具体的异常描述。
+> 
+> 示例：
+> ```cpp
+> #include <iostream>
+> #include <exception>
+> 
+> class MyException : public std::exception {
+> public:
+>     const char* what() const noexcept override {
+>         return "Custom exception occurred";
+>     }
+> };
+> 
+> int main() {
+>     try {
+>         throw MyException();
+>     } catch (const MyException& e) {
+>         std::cout << e.what() << std::endl;
+>     }
+>     return 0;
+> }
+> ```
+> 
+> ### 总结
+> 
+> C++ 的异常处理系统层次结构以 `std::exception` 为基类，派生出各种标准异常类，如 `std::runtime_error` 和 `std::logic_error`，这些类进一步派生出更多具体的异常类型。开发者可以捕获这些异常，或定义自定义异常来处理特定的错误情况。
+
+> **TR1** 是一个技术规范，它定义了一系列特性和库接口，但它本身并不提供具体的实现。TR1 的具体实现是由不同的编译器和标准库供应商提供的，类似于 C++ 标准库的其他部分。
+> 
+> ### TR1 的实现与依赖
+> 
+> 不同编译器和库供应商（如 GCC、Clang、Microsoft Visual C++ 等）通常会根据 TR1 规范提供具体的实现。这些实现可能存在于标准库的不同命名空间中，也可能通过额外的库来提供支持。在某些编译器中，TR1 的特性需要通过特定的标志或库链接来使用。
+> 
+> #### 不同编译器的 TR1 实现
+> 1. **GCC（GNU Compiler Collection）**
+>    GCC 提供了对 TR1 的支持，通常通过 `libstdc++` 标准库实现。在 GCC 中，TR1 的功能可以在 `<tr1/...>` 头文件中找到，TR1 的内容通常位于 `std::tr1` 命名空间中。比如：
+>    ```cpp
+>    #include <tr1/memory>
+>    std::tr1::shared_ptr<int> p(new int(10));
+>    ```
+> 
+> 2. **Clang**
+>    Clang 与 GCC 一样，使用 `libstdc++` 或 `libc++` 提供 TR1 支持。`libc++` 作为一个独立的标准库实现，也提供了与 TR1 兼容的功能，默认支持 C++11 和更新版本。
+> 
+> 3. **Microsoft Visual C++ (MSVC)**
+>    在 Visual Studio 中，TR1 特性曾经被包含在 `tr1` 命名空间中。早期的 Visual C++ 版本通过 `std::tr1` 提供 TR1 特性。但自从 C++11 发布后，MSVC 逐渐将 TR1 特性移入标准库的 `std` 命名空间，并淘汰了对 `std::tr1` 的支持。例如，在 Visual Studio 2010 及之前的版本中，你可以看到 TR1 的支持，而在更新的版本中则直接使用 C++11 特性。
+> 
+> 4. **其他编译器和库**
+>    一些嵌入式编译器或专用平台的编译器也可能实现了 TR1 特性，不过这些实现可能并不完整，或者需要依赖第三方库（如 Boost）来提供部分功能。
+> 
+> ### 依赖 TR1 实现的库
+> 在 TR1 规范发布之前和之后，很多开发者使用第三方库来提供这些功能。最著名的就是 **Boost 库**，它是一个广泛使用的 C++ 第三方库，许多 TR1 特性最初就是从 Boost 库中提取和标准化的。
+> 
+> - **Boost 和 TR1**
+>   Boost 提供了很多与 TR1 类似的功能，比如 `boost::shared_ptr`、`boost::tuple` 和 `boost::function` 等，这些组件后来成为 TR1 和 C++11 标准库的一部分。因此，很多在使用 TR1 特性时，也会考虑使用 Boost 库，尤其是在编译器对 TR1 支持不完整或不一致的情况下。
+> 
+> ### 总结
+> 
+> - **TR1 是标准规范**：它定义了一系列新特性和库组件，但具体实现依赖于不同的编译器和标准库供应商。
+> - **编译器实现 TR1**：不同的编译器可能有不同的实现方式，并且 TR1 的实现通常在命名空间 `std::tr1` 中，而在 C++11 标准中这些特性被迁移到了 `std` 命名空间。
+> - **第三方库如 Boost**：在 TR1 和 C++11 发布之前，Boost 库提供了许多类似的功能，开发者可以依赖 Boost 来获得类似于 TR1 的功能。 
+>总的来说，TR1 作为过渡期的规范起到了连接传统 C++ 和现代 C++ 的桥梁作用，**而在现代编译器中，TR1 的大部分功能已经被整合到 C++11 标准库中，因此更推荐使用标准库的实现**
+
+> 在C++中，`TR1`（Technical Report 1）是C++标准库的一个扩展，它提供了一些新特性和组件，旨在改进标准库的功能和增强对现代编程需求的支持。TR1是由ISO/IEC的一个技术小组开发的，并在C++0x标准（即C++11）之前推出，很多TR1中的功能最终被纳入了C++11标准中。
+> 
+> ### TR1中的主要组件
+> TR1 引入了一些新特性，虽然在C++11及后续标准中它们被直接整合，但在使用早期编译器时，仍有可能看到对TR1的引用。以下是TR1中引入的一些主要组件：
+> 
+> 1. **智能指针 (`smart pointers`)**
+>    TR1 引入了 `shared_ptr` 和 `weak_ptr`，用于更好地管理动态内存。
+>    - `shared_ptr`: 引用计数的智能指针，多个指针可以共享同一个对象，当最后一个引用被销毁时，自动释放内存。
+>    - `weak_ptr`: 辅助 `shared_ptr`，防止循环引用。
+> 
+> 2. **正则表达式 (`regex`)**
+>    TR1 中引入了正则表达式的库，允许更高效地匹配字符串模式，C++11正式将它们作为标准的一部分。
+>    - `std::regex`: 用于定义正则表达式的类。
+>    - `std::smatch` 和 `std::cmatch`: 用于存储匹配结果的容器类。
+> 
+> 3. **元组 (`tuple`)**
+>    TR1引入了 `std::tuple`，允许将多个类型不同的对象组合在一起形成一个元组对象，这在函数返回多个值时特别有用。
+>    - `std::tuple`: 可以存储不同类型的多个值的集合。
+>    - `std::get`: 用于从元组中获取值。
+> 
+> 4. **哈希表 (`hash table`)**
+>    TR1 中的哈希表提供了 `std::unordered_map` 和 `std::unordered_set`，它们使用哈希算法来进行快速查找。C++11中正式引入了这些容器。
+>    - `std::unordered_map`: 基于哈希表实现的映射容器。
+>    - `std::unordered_set`: 不重复的无序集合。
+> 
+> 5. **随机数生成 (`random number generation`)**
+>    TR1引入了一个灵活的随机数生成框架。C++11对其进行了扩展和标准化。
+>    - `std::random_device`: 提供了一个硬件生成的随机数。
+>    - `std::mt19937`: 梅森旋转算法，用于生成伪随机数。
+> 
+> 6. **数学特殊函数 (`mathematical special functions`)**
+>    TR1 提供了一些高级的数学函数，比如贝塞尔函数、伽马函数、误差函数等。这些功能对一些科学计算应用特别有用。
+> 
+> 7. **函数对象 (`function objects`)**
+>    TR1引入了 `std::function`，允许存储和调用任意的可调用对象（函数、lambda表达式、函数指针等），使函数更加灵活。
+>    - `std::function`: 用于存储和调用可调用对象。
+>    - `std::bind`: 用于绑定函数参数。
+> 
+> 8. **类型特征 (`type traits`)**
+>    TR1 引入了类型特征，用于在编译期检测类型的各种特性（如是否为指针类型、是否为整型等），这在模板元编程中特别有用。
+> 
+> ### TR1 和 C++11 的关系
+> TR1 最初是作为C++标准库的扩展引入的，但它并不是正式的标准。随着C++11的发布，TR1的绝大多数组件被纳入了C++标准库，并得到了进一步改进和扩展。因此，使用现代C++时，开发者通常直接使用C++11中的对应功能，而无需再显式依赖TR1。
+> 
+> ### 使用TR1的场景
+> - 在旧版本的编译器（如不支持C++11的编译器）中，TR1可以作为引入上述特性的方式。
+> - 对于使用较老的C++代码库，可能仍然会看到对TR1的引用，尤其是使用了特定库或特性的代码。
+> 
+> 总结来说，TR1在C++演进过程中起到了重要的过渡作用，提供了在正式标准化之前的一些重要功能。不过，随着C++11及后续标准的引入，大多数TR1特性已经成为现代C++的一部分。
+
+## Item 55: Familiarize yourself with Boost
+
+Boost offers implementations of many TR1 components, but it also offers many other libraries, too.
+
 

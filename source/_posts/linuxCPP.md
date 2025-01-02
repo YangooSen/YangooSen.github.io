@@ -3,7 +3,7 @@ title: linuxCPP
 katex: true
 date: 2024-06-07 16:33:47
 excerpt: 服务器cpp开发
-tag: note
+tag: cpp
 ---
 
 [万字长文 | 这可能是东半球最保姆级的后台服务器开发学习路线](https://mp.weixin.qq.com/s?__biz=Mzg4NjUxMzg5MA==&mid=2247484347&idx=1&sn=826d0cf5ac4361d97b4e9eaee136f98c&scene=21#wechat_redirect)
@@ -13,6 +13,9 @@ tag: note
 主线主要看 《Effective C++》和《STL源码剖析》，不会的根据《C++ Primer》查漏补缺，不会的东西一定要把附近的都看看，实现的时候注意写出大气的代码（侯捷老师的视频）
 
 # OS
+
+> 可以边看自己做的笔记，边做实验练习，并且利用学到的知识点做出一个东西出来，好好利用gpt
+
 
 主线主要看《Linux内核设计与实现》，不会的根据《现代操作系统》和《操作系统—精髓与设计原理》查漏补缺，不会的东西一定要把附近的都看看
 
