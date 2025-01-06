@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/example.gif">
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/op.png">
 <meta property="article:published_time" content="2024-04-07T11:54:31.000Z">
-<meta property="article:modified_time" content="2024-06-13T12:19:55.955Z">
+<meta property="article:modified_time" content="2025-01-06T13:26:12.938Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="ds">
 <meta name="twitter:card" content="summary_large_image">
@@ -192,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          2.5k 字
+          2.8k 字
         
       </span>
     
@@ -203,7 +203,7 @@
         
         
         
-          21 分钟
+          24 分钟
         
       </span>
     
@@ -261,6 +261,9 @@
 <blockquote>
 <p>注意双指针的问题一般都是用<code>while(left&lt;right)</code>解决，而不要用<code>for</code>,<code>for</code>循环不好掌控</p>
 </blockquote>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0040.%E7%BB%84%E5%90%88%E6%80%BB%E5%92%8CII.html#%E6%80%9D%E8%B7%AF">40.组合总和II</a>，完全想不到用used数组，used[i]=true表示同一树枝上v[i]用过，很好理解，因为往下层递归的时候会先标记用过。<strong>used[i]=false表示同一树层上v[i]用过</strong>，比较难想到。可以看图想，每个树层每次是从[i,)区间选的，前一个数用过之后used就会复原成false。因此排序之后v[i-1]==v[i]表示和前一个数字一样，且used[i-1]==false复原了，说明同一树层用过了，那么就跳过。如果少used[i-1]==false条件，就会在树枝层面也进行去重，[1,1,6]就会被去掉。其实for循环中 [start,i）这个区间的值，同一树层已经用过了，因此也可以用i &gt; startIndex判断。startIndex是用来限制备选candidates数组的，i&gt;startIndex说明同一树层已经遍历到i了，前面的已经用过了。关注startIndex和i的实际代表意义,同一树层遍历是 [start,i]</li>
+</ul>
 <h1>原地操作</h1>
 <ul>
 <li><a target="_blank" rel="noopener" href="https://programmercarl.com/kama54.%E6%9B%BF%E6%8D%A2%E6%95%B0%E5%AD%97.html#%E6%80%9D%E8%B7%AF">替换数字</a>，原地操作经常用到双指针，数组填充类的问题，其做法都是先预先给数组扩容带填充后的大小，然后在从后向前进行操作,这样避免了重复向后移动已有元素的<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>O</mi><mo stretchy="false">(</mo><msup><mi>n</mi><mn>2</mn></msup><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">O(n^2)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.0641em;vertical-align:-0.25em;"></span><span class="mord mathnormal" style="margin-right:0.02778em;">O</span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal">n</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.8141em;"><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span>算法</li>
@@ -328,10 +331,14 @@
 <p>相关问题 <a target="_blank" rel="noopener" href="https://programmercarl.com/%E9%9D%A2%E8%AF%95%E9%A2%9802.07.%E9%93%BE%E8%A1%A8%E7%9B%B8%E4%BA%A4.html#%E6%80%9D%E8%B7%AF">160.链表相交</a> 每次都是用map解决的，双指针对齐之后也可以解决</p>
 </blockquote>
 <h1>模拟</h1>
-<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43941332/article/details/105084051?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-105084051-blog-104799083.235%5Ev43%5Epc_blog_bottom_relevance_base2&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3">中缀表达式求值</a>,后缀表达式一个栈存数字，直接遇到符号处理即可，<strong>前缀表达式可以倒着遍历就是后缀了</strong>。前缀表达式需要两个栈，有<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1H4411N7oD?p=21">动画视频</a><img src="op.png" srcset="/img/loading.gif" lazyload alt="操作"></p>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/weixin_43941332/article/details/105084051?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-105084051-blog-104799083.235%5Ev43%5Epc_blog_bottom_relevance_base2&amp;spm=1001.2101.3001.4242.1&amp;utm_relevant_index=3">中缀表达式求值</a>,后缀表达式一个栈存数字，直接遇到符号处理即可，<strong>前缀表达式可以倒着遍历就是后缀了</strong>。前缀表达式需要两个栈，有<a target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1H4411N7oD?p=21">动画视频</a><img src="op.png" srcset="/img/loading.gif" lazyload alt="操作"></li>
+</ul>
 <blockquote>
 <p>注意左括号在栈外面是优先级最高的，需要压入栈，而栈内的左括号是优先级最低的，比所有符号都低，就算外面是±，也不能直接运算</p>
 </blockquote>
+<h1>其他</h1>
+<p>-<a target="_blank" rel="noopener" href="https://programmercarl.com/0039.%E7%BB%84%E5%90%88%E6%80%BB%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">39. 组合总和</a>，自己写的时候担心for循环里没有正常start+1，回溯会推进不下去。其实根据target可以推进下去，自己想当然以为做法不对。</p>
 
                 
               </div>
