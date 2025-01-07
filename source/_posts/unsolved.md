@@ -83,6 +83,10 @@ public:
 
 > 注意双指针的问题一般都是用`while(left<right)`解决，而不要用`for`,`for`循环不好掌控
 
+- [40.组合总和II](https://programmercarl.com/0040.%E7%BB%84%E5%90%88%E6%80%BB%E5%92%8CII.html#%E6%80%9D%E8%B7%AF)，完全想不到用used数组，used[i]=true表示同一树枝上v[i]用过，很好理解，因为往下层递归的时候会先标记用过。**used[i]=false表示同一树层上v[i]用过**，比较难想到。可以看图想，每个树层每次是从[i,)区间选的，前一个数用过之后used就会复原成false。因此排序之后v[i-1]==v[i]表示和前一个数字一样，且used[i-1]==false复原了，说明同一树层用过了，那么就跳过。如果少used[i-1]==false条件，就会在树枝层面也进行去重，[1,1,6]就会被去掉。其实for循环中 [start,i）这个区间的值，同一树层已经用过了，因此也可以用i > startIndex判断。startIndex是用来限制备选candidates数组的，i>startIndex说明同一树层已经遍历到i了，前面的已经用过了。关注startIndex和i的实际代表意义,同一树层遍历是 [start,i]
+
+
+
 # 原地操作
 - [替换数字](https://programmercarl.com/kama54.%E6%9B%BF%E6%8D%A2%E6%95%B0%E5%AD%97.html#%E6%80%9D%E8%B7%AF)，原地操作经常用到双指针，数组填充类的问题，其做法都是先预先给数组扩容带填充后的大小，然后在从后向前进行操作,这样避免了重复向后移动已有元素的$O(n^2)$算法
 - [翻转字符串里的单词](https://programmercarl.com/0151.%E7%BF%BB%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2%E9%87%8C%E7%9A%84%E5%8D%95%E8%AF%8D.html)和[右旋字符串](https://programmercarl.com/kama55.%E5%8F%B3%E6%97%8B%E5%AD%97%E7%AC%A6%E4%B8%B2.html)，想不到整体翻转再局部翻转的操作
@@ -318,5 +322,62 @@ public:
 
 
 # 模拟
-[中缀表达式求值](https://blog.csdn.net/weixin_43941332/article/details/105084051?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-105084051-blog-104799083.235^v43^pc_blog_bottom_relevance_base2&spm=1001.2101.3001.4242.1&utm_relevant_index=3),后缀表达式一个栈存数字，直接遇到符号处理即可，**前缀表达式可以倒着遍历就是后缀了**。前缀表达式需要两个栈，有[动画视频](https://www.bilibili.com/video/BV1H4411N7oD?p=21)![操作](op.png)
+- [中缀表达式求值](https://blog.csdn.net/weixin_43941332/article/details/105084051?utm_medium=distribute.pc_relevant.none-task-blog-2~default~baidujs_baidulandingword~default-0-105084051-blog-104799083.235^v43^pc_blog_bottom_relevance_base2&spm=1001.2101.3001.4242.1&utm_relevant_index=3),后缀表达式一个栈存数字，直接遇到符号处理即可，**前缀表达式可以倒着遍历就是后缀了**。前缀表达式需要两个栈，有[动画视频](https://www.bilibili.com/video/BV1H4411N7oD?p=21)![操作](op.png)
 > 注意左括号在栈外面是优先级最高的，需要压入栈，而栈内的左括号是优先级最低的，比所有符号都低，就算外面是+-，也不能直接运算
+
+# 其他
+
+-[39. 组合总和](https://programmercarl.com/0039.%E7%BB%84%E5%90%88%E6%80%BB%E5%92%8C.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)，自己写的时候担心for循环里没有正常start+1，回溯会推进不下去。其实根据target可以推进下去，自己想当然以为做法不对。
+
+- [131.分割回文串](https://programmercarl.com/0131.%E5%88%86%E5%89%B2%E5%9B%9E%E6%96%87%E4%B8%B2.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)可能想不到用回溯法解决。边界问题很关键，一开始直接在bt的第一个if判断里return了，导致bb这样的字符串不AC。切割字符串的函数是substr(0,i) 和 substr(i,size-i)。没有i+1。很相似的一道分割字符串题目可以一起做[93.复原IP地址](https://programmercarl.com/0093.%E5%A4%8D%E5%8E%9FIP%E5%9C%B0%E5%9D%80.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE)
+```cpp
+/*
+ * @lc app=leetcode.cn id=131 lang=cpp
+ *
+ * [131] 分割回文串
+ */
+
+// @lc code=start
+class Solution {
+public:
+    bool isHuiwen(const string& s){
+        if (s.size()==0 || s.size()==1) return true;
+        int left=0,right=s.size()-1;
+        while (left<=right){
+            if (s[left]!=s[right]) return false;
+            left++;right--;
+        }
+        return true;
+    }
+
+    vector<string> path;
+    vector<vector<string>> res;
+
+    void bt(const string& s){
+        if (isHuiwen(s)){
+            path.push_back(s);
+            res.push_back(path);
+            path.pop_back();
+        }
+        
+        string leftString,rightString;
+        for (int i=1,size=s.size();i<size;i++){
+            //分割字符串
+            leftString=s.substr(0,i);
+            if (!isHuiwen(leftString)) continue;
+            if (leftString!="") path.push_back(leftString);
+            rightString=s.substr(i,size-i);
+            // cout << leftString << " " << rightString << endl;
+            bt(rightString);
+            if (leftString!="") path.pop_back();
+            
+        }
+    }
+
+    vector<vector<string>> partition(string s) {
+        bt(s);
+        // cout << s.substr(0,3);
+        return res;
+    }
+};
+```
