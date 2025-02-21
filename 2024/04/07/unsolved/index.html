@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/example.gif">
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/op.png">
 <meta property="article:published_time" content="2024-04-07T11:54:31.000Z">
-<meta property="article:modified_time" content="2025-02-18T12:18:32.904Z">
+<meta property="article:modified_time" content="2025-02-21T12:28:01.899Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="ds">
 <meta name="twitter:card" content="summary_large_image">
@@ -192,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.7k 字
+          4.2k 字
         
       </span>
     
@@ -203,7 +203,7 @@
         
         
         
-          31 分钟
+          35 分钟
         
       </span>
     
@@ -366,6 +366,17 @@
 </li>
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">int</span> n=cost.<span class="hljs-built_in">size</span>();<br>vector&lt;vector&lt;<span class="hljs-type">int</span>&gt;&gt; <span class="hljs-built_in">dp</span>(n+<span class="hljs-number">1</span>,<span class="hljs-built_in">vector</span>&lt;<span class="hljs-type">int</span>&gt;(<span class="hljs-number">2</span>,<span class="hljs-number">0</span>));<br><span class="hljs-comment">//dp[i][0]一次性爬一个台阶，爬到i的最小花费</span><br><span class="hljs-comment">//dp[i][1]一次性爬两个台阶，爬到i的最小花费</span><br><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">2</span>;i&lt;=n;i++)&#123;<br>    dp[i][<span class="hljs-number">0</span>]=<span class="hljs-built_in">min</span>(dp[i<span class="hljs-number">-1</span>][<span class="hljs-number">0</span>],dp[i<span class="hljs-number">-1</span>][<span class="hljs-number">1</span>])+cost[i<span class="hljs-number">-1</span>]; <span class="hljs-comment">//一次性爬一个台阶，因此之前只要爬到i-1就可以了，再花费cost[i-1]爬一个</span><br>    dp[i][<span class="hljs-number">1</span>]=<span class="hljs-built_in">min</span>(dp[i<span class="hljs-number">-2</span>][<span class="hljs-number">0</span>],dp[i<span class="hljs-number">-2</span>][<span class="hljs-number">1</span>])+cost[i<span class="hljs-number">-2</span>]; <span class="hljs-comment">//一次性爬两个台阶，因此之前只要爬到i-2就可以了，再花费cost[i-2]爬两个</span><br><br>&#125;<br><span class="hljs-keyword">return</span> <span class="hljs-built_in">min</span>(dp[n][<span class="hljs-number">0</span>],dp[n][<span class="hljs-number">1</span>]);<br><br></code></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0343.%E6%95%B4%E6%95%B0%E6%8B%86%E5%88%86.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">343. 整数拆分</a>拆分之后需要考虑的情况，做的时候暂时想不到文章里提到的判断大小只需要两种，全比较也没慢多少，但是j&lt;=i / 2确实应该优化</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">3</span>;i&lt;=n;i++)&#123;<br>    <span class="hljs-comment">//dp[i]是拆分i最大的正整数</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> k=<span class="hljs-number">1</span>;k&lt;i;k++)&#123;<br>        <span class="hljs-comment">//可能大的: dp[i-k] i-k dp[k] k</span><br>        <span class="hljs-type">int</span> cur1=<span class="hljs-built_in">max</span>(dp[i-k]*k,dp[i-k]*dp[k]);<br>        <span class="hljs-type">int</span> cur2=<span class="hljs-built_in">max</span>(cur1,(i-k)*k);<br>        <span class="hljs-type">int</span> cur3=<span class="hljs-built_in">max</span>(cur2,(i-k)*dp[k]);<br>        dp[i]=<span class="hljs-built_in">max</span>(dp[i],cur3);<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0096.%E4%B8%8D%E5%90%8C%E7%9A%84%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91.html#%E6%80%9D%E8%B7%AF">96.不同的二叉搜索树</a>本来想创建一个函数计算由[left,right]这段数字组成的二叉搜索树有几种，可是仔细想一下其实每个节点都减去(left-1)这个数，不就相当于是求[1,right-left+1]这段数字组成的二叉搜索树有几种吗。for循环里j作为根节点，要[1,j-1]这段组成左子树，[j+1,i]这段组成右子树，但其实[j+1,i]这段数字组成的二叉搜索树，这些节点同时减去j，不就是相当于求[1,i-j]这段数字组成的二叉搜索树吗？因此就是dp[i-j]。自己做的时候只是尝试运行了一下结果直接AC了，任何题目还是要先尝试写一下可能能行的代码，不尝试怎么知道不对</li>
+</ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">2</span>;i&lt;=n;i++)&#123;<br>    <span class="hljs-comment">//dp[i]由i个节点组成的二叉搜索树</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j=<span class="hljs-number">1</span>;j&lt;=i;j++)&#123;<br>        <span class="hljs-comment">//j作为根节点</span><br>        dp[i]+=dp[j<span class="hljs-number">-1</span>]*dp[i-j];<br>    &#125;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+<ul>
+<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0416.%E5%88%86%E5%89%B2%E7%AD%89%E5%92%8C%E5%AD%90%E9%9B%86.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">416. 分割等和子集</a>，重量和价值都是nums[i]的01背包，如果价值最大就是target则表示可以找到，每次见到都有点难以理解，<strong>这种取数字，有限制有目标的就多试试背包方法吧</strong></li>
+</ul>
 
                 
               </div>
