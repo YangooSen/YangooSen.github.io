@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/example.gif">
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/op.png">
 <meta property="article:published_time" content="2024-04-07T11:54:31.000Z">
-<meta property="article:modified_time" content="2025-03-10T13:49:41.820Z">
+<meta property="article:modified_time" content="2025-03-12T14:02:31.163Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="ds">
 <meta name="twitter:card" content="summary_large_image">
@@ -192,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          5.5k 字
+          5.8k 字
         
       </span>
     
@@ -203,7 +203,7 @@
         
         
         
-          47 分钟
+          49 分钟
         
       </span>
     
@@ -406,8 +406,10 @@
 <ul>
 <li><a target="_blank" rel="noopener" href="https://programmercarl.com/0121.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BA.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">121. 买卖股票的最佳时机</a>，自己做的时候强心暴力搜素＋优化做出来了，其实就是贪心算法，不过没看出来。但是动态规划想不到，自己也想过每个股票分两种dp[i][0]是买入当天股票的最大利润，dp[i][1]是卖出当天股票的最大利润。但实际上买入卖出是决定如何状态转移的（如何转移到dp表示的状态，这道题就是前一天有股票和没股票的状态，再加上当前股票买入还是卖出的还是啥都不做的这个选择来转移到当前的状态），dp表示的是状态，是否持有股票这个状态，还需要仔细体会</li>
 <li><a target="_blank" rel="noopener" href="https://programmercarl.com/0122.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BAII%EF%BC%88%E5%8A%A8%E6%80%81%E8%A7%84%E5%88%92%EF%BC%89.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">122.买卖股票的最佳时机II</a>，做完上面的紧接着做这道题，当时看上面那道的时候只看了答案，这道题基本推出来了，注意对比，这道题利润可以产生多次，上面那道利润只能产生一次，因此买入的时候不能加没持有股票的最大利润dp[i-1][1]</li>
-<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0123.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BAIII.html#%E6%80%9D%E8%B7%AF">123.买卖股票的最佳时机III</a>想不到表示多种状态，和见第一道买股票题一样，想不到用第二维来表示状态</li>
+<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0123.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BAIII.html#%E6%80%9D%E8%B7%AF">123.买卖股票的最佳时机III</a>想不到表示多种状态，和见第一道买股票题一样，想不到用第二维来表示状态，<a target="_blank" rel="noopener" href="https://programmercarl.com/0188.%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E4%BD%B3%E6%97%B6%E6%9C%BAIV.html">188.买卖股票的最佳时机IV</a>只要会了123，这个就很简单了</li>
+<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0309.%E6%9C%80%E4%BD%B3%E4%B9%B0%E5%8D%96%E8%82%A1%E7%A5%A8%E6%97%B6%E6%9C%BA%E5%90%AB%E5%86%B7%E5%86%BB%E6%9C%9F.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">309.最佳买卖股票时机含冷冻期</a>，第一次做出来了,分的是三种状态</li>
 </ul>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">maxProfit</span><span class="hljs-params">(vector&lt;<span class="hljs-type">int</span>&gt;&amp; prices)</span> </span>&#123;<br>    <span class="hljs-type">int</span> n=prices.<span class="hljs-built_in">size</span>();<br>    <span class="hljs-comment">//考虑前[0,i]的股票</span><br>    <span class="hljs-comment">//dp[i][0]是持有股票的最大利润</span><br>    <span class="hljs-comment">//dp[i][1]是不持有股票且是冷冻期的最大利润</span><br>    <span class="hljs-comment">//dp[i][2]是不持有股票且不是冷冻期的最大利润</span><br>    <span class="hljs-comment">//dp[i][0]=max(dp[i-1][0],dp[i-1][2]-prices[i])，只有不是冷冻期能买入</span><br>    <span class="hljs-comment">//dp[i][1]=max(dp[i-1][0]+prices[i])，今天卖掉，是冷冻期</span><br>    <span class="hljs-comment">//dp[i][2]=max(dp[i-1][1],dp[i-1][2]) 这天卖掉的话是冷冻期，不符合定义</span><br>    vector&lt;vector&lt;<span class="hljs-type">int</span>&gt;&gt; <span class="hljs-built_in">dp</span>(n,<span class="hljs-built_in">vector</span>&lt;<span class="hljs-type">int</span>&gt;(<span class="hljs-number">3</span>,<span class="hljs-number">0</span>));<br>    dp[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]=-prices[<span class="hljs-number">0</span>];<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">1</span>;i&lt;n;i++)&#123;<br>        dp[i][<span class="hljs-number">0</span>]=<span class="hljs-built_in">max</span>(dp[i<span class="hljs-number">-1</span>][<span class="hljs-number">0</span>],dp[i<span class="hljs-number">-1</span>][<span class="hljs-number">2</span>]-prices[i]);<br>        dp[i][<span class="hljs-number">1</span>]=dp[i<span class="hljs-number">-1</span>][<span class="hljs-number">0</span>]+prices[i];<br>        dp[i][<span class="hljs-number">2</span>]=<span class="hljs-built_in">max</span>(dp[i<span class="hljs-number">-1</span>][<span class="hljs-number">1</span>],dp[i<span class="hljs-number">-1</span>][<span class="hljs-number">2</span>]);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-built_in">max</span>(dp[n<span class="hljs-number">-1</span>][<span class="hljs-number">1</span>],dp[n<span class="hljs-number">-1</span>][<span class="hljs-number">2</span>]);<br><br>&#125;<br><br></code></pre></td></tr></table></figure>
 
                 
               </div>
