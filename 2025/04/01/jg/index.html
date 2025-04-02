@@ -28,8 +28,13 @@
 <meta property="og:image" content="http://example.com/2025/04/01/jg/java-code-to-machine-code-with-jit.png">
 <meta property="og:image" content="http://example.com/2025/04/01/jg/jdk-jre-jvm-jit.png">
 <meta property="og:image" content="http://example.com/2025/04/01/jg/jvm-rough-structure-model.png">
+<meta property="og:image" content="http://example.com/2025/04/01/jg/ba83857ecf9f344e4972fd551c4973d653952.png@648w_454h_80q">
+<meta property="og:image" content="http://example.com/2025/04/01/jg/640.webp">
+<meta property="og:image" content="http://example.com/2025/04/01/jg/jit-vs-aot.png">
+<meta property="og:image" content="http://example.com/2025/04/01/jg/639.webp">
+<meta property="og:image" content="http://example.com/2025/04/01/jg/641.webp">
 <meta property="article:published_time" content="2025-04-01T13:36:24.000Z">
-<meta property="article:modified_time" content="2025-04-01T14:05:18.554Z">
+<meta property="article:modified_time" content="2025-04-02T03:26:30.687Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -194,7 +199,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          348 字
+          376 字
         
       </span>
     
@@ -205,7 +210,7 @@
         
         
         
-          3 分钟
+          4 分钟
         
       </span>
     
@@ -251,17 +256,22 @@
 <h2 id="基础">基础</h2>
 <ul>
 <li><img src="java-virtual-machine-program-language-os.png" srcset="/img/loading.gif" lazyload alt="jvm实现java的跨平台特性"></li>
-<li>除了我们平时最常用的 HotSpot VM 外，还有 J9 VM、Zing VM、JRockit VM 等 JVM，JVM规范可以有很多实现</li>
+<li>打包执行的jar和war都是.class文件。除了我们平时最常用的 HotSpot VM 外，还有 J9 VM、Zing VM、JRockit VM 等 JVM，JVM规范可以有很多实现</li>
 <li><img src="java-code-to-machine-code.png" srcset="/img/loading.gif" lazyload alt="java是编译和解释并存"></li>
 <li><img src="java-code-to-machine-code-with-jit.png" srcset="/img/loading.gif" lazyload alt="HotSpot VM 实现的 Just in Time Compilation"></li>
 <li><img src="jdk-jre-jvm-jit.png" srcset="/img/loading.gif" lazyload alt="JDK,JRE,JVM,JIT 关系"></li>
 <li><img src="jvm-rough-structure-model.png" srcset="/img/loading.gif" lazyload alt="JVM 结构模型"></li>
 <li>JDK 9 引入了一种新的编译模式 AOT(Ahead of Time Compilation) 。和 JIT 不同的是，这种编译模式会在程序被执行前就将其编译成机器码（应该就是指不经过变成.class的过程），属于静态编译（C、 C++，Rust，Go 等语言就是静态编译），但是无法支持利用到.class的一些特性，例如CGLIB 动态代理使用的是 ASM 技术，而这种技术大致原理是运行时直接在内存中生成并加载修改后的字节码文件也就是 .class 文件，如果全部使用 AOT 提前编译，也就不能使用 ASM 技术了。为了支持类似的动态特性，所以选择使用 JIT 即时编译器。</li>
-<li><a href="jit-vs-aot.png">AOT和JIT对比</a></li>
+<li><img src="ba83857ecf9f344e4972fd551c4973d653952.png@648w_454h_80q" srcset="/img/loading.gif" lazyload alt="热点代码"></li>
+<li><img src="640.webp" srcset="/img/loading.gif" lazyload alt="java程序的冷启动:加载VM,VM加载程序,边解释边JIT优化,编译优化后的最终启动,加载JVM并且一次加载大量代码导致运行内存占用高"></li>
+<li><img src="jit-vs-aot.png" srcset="/img/loading.gif" lazyload alt="AOT和JIT对比"></li>
+<li><img src="639.webp" srcset="/img/loading.gif" lazyload alt="spring aot engine"></li>
+<li><img src="641.webp" srcset="/img/loading.gif" lazyload alt="Graal编译器和NaiveImage:将开源框架中的 GraalVM 无法识别和处理的动态内容转换为其可识别的内容即可,Spring AOT Engine, native-image-agent, Spring Cloud Alibaba 2022.0.0.0"></li>
 <li><a href="oracle-jdk-release-cadence.jpg">oracle jdk</a></li>
 <li>jdk是sun开发并开源的，也就是openjdk，oracle收购sun之后基于openjdk推出部分开源的oracle jdk</li>
 <li>&lt;&lt; (高位丢弃，低位补零)，&gt;&gt;(高位补符号位，低位丢弃)，&gt;&gt;&gt; (无符号右移，忽略符号位，空位都以 0 补齐)</li>
 <li>移位操作符实际上支持的类型只有int和long，其他类型都会先变成int，int是32位，x&lt;&lt;42等同于x&lt;&lt;10，x&gt;&gt;42等同于x&gt;&gt;10，x &gt;&gt;&gt;42等同于x &gt;&gt;&gt; 10</li>
+<li>超过long的用BigInteger，浮点数精度要求用BigDecimal（比如钱的运算）</li>
 </ul>
 
                 
