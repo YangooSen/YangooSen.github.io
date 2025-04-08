@@ -27,7 +27,7 @@
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/example.gif">
 <meta property="og:image" content="http://example.com/2024/04/07/unsolved/op.png">
 <meta property="article:published_time" content="2024-04-07T11:54:31.000Z">
-<meta property="article:modified_time" content="2025-04-07T13:11:02.230Z">
+<meta property="article:modified_time" content="2025-04-07T13:18:05.641Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="ds">
 <meta name="twitter:card" content="summary_large_image">
@@ -192,7 +192,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          7.8k 字
+          7.9k 字
         
       </span>
     
@@ -203,7 +203,7 @@
         
         
         
-          65 分钟
+          66 分钟
         
       </span>
     
@@ -430,7 +430,7 @@
 </ul>
 <figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">numDistinct</span><span class="hljs-params">(string s, string t)</span> </span>&#123;<br>    <span class="hljs-type">int</span> n1=s.<span class="hljs-built_in">size</span>();<br>    <span class="hljs-type">int</span> n2=t.<span class="hljs-built_in">size</span>();<br>    vector&lt;vector&lt;<span class="hljs-type">uint64_t</span>&gt;&gt; <span class="hljs-built_in">dp</span>(n1,<span class="hljs-built_in">vector</span>&lt;<span class="hljs-type">uint64_t</span>&gt;(n2,<span class="hljs-number">0</span>));<br>    <span class="hljs-comment">//dp[i][j]是s[0,i]子序列中t[0,j]出现的个数,i和j结尾</span><br>    <span class="hljs-keyword">if</span> (s[<span class="hljs-number">0</span>]==t[<span class="hljs-number">0</span>])&#123;<br>        dp[<span class="hljs-number">0</span>][<span class="hljs-number">0</span>]=<span class="hljs-number">1</span>;<br>    &#125;<br>    <span class="hljs-type">int</span> sum=<span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;n1;i++)&#123;<br>        <span class="hljs-keyword">if</span> (s[i]==t[<span class="hljs-number">0</span>])&#123;<br>            sum++;<br>        &#125;<br>        dp[i][<span class="hljs-number">0</span>]=sum;<br>    &#125;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;i&lt;n1;i++)&#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j=<span class="hljs-number">0</span>;j&lt;n2;j++)&#123;<br>            <span class="hljs-keyword">if</span> (s[i]==t[j] &amp;&amp; i&gt;<span class="hljs-number">0</span> &amp;&amp; j&gt;<span class="hljs-number">0</span>)&#123;<br>                <span class="hljs-comment">//rabbb 和 rab 的时候,</span><br>                <span class="hljs-comment">//dp[i-1][j-1]是rabb中有几个ra,这几个直接接上末尾的b就可以了</span><br>                <span class="hljs-comment">//dp[i-1][j]是rabb中有几个rab,这几个不需要接末尾b直接也可以算进去</span><br>                dp[i][j]=dp[i - <span class="hljs-number">1</span>][j - <span class="hljs-number">1</span>] + dp[i - <span class="hljs-number">1</span>][j];<br>            &#125;<span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (i&gt;<span class="hljs-number">0</span> &amp;&amp; j&gt;<span class="hljs-number">0</span>)&#123;<br>                dp[i][j]=dp[i<span class="hljs-number">-1</span>][j];<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> dp[n1<span class="hljs-number">-1</span>][n2<span class="hljs-number">-1</span>];<br>    <br>&#125;<br><br><br></code></pre></td></tr></table></figure>
 <ul>
-<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0072.%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">72. 编辑距离</a> 不会做</li>
+<li><a target="_blank" rel="noopener" href="https://programmercarl.com/0072.%E7%BC%96%E8%BE%91%E8%B7%9D%E7%A6%BB.html#%E7%AE%97%E6%B3%95%E5%85%AC%E5%BC%80%E8%AF%BE">72. 编辑距离</a> 不会做，深刻理解 动态规划中，dp表示状态，只要能表示当前所处的状态，几维都可以。然后在for循环中遍历每一个需要做出选择的元素，这个选择就是状态转移的过程，看看每种选择会导致不同的状态如何转换成另一种状态，在for循环里表达这个状态转移过程。简而言之：dp是状态，for循环是状态转换。这道题里 找到哪些状态能经过提供的选择 转换成当前状态</li>
 </ul>
 
                 

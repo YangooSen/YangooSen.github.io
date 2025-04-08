@@ -37,7 +37,7 @@
 <meta property="og:image" content="http://example.com/2025/04/01/jg/types-of-exceptions-in-java.png">
 <meta property="og:image" content="http://example.com/2025/04/01/jg/spi-vs-api.png">
 <meta property="article:published_time" content="2025-04-01T13:36:24.000Z">
-<meta property="article:modified_time" content="2025-04-07T06:28:06.181Z">
+<meta property="article:modified_time" content="2025-04-08T04:05:01.748Z">
 <meta property="article:author" content="YangooSen">
 <meta property="article:tag" content="java">
 <meta name="twitter:card" content="summary_large_image">
@@ -287,13 +287,14 @@
 <li>使用try-with-resources 适用范围（资源的定义）： 任何实现 java.lang.AutoCloseable或者 java.io.Closeable 的对象</li>
 <li>注解只有被解析之后才会生效：编译期直接扫描如Override会在编译时被检测是否重写了父类方法；运行期通过反射处理如大多数框架</li>
 <li><img src="spi-vs-api.png" srcset="/img/loading.gif" lazyload alt="API中用户是调用别人已经写好的接口，SPI是用户已经调用了接口，然后指定别人去实现它"></li>
-<li><a target="_blank" rel="noopener" href="https://javaguide.cn/java/basis/spi.html#%E6%95%88%E6%9E%9C%E5%B1%95%E7%A4%BA">Java SPI: ServiceLoader</a></li>
+<li><a target="_blank" rel="noopener" href="https://javaguide.cn/java/basis/spi.html#%E6%95%88%E6%9E%9C%E5%B1%95%E7%A4%BA">Java SPI 详细解释: ServiceLoader</a></li>
 <li>序列化和反序列化位于OSI 七层协议模型中的表示层，TCP/IP 协议应用层</li>
 <li>transient 关键字的作用是：阻止实例中那些用此关键字修饰的的变量序列化；当对象被反序列化时，被 transient 修饰的变量值不会被持久化和恢复，而是会被置成类型的默认值</li>
 <li>序列化的时候，serialVersionUID 的问题：**static 修饰的变量是静态变量，属于类而非类的实例，本身是不会被序列化的。然而，serialVersionUID 是一个特例，serialVersionUID 的序列化做了特殊处理。**当一个对象被序列化时，serialVersionUID 会被写入到序列化的二进制流中；在反序列化时，也会解析它并做一致性判断，以此来验证序列化对象的版本一致性。如果两者不匹配，反序列化过程将抛出 InvalidClassException，因为这通常意味着序列化的类的定义已经发生了更改，可能不再兼容。</li>
 <li>jdk自带的序列化不支持跨语言调用，并且序列化后的字节体积大，且存在被劫持风险，可以用的是Kryo( 专门针对java ), Protobuf, Protostuff, Hessian，后面三个是跨语言的</li>
 <li>IO流分为InputStream/Reader，字节流和字符流，分类的原因是字节到字符的转换由jvm干耗时，并且可能有编码的乱码问题</li>
 <li>JVM 其实并不能识别语法糖，Java 语法糖要想被正确执行，需要先通过编译器进行解糖，也就是在程序编译阶段将其转换成 JVM 认识的基本语法。如果你去看com.sun.tools.javac.main.JavaCompiler的源码，你会发现在compile()中有一个步骤就是调用desugar()，这个方法就是负责解语法糖的实现的，也就是javac中的compile函数中的desugar，去糖化负责实现</li>
+<li><a target="_blank" rel="noopener" href="https://javaguide.cn/java/basis/syntactic-sugar.html">Java 语法糖详解：泛型、变长参数、条件编译、自动拆装箱、内部类等。</a></li>
 <li>java不引入值传递的原因猜测
 <ul>
 <li>出于安全考虑，方法内部对值进行的操作，对于调用者都是未知的（把方法定义为接口，调用方不关心具体实现）。</li>
